@@ -1,0 +1,31 @@
+body, html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow-x: hidden; /* Yatay kaydırmayı engeller */
+}
+
+
+/* Mobil düzen */
+@media (max-width: 768px) {
+  main {
+    padding-top: 90px;
+    padding-bottom: 20px;
+  }
+} */
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding-top: 80px; /* Header yüksekliği kadar */
+}
+
+.login-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.footer {
+  margin-top: 0; /* Footer'ın üst margin'ini kaldırın */
+}

@@ -1,0 +1,191 @@
+import React, { useEffect, useState } from 'react';
+import { apiGet, apiDelete, apiPost, apiPut } from '../../utils/api';
+import {
+  CContainer, CCard, CCardBody, CCardTitle, CButton, CTable, CTableHead, CTableRow, CTableHeaderCell, CTableBody, CTableDataCell, CSpinner, CAlert, CModal, CModalHeader, CModalTitle, CModalBody, CModalFooter, CForm, CFormInput, CFormSelect
+} from '@coreui/react';
+import { useNavigate } from 'react-router-dom';
+
+// isActive değerini normalize eden yardımcı fonksiyon
+function normalizeIsActive(val) {
+  if (typeof val === 'boolean') return val;
+  if (typeof val === 'string') return val === 'true' || val === 'True' || val === '1';
+  if (typeof val === 'number') return val === 1;
+  return true; // default aktif
+}
+
+const UsersPage = () => {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  const [form, setForm] = useState({ fullName: '', email: '', password: '', role: 'User' });
+  const [adding, setAdding] = useState(false);
+  const [showInactive, setShowInactive] = useState(false);
+  const [filter, setFilter] = useState('all'); // 'all', 'active', 'passive'
+  const navigate = useNavigate();
+
+  const fetchUsers = () => {
+    setLoading(true);
+    apiGet('http://localhost:5220/api/Admin/users')
+      .then(data => {
+        console.log('API kullanıcı verisi:', data); // API'den gelen veriyi konsola yazdır
+        setUsers((data || []).map(u => ({
+          ...u,
+          isActive: normalizeIsActive(u.isActive)
+        })));
+      })
+      .catch(() => setError('Kullanıcılar yüklenemedi.'))
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Bu kullanıcıyı silmek istediğinize emin misiniz?')) return;
+    try {
+      const user = users.find(u => u.id === id);
+      await apiPut(`http://localhost:5220/api/User`, { ...user, isActive: false });
+      fetchUsers();
+    } catch {
+      setError('Kullanıcı silinemedi.');
+    }
+  };
+
+  const handleActivate = async (id) => {
+    try {
+      const user = users.find(u => u.id === id);
+      await apiPut(`http://localhost:5220/api/User`, { ...user, isActive: true });
+      fetchUsers();
+    } catch {
+      setError('Kullanıcı aktifleştirilemedi.');
+    }
+  };
+
+  const handleAdd = async (e) => {
+    e.preventDefault();
+    setAdding(true);
+    try {
+      // fullName'i ayır
+      const [firstName, ...lastNameArr] = form.fullName.split(' ');
+      const lastName = lastNameArr.join(' ') || '';
+      const payload = {
+        firstName,
+        lastName,
+        email: form.email,
+        passwordHash: form.password,
+        phone: form.phone,
+        role: form.role === 'Admin' ? 1 : 0,
+        addresses: [],
+        orders: [],
+        reviews: [],
+        isActive: true // Yeni kullanıcılar aktif olarak eklenir
+      };
+      const newUser = await apiPost('http://localhost:5220/api/Admin/users', payload);
+      setUsers([...users, { ...newUser, isActive: !!newUser.isActive }]);
+      setShowModal(false);
+      setForm({ fullName: '', email: '', password: '', role: 'User' });
+    } catch {
+      setError('Kullanıcı eklenemedi.');
+    } finally {
+      setAdding(false);
+    }
+  };
+
+  const filteredUsers = users.filter(user =>
+    filter === 'all' ? true : filter === 'active' ? normalizeIsActive(user.isActive) : !normalizeIsActive(user.isActive)
+  );
+
+  return (
+    <CContainer className="py-4">
+      <CCard>
+        <CCardBody>
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <CCardTitle>Kullanıcılar</CCardTitle>
+            <div>
+              <CButton color={filter === 'all' ? 'secondary' : 'light'} className="me-2" onClick={() => setFilter('all')}>Tümü</CButton>
+              <CButton color={filter === 'active' ? 'success' : 'light'} className="me-2" onClick={() => setFilter('active')}>Aktifleri Göster</CButton>
+              <CButton color={filter === 'passive' ? 'danger' : 'light'} onClick={() => setFilter('passive')}>Pasifleri Göster</CButton>
+              <CButton color="success" onClick={() => setShowModal(true)} className="ms-3">+ Yeni Kullanıcı Ekle</CButton>
+            </div>
+          </div>
+          {loading ? (
+            <div className="d-flex justify-content-center align-items-center py-5"><CSpinner color="primary" /></div>
+          ) : error ? (
+            <CAlert color="danger">{error}</CAlert>
+          ) : (
+            <CTable hover responsive bordered align="middle">
+              <CTableHead color="light">
+                <CTableRow>
+                  <CTableHeaderCell>ID</CTableHeaderCell>
+                  <CTableHeaderCell>Ad Soyad</CTableHeaderCell>
+                  <CTableHeaderCell>Email</CTableHeaderCell>
+                  <CTableHeaderCell>Adres</CTableHeaderCell>
+                  <CTableHeaderCell>Rol</CTableHeaderCell>
+                  <CTableHeaderCell>Aktif mi?</CTableHeaderCell>
+                  <CTableHeaderCell>İşlemler</CTableHeaderCell>
+                </CTableRow>
+              </CTableHead>
+              <CTableBody>
+                {(filteredUsers)
+                  .map(user => (
+                    <CTableRow key={user.id} style={{ cursor: 'pointer' }}>
+                      <CTableDataCell>{user.id}</CTableDataCell>
+                      <CTableDataCell>{(user.firstName || '') + ' ' + (user.lastName || '')}</CTableDataCell>
+                      <CTableDataCell>{user.email}</CTableDataCell>
+                      <CTableDataCell>{user.addresses && user.addresses.length > 0 ? user.addresses[0].addressLine : '-'}</CTableDataCell>
+                      <CTableDataCell>{user.role === 1 || user.role === 'Admin' ? 'Admin' : 'User'}</CTableDataCell>
+                      <CTableDataCell>
+                        {console.log('USER DEBUG:', user.id, user.isActive, normalizeIsActive(user.isActive))}
+                        {normalizeIsActive(user.isActive) ? (
+                          <span className="badge bg-success">Aktif</span>
+                        ) : (
+                          <span className="badge bg-danger">Pasif</span>
+                        )}
+                      </CTableDataCell>
+                      <CTableDataCell>
+                        {normalizeIsActive(user.isActive) ? (
+                          <CButton color="warning" size="sm" variant="outline" className="me-2" onClick={e => { e.stopPropagation(); handleDelete(user.id); }}>
+                            Pasif Yap
+                          </CButton>
+                        ) : (
+                          <CButton color="success" size="sm" variant="outline" className="me-2" onClick={() => handleActivate(user.id)}>
+                            Aktif Yap
+                          </CButton>
+                        )}
+                        <CButton color="info" size="sm" variant="outline" className="me-2" onClick={() => navigate(`/admin/users/${user.id}`)}>
+                          Detay / Düzenle
+                        </CButton>
+                      </CTableDataCell>
+                    </CTableRow>
+                  ))}
+              </CTableBody>
+            </CTable>
+          )}
+        </CCardBody>
+      </CCard>
+      <CModal visible={showModal} onClose={() => setShowModal(false)}>
+        <CModalHeader onClose={() => setShowModal(false)}>
+          <CModalTitle>Yeni Kullanıcı Ekle</CModalTitle>
+        </CModalHeader>
+        <CForm onSubmit={handleAdd}>
+          <CModalBody>
+            <CFormInput className="mb-2" label="Ad Soyad" value={form.fullName} onChange={e => setForm(f => ({ ...f, fullName: e.target.value }))} required />
+            <CFormInput className="mb-2" label="Email" type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} required />
+            <CFormInput className="mb-2" label="Şifre" type="password" value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} required />
+            <CFormSelect className="mb-2" label="Rol" value={form.role} onChange={e => setForm(f => ({ ...f, role: e.target.value }))}>
+              <option value="User">User</option>
+              <option value="Admin">Admin</option>
+            </CFormSelect>
+          </CModalBody>
+          <CModalFooter>
+            <CButton color="secondary" onClick={() => setShowModal(false)}>İptal</CButton>
+            <CButton color="success" type="submit" disabled={adding}>{adding ? 'Ekleniyor...' : 'Ekle'}</CButton>
+          </CModalFooter>
+        </CForm>
+      </CModal>
+    </CContainer>
+  );
+};
+export default UsersPage;

@@ -1,0 +1,258 @@
+/* TEMEL DEĞİŞKENLER */
+:root {
+  --primary-bg: #f8f9fa;
+  --card-bg: #ffffff;
+  --text-color: #333333;
+  --input-bg: #f1f3f5;
+  --input-border: #dee2e6;
+  --primary-color: #4f46e5;
+  --primary-hover: #4338ca;
+  --error-color: #dc3545;
+  --divider-color: #e9ecef;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.dark {
+  --primary-bg: #121212;
+  --card-bg: #1e1e1e;
+  --text-color: #f8f9fa;
+  --input-bg: #2d2d2d;
+  --input-border: #444444;
+  --primary-color: #6366f1;
+  --primary-hover: #818cf8;
+  --divider-color: #333333;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* ANA YAPI */
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #02032d;
+  padding: 2rem;
+  transition: background-color 0.3s ease;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 500px;
+  background-color: var(--card-bg);
+  border-radius: 12px;
+  padding: 5rem;
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.auth-header h2 {
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.auth-header p {
+  color: var(--text-color);
+  opacity: 0.8;
+  font-size: 0.9rem;
+}
+
+/* INPUT STİLLERİ */
+.input-group {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.input-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-color);
+  opacity: 0.7;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 1rem 1rem 1rem 3rem;
+  background-color: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: 8px;
+  font-size: 1rem;
+  color: var(--text-color);
+  transition: all 0.3s ease;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+}
+
+.input-group label {
+  position: absolute;
+  left: 3rem;
+  top: 1rem;
+  color: var(--text-color);
+  opacity: 0.7;
+  transition: all 0.3s ease;
+  pointer-events: none;
+  background-color: var(--card-bg);
+  padding: 0 0.5rem;
+}
+
+.input-group label.filled {
+  top: -0.6rem;
+  left: 2.5rem;
+  font-size: 0.8rem;
+  opacity: 1;
+  color: var(--primary-color);
+}
+
+.password-toggle {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-color);
+  opacity: 0.7;
+  cursor: pointer;
+}
+
+/* BUTONLAR */
+.submit-btn {
+  width: 100%;
+  padding: 1rem;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 1rem;
+  transition: all 0.3s ease;
+}
+
+.submit-btn:hover {
+  background-color: var(--primary-hover);
+}
+
+.submit-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.google-btn {
+  width: 100%;
+  padding: 0.8rem;
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  border: 1px solid var(--input-border);
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.google-btn:hover {
+  background-color: var(--input-bg);
+}
+
+.toggle-btn {
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  font-weight: 600;
+  cursor: pointer;
+  margin-left: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.toggle-btn:hover {
+  text-decoration: underline;
+}
+
+/* DİĞER ELEMENTLER */
+.divider {
+  display: flex;
+  align-items: center;
+  margin: 1.5rem 0;
+  color: var(--text-color);
+  opacity: 0.7;
+  font-size: 0.9rem;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid var(--divider-color);
+}
+
+.divider::before {
+  margin-right: 1rem;
+}
+
+.divider::after {
+  margin-left: 1rem;
+}
+
+.error-message {
+  color: var(--error-color);
+  background-color: rgba(220, 53, 69, 0.1);
+  padding: 0.8rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.auth-footer {
+  text-align: center;
+  margin-top: 1.5rem;
+  color: var(--text-color);
+  font-size: 0.9rem;
+}
+
+/* RESPONSIVE */
+@media (max-width: 576px) {
+  .auth-container {
+    padding: 1rem;
+  }
+  
+  .auth-card {
+    padding: 1.5rem;
+  }
+  
+  .input-group input {
+    padding: 0.8rem 0.8rem 0.8rem 2.8rem;
+  }
+  
+  .input-icon {
+    left: 0.8rem;
+  }
+  
+  .input-group label {
+    left: 2.8rem;
+  }
+  
+  .input-group label.filled {
+    left: 2.3rem;
+  }
+}
