@@ -23,7 +23,7 @@ const AddProductPage = () => {
   useEffect(() => {
     apiGet('http://localhost:5220/api/Category')
       .then(setCategories)
-      .catch(() => setError('Kategoriler yüklenemedi.'));
+      .catch(() => setError('Categories could not be loaded.'));
   }, []);
 
   const handleChange = (e) => {
@@ -64,7 +64,7 @@ const AddProductPage = () => {
       });
       navigate('/admin/products');
     } catch (err) {
-      const msg = err?.response?.data || 'Ürün eklenemedi.';
+      const msg = err?.response?.data || 'Product could not be added.';
       setError(msg);
       alert(msg);
     } finally {
@@ -76,27 +76,27 @@ const AddProductPage = () => {
     <CContainer className="py-4">
       <CCard className="mx-auto" style={{ maxWidth: 600 }}>
         <CCardBody>
-          <CCardTitle>Yeni Ürün Ekle</CCardTitle>
+          <CCardTitle>Add New Product</CCardTitle>
           {error && <CAlert color="danger">{error}</CAlert>}
           <CForm onSubmit={handleSubmit}>
-            <CFormLabel>Ürün Adı</CFormLabel>
+            <CFormLabel>Product Name</CFormLabel>
             <CFormInput name="name" value={form.name} onChange={handleChange} required className="mb-3" />
-            <CFormLabel>Açıklama</CFormLabel>
+            <CFormLabel>Description</CFormLabel>
             <CFormInput component="textarea" name="description" value={form.description} onChange={handleChange} required className="mb-3" />
-            <CFormLabel>Fiyat</CFormLabel>
+            <CFormLabel>Price</CFormLabel>
             <CFormInput name="price" type="number" value={form.price} onChange={handleChange} required className="mb-3" />
-            <CFormLabel>Stok</CFormLabel>
+            <CFormLabel>Stock</CFormLabel>
             <CFormInput name="stock" type="number" value={form.stock} onChange={handleChange} required className="mb-3" />
-            <CFormLabel>Kategori</CFormLabel>
+            <CFormLabel>Category</CFormLabel>
             <select name="categoryId" value={form.categoryId} onChange={handleChange} required className="form-select mb-3">
-              <option value="">Seçiniz</option>
+              <option value="">Select</option>
               {categories.map(cat => (
                 <option key={cat.id} value={cat.id}>{cat.name}</option>
               ))}
             </select>
-            <CFormLabel>Ürün Görseli</CFormLabel>
+            <CFormLabel>Product Image</CFormLabel>
             <CFormInput type="file" accept="image/*" onChange={handleImageChange} className="mb-3" />
-            <CButton type="submit" color="primary" disabled={loading}>{loading ? <CSpinner size="sm" /> : 'Ekle'}</CButton>
+            <CButton type="submit" color="primary" disabled={loading}>{loading ? <CSpinner size="sm" /> : 'Add'}</CButton>
           </CForm>
         </CCardBody>
       </CCard>

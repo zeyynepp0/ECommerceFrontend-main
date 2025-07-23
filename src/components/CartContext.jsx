@@ -6,7 +6,7 @@ const API_BASE = "http://localhost:5220";
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
 
-  // Sepete ürün ekleme fonksiyonu
+  // Add product to cart function
   const addToCart = (item) => {
     setCartItems(prevItems => {
       const existingItem = prevItems.find(i => i.id === item.id);
@@ -22,12 +22,12 @@ export const CartProvider = ({ children }) => {
     });
   };
 
-  // Sepetten ürün çıkarma fonksiyonu
+  // Remove product from cart function
   const removeFromCart = (id) => {
     setCartItems(prevItems => prevItems.filter(item => item.id !== id));
   };
 
-  // Sepetteki ürün miktarını güncelleme fonksiyonu
+  // Update quantity of product in cart function
   const updateQuantity = (id, quantity) => {
     setCartItems(prevItems =>
       prevItems.map(item =>
@@ -36,12 +36,12 @@ export const CartProvider = ({ children }) => {
     );
   };
 
-  // Sepeti temizleme fonksiyonu
+  // Clear cart function
   const clearCart = () => {
     setCartItems([]);
   };
 
-  // Sepet toplam tutarını hesapla
+  // Calculate total cart amount
   const cartTotal = cartItems.reduce(
     (total, item) => total + (item.price * item.quantity), 0
   );
@@ -63,4 +63,4 @@ export const CartProvider = ({ children }) => {
 };
 
 export const useCart = () => useContext(CartContext);
-// Açıklama: Bu context sadece local sepet işlemleri için kullanılabilir. Kullanıcı ve backend işlemleri Redux ile yönetilmelidir.
+// Note: This context is only for local cart operations. User and backend operations should be managed with Redux.

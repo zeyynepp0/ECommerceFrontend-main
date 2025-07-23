@@ -24,57 +24,59 @@ import { useNavigate } from 'react-router-dom';
 const userRequestBadge = (requestText) => {
   switch (requestText) {
     case 'İptal Talebi':
-      return <CBadge color="danger">{requestText}</CBadge>;
+      return <CBadge color="danger">Cancel Request</CBadge>;
     case 'İade Talebi':
-      return <CBadge color="warning">{requestText}</CBadge>;
+      return <CBadge color="warning">Refund Request</CBadge>;
     case 'Yok':
+      return <CBadge color="secondary">None</CBadge>;
     default:
       return <CBadge color="secondary">{requestText}</CBadge>;
   }
 };
 
 const adminStatusOptions = [
-  { value: 'None', label: 'Yok' },
-  { value: 'InReview', label: 'İncelemede' },
-  { value: 'Approved', label: 'Onaylandı' },
-  { value: 'Rejected', label: 'Reddedildi' },
-  { value: 'Completed', label: 'Tamamlandı' }
+  { value: 'None', label: 'None' },
+  { value: 'InReview', label: 'In Review' },
+  { value: 'Approved', label: 'Approved' },
+  { value: 'Rejected', label: 'Rejected' },
+  { value: 'Completed', label: 'Completed' }
 ];
 
 const adminStatusBadge = (status) => {
   switch (status) {
     case 'Completed':
-      return <CBadge color="success">Tamamlandı</CBadge>;
+      return <CBadge color="success">Completed</CBadge>;
     case 'Rejected':
-      return <CBadge color="danger">Reddedildi</CBadge>;
+      return <CBadge color="danger">Rejected</CBadge>;
     case 'InReview':
-      return <CBadge color="info">İncelemede</CBadge>;
+      return <CBadge color="info">In Review</CBadge>;
     case 'Approved':
-      return <CBadge color="warning">Onaylandı</CBadge>;
+      return <CBadge color="warning">Approved</CBadge>;
     case 'None':
+      return <CBadge color="secondary">None</CBadge>;
     default:
-      return <CBadge color="secondary">Yok</CBadge>;
+      return <CBadge color="secondary">{status}</CBadge>;
   }
 };
 
 const statusBadge = (statusText) => {
   switch (statusText) {
     case 'İptal Edildi':
-      return <CBadge color="danger">{statusText}</CBadge>;
+      return <CBadge color="danger">Cancelled</CBadge>;
     case 'Onay Bekliyor':
-      return <CBadge color="secondary">{statusText}</CBadge>;
+      return <CBadge color="secondary">Pending Approval</CBadge>;
     case 'Onaylandı':
-      return <CBadge color="warning">{statusText}</CBadge>;
+      return <CBadge color="warning">Approved</CBadge>;
     case 'Hazırlanıyor':
-      return <CBadge color="info">{statusText}</CBadge>;
+      return <CBadge color="info">Preparing</CBadge>;
     case 'Kargoya Verildi':
-      return <CBadge color="primary">{statusText}</CBadge>;
+      return <CBadge color="primary">Shipped</CBadge>;
     case 'Teslim Edildi':
-      return <CBadge color="success">{statusText}</CBadge>;
+      return <CBadge color="success">Delivered</CBadge>;
     case 'İade Talebi':
-      return <CBadge color="dark">{statusText}</CBadge>;
+      return <CBadge color="dark">Refund Requested</CBadge>;
     case 'İade Edildi':
-      return <CBadge color="success">{statusText}</CBadge>;
+      return <CBadge color="success">Refunded</CBadge>;
     default:
       return <CBadge color="secondary">{statusText}</CBadge>;
   }
@@ -96,7 +98,7 @@ const OrdersPage = () => {
       setOrders(response);
       setError('');
     } catch (err) {
-      setError('Siparişler yüklenirken bir hata oluştu.');
+      setError('An error occurred while loading orders.');
     } finally {
       setLoading(false);
     }
@@ -118,7 +120,7 @@ const OrdersPage = () => {
       await fetchOrders(); // Siparişleri yenile
       setError('');
     } catch (err) {
-      setError('İşlem sırasında bir hata oluştu.');
+      setError('An error occurred during the operation.');
     }
   };
 
@@ -128,19 +130,19 @@ const OrdersPage = () => {
     <CContainer className="py-4">
       <CCard>
         <CCardBody>
-          <CCardTitle>Siparişler</CCardTitle>
+          <CCardTitle>Orders</CCardTitle>
           {error && <CAlert color="danger">{error}</CAlert>}
           <CTable hover>
             <CTableHead>
               <CTableRow>
-                <CTableHeaderCell>Sipariş No</CTableHeaderCell>
-                <CTableHeaderCell>Müşteri</CTableHeaderCell>
-                <CTableHeaderCell>Tarih</CTableHeaderCell>
-                <CTableHeaderCell>Tutar</CTableHeaderCell>
-                <CTableHeaderCell>Durum</CTableHeaderCell>
-                <CTableHeaderCell>Kullanıcı İsteği</CTableHeaderCell>
-                <CTableHeaderCell>Sipariş Durumu</CTableHeaderCell>
-                <CTableHeaderCell>İşlemler</CTableHeaderCell>
+                <CTableHeaderCell>Order No</CTableHeaderCell>
+                <CTableHeaderCell>Customer</CTableHeaderCell>
+                <CTableHeaderCell>Date</CTableHeaderCell>
+                <CTableHeaderCell>Amount</CTableHeaderCell>
+                <CTableHeaderCell>Status</CTableHeaderCell>
+                <CTableHeaderCell>User Request</CTableHeaderCell>
+                <CTableHeaderCell>Order Status</CTableHeaderCell>
+                <CTableHeaderCell>Actions</CTableHeaderCell>
               </CTableRow>
             </CTableHead>
             <CTableBody>
@@ -162,8 +164,8 @@ const OrdersPage = () => {
                     }
                   >
                     <CTableDataCell>{order.id}</CTableDataCell>
-                    <CTableDataCell>{order.userEmail || 'Bilinmiyor'}</CTableDataCell>
-                    <CTableDataCell>{new Date(order.createdAt).toLocaleDateString('tr-TR')}</CTableDataCell>
+                    <CTableDataCell>{order.userEmail || 'Unknown'}</CTableDataCell>
+                    <CTableDataCell>{new Date(order.createdAt).toLocaleDateString()}</CTableDataCell>
                     <CTableDataCell>{order.totalAmount.toFixed(2)}₺</CTableDataCell>
                     <CTableDataCell>{statusBadge(order.statusText)}</CTableDataCell>
                     <CTableDataCell>
@@ -179,7 +181,7 @@ const OrdersPage = () => {
                               handleUserRequestAction(order.id, 'approve');
                             }}
                           >
-                            Onayla
+                            Approve
                           </CButton>
                           <CButton
                             color="danger"
@@ -189,7 +191,7 @@ const OrdersPage = () => {
                               handleUserRequestAction(order.id, 'reject');
                             }}
                           >
-                            Reddet
+                            Reject
                           </CButton>
                         </div>
                       )}
@@ -206,14 +208,14 @@ const OrdersPage = () => {
                         }}
                         disabled={isCancelled || isRefunded}
                       >
-                        <option value="Pending">Onay Bekliyor</option>
-                        <option value="Approved">Onaylandı</option>
-                        <option value="Preparing">Hazırlanıyor</option>
-                        <option value="Shipped">Kargoya Verildi</option>
-                        <option value="Delivered">Teslim Edildi</option>
-                        <option value="Cancelled">İptal Edildi</option>
-                        <option value="Returned">İade Talebi</option>
-                        <option value="Refunded">İade Edildi</option>
+                        <option value="Pending">Pending Approval</option>
+                        <option value="Approved">Approved</option>
+                        <option value="Preparing">Preparing</option>
+                        <option value="Shipped">Shipped</option>
+                        <option value="Delivered">Delivered</option>
+                        <option value="Cancelled">Cancelled</option>
+                        <option value="Returned">Refund Requested</option>
+                        <option value="Refunded">Refunded</option>
                       </CFormSelect>
                     </CTableDataCell>
                     <CTableDataCell>
@@ -225,7 +227,7 @@ const OrdersPage = () => {
                           navigate(`/admin/orders/${order.id}`);
                         }}
                       >
-                        Detay
+                        Detail
                       </CButton>
                     </CTableDataCell>
                   </CTableRow>

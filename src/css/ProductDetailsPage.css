@@ -3,8 +3,8 @@
   --text-color: #333333;
   --border-color: #e0e0e0;
   --card-bg: #f9f9f9;
-  --primary-color: #4f46e5;
-  --secondary-color: #4338ca;
+  --primary-color: #333333;
+  --secondary-color: #222222;
   --discount-color: #ef4444;
 }
 
@@ -13,8 +13,8 @@
   --text-color: #f8fafc;
   --border-color: #334155;
   --card-bg: #1e293b;
-  --primary-color: #818cf8;
-  --secondary-color: #6366f1;
+  --primary-color: #333333;
+  --secondary-color: #222222;
 }
 
 .product-details-page {

@@ -14,26 +14,43 @@ import {
 
 const RegisterSchema = Yup.object().shape({
   firstName: Yup.string()
-    .min(2, 'Adınız en az 2 karakter olmalı')
-    .required('Adınız gereklidir'),
+    .matches(/^[a-zA-ZçÇğĞıİöÖşŞüÜ\s'-]+$/, 'Only letters and spaces allowed')
+    .min(2, 'At least 2 characters required')
+    .required('First name is required'),
   lastName: Yup.string()
-    .min(2, 'Soyadınız en az 2 karakter olmalı')
-    .required('Soyadınız gereklidir'),
+    .matches(/^[a-zA-ZçÇğĞıİöÖşŞüÜ\s'-]+$/, 'Only letters and spaces allowed')
+    .min(2, 'At least 2 characters required')
+    .required('Last name is required'),
   email: Yup.string()
-    .email('Geçerli bir e-posta giriniz')
-    .required('E-posta gereklidir'),
+    .email('Please enter a valid email address')
+    .required('Email is required'),
   password: Yup.string()
-    .min(6, 'Şifre en az 6 karakter olmalı')
-    .required('Şifre gereklidir'),
+    .min(8, 'Password must be at least 8 characters')
+    .matches(/[A-Z]/, 'Must contain at least one uppercase letter')
+    .matches(/[a-z]/, 'Must contain at least one lowercase letter')
+    .matches(/[0-9]/, 'Must contain at least one number')
+    .matches(/[^A-Za-z0-9]/, 'Must contain at least one special character')
+    .required('Password is required'),
   birthDate: Yup.date()
-    .max(new Date(), 'Doğum tarihi ileri bir tarih olamaz')
-    .required('Doğum tarihi gereklidir'),
+    .max(new Date(), 'Birth date cannot be in the future')
+    .test('age', 'You must be at least 18 years old', function(value) {
+      if (!value) return false;
+      const today = new Date();
+      const birthDate = new Date(value);
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const m = today.getMonth() - birthDate.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+      return age >= 18;
+    })
+    .required('Birth date is required'),
   phone: Yup.string()
-    .matches(/^\d{10}$/, 'Telefon numarası geçersiz. Başında 0 veya +90 olmadan 10 haneli girin.')
-    .required('Telefon numarası gereklidir'),
+    .matches(/^[0-9]{10}$/, 'Phone number must be 10 digits (without leading 0 or +90)')
+    .required('Phone number is required'),
 });
 
-const RegisterPage = ({ darkMode }) => {
+const RegisterPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -46,18 +63,18 @@ const RegisterPage = ({ darkMode }) => {
   };
 
   return (
-    <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '100vh', background: darkMode ? '#18181b' : '#f8f9fa' }}>
-      <CCard style={{ minWidth: 380, maxWidth: 480, width: '100%', boxShadow: '0 10px 30px rgba(0,0,0,0.08)' }}>
+    <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '100vh', background: '#f8f9fa' }}>
+      <CCard style={{ minWidth: 380, maxWidth: 480, width: '100%', boxShadow: '0 10px 30px rgba(0,0,0,0.08)', background: '#fff', color: undefined, border: undefined }}>
         <CCardHeader className="text-center bg-transparent border-0 pb-0">
-          <h3 className="fw-bold mb-1" style={{ color: '#6366f1' }}><FiUserPlus /> Kayıt Ol</h3>
-          <div className="text-muted mb-2">Yeni hesap oluşturun</div>
+          <h3 className="fw-bold mb-1" style={{ color: '#6366f1' }}><FiUserPlus /> Register</h3>
+          <div className="text-muted mb-2">Create a new account</div>
         </CCardHeader>
         <CCardBody>
           {error && <CAlert color="danger" className="py-2 text-center">{error}</CAlert>}
           <CButton color="light" className="w-100 mb-3 d-flex align-items-center justify-content-center gap-2 border" onClick={handleGoogleLogin} type="button">
-            <FcGoogle size={20} /> <span>Google ile Kayıt Ol</span>
+            <FcGoogle size={20} /> <span>Register with Google</span>
           </CButton>
-          <div className="text-center text-muted mb-3" style={{ fontSize: 14 }}>veya</div>
+          <div className="text-center text-muted mb-3" style={{ fontSize: 14 }}>or</div>
           <Formik
             initialValues={{
               firstName: '',
@@ -95,7 +112,7 @@ const RegisterPage = ({ darkMode }) => {
                 const userId = decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] || decoded.nameid || decoded.sub || decoded.id || decoded.userId;
                 const role = decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || decoded.role;
                 if (!userId) {
-                  setError('Kullanıcı ID alınamadı. Lütfen tekrar giriş yapın.');
+                  setError('User ID could not be retrieved. Please log in again.');
                   setIsLoading(false);
                   setSubmitting(false);
                   return;
@@ -116,22 +133,22 @@ const RegisterPage = ({ darkMode }) => {
               <Form className="mb-2">
                 <div className="mb-3 position-relative">
                   <FiUser className="position-absolute" style={{ left: 12, top: 14, opacity: 0.6 }} />
-                  <Field type="text" name="firstName" placeholder="Adınız" required className="form-control ps-5" />
+                  <Field type="text" name="firstName" placeholder="First Name" required className="form-control ps-5" />
                   <ErrorMessage name="firstName" component="div" className="text-danger small ms-1 mt-1" />
                 </div>
                 <div className="mb-3 position-relative">
                   <FiUser className="position-absolute" style={{ left: 12, top: 14, opacity: 0.6 }} />
-                  <Field type="text" name="lastName" placeholder="Soyadınız" required className="form-control ps-5" />
+                  <Field type="text" name="lastName" placeholder="Last Name" required className="form-control ps-5" />
                   <ErrorMessage name="lastName" component="div" className="text-danger small ms-1 mt-1" />
                 </div>
                 <div className="mb-3 position-relative">
                   <FiMail className="position-absolute" style={{ left: 12, top: 14, opacity: 0.6 }} />
-                  <Field type="email" name="email" placeholder="E-posta" required className="form-control ps-5" />
+                  <Field type="email" name="email" placeholder="Email" required className="form-control ps-5" />
                   <ErrorMessage name="email" component="div" className="text-danger small ms-1 mt-1" />
                 </div>
                 <div className="mb-3 position-relative">
                   <FiLock className="position-absolute" style={{ left: 12, top: 14, opacity: 0.6 }} />
-                  <Field type={showPassword ? 'text' : 'password'} name="password" placeholder="Şifre" required className="form-control ps-5" />
+                  <Field type={showPassword ? 'text' : 'password'} name="password" placeholder="Password" required className="form-control ps-5" />
                   <CButton type="button" color="light" size="sm" style={{ position: 'absolute', right: 8, top: 8, zIndex: 2 }} onClick={() => setShowPassword(!showPassword)}>
                     {showPassword ? <FiEyeOff /> : <FiEye />}
                   </CButton>
@@ -139,23 +156,23 @@ const RegisterPage = ({ darkMode }) => {
                 </div>
                 <div className="mb-3 position-relative">
                   <FiCalendar className="position-absolute" style={{ left: 12, top: 14, opacity: 0.6 }} />
-                  <Field type="date" name="birthDate" max={today} placeholder="Doğum Tarihi" required className="form-control ps-5" />
+                  <Field type="date" name="birthDate" max={today} placeholder="Birth Date" required className="form-control ps-5" />
                   <ErrorMessage name="birthDate" component="div" className="text-danger small ms-1 mt-1" />
                 </div>
                 <div className="mb-3 position-relative">
                   <FiPhoneCall className="position-absolute" style={{ left: 12, top: 14, opacity: 0.6 }} />
-                  <Field type="tel" name="phone" placeholder="Telefon" required className="form-control ps-5" />
+                  <Field type="tel" name="phone" placeholder="Phone" required className="form-control ps-5" />
                   <ErrorMessage name="phone" component="div" className="text-danger small ms-1 mt-1" />
                 </div>
                 <CButton type="submit" color="primary" className="w-100 fw-bold" disabled={isLoading || isSubmitting}>
-                  {isLoading ? <CSpinner size="sm" /> : 'Kayıt Ol'}
+                  {isLoading ? <CSpinner size="sm" /> : 'Register'}
                 </CButton>
               </Form>
             )}
           </Formik>
           <div className="text-center mt-3">
-            Zaten hesabınız var mı?
-            <Link to="/login" className="ms-1 fw-semibold" style={{ color: '#6366f1' }}>Giriş Yap</Link>
+            Already have an account?
+            <Link to="/login" className="ms-1 fw-semibold" style={{ color: '#6366f1' }}>Login</Link>
           </div>
         </CCardBody>
       </CCard>

@@ -44,7 +44,7 @@ const AddCategoryPage = () => {
       });
       navigate('/admin/categories');
     } catch (err) {
-      setError('Kategori eklenemedi.');
+      setError('Category could not be added.');
     } finally {
       setLoading(false);
     }
@@ -54,14 +54,14 @@ const AddCategoryPage = () => {
     <CContainer className="py-4">
       <CCard className="mx-auto" style={{ maxWidth: 480 }}>
         <CCardBody>
-          <CCardTitle>Yeni Kategori Ekle</CCardTitle>
+          <CCardTitle>Add New Category</CCardTitle>
           {error && <CAlert color="danger">{error}</CAlert>}
           <CForm onSubmit={handleSubmit}>
-            <CFormLabel>Kategori Adı</CFormLabel>
+            <CFormLabel>Category Name</CFormLabel>
             <CFormInput name="name" value={form.name} onChange={handleChange} required className="mb-3" />
-            <CFormLabel>Kategori Görseli</CFormLabel>
+            <CFormLabel>Category Image</CFormLabel>
             <CFormInput type="file" accept="image/*" onChange={handleImageChange} className="mb-3" />
-            <CButton type="submit" color="primary" disabled={loading}>{loading ? <CSpinner size="sm" /> : 'Ekle'}</CButton>
+            <CButton type="submit" color="primary" disabled={loading}>{loading ? <CSpinner size="sm" /> : 'Add'}</CButton>
           </CForm>
         </CCardBody>
       </CCard>

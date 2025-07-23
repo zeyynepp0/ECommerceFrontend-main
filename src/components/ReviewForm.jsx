@@ -32,23 +32,24 @@ const ReviewForm = ({ onSubmit, review }) => {
   return (
     <CCard className="mb-3">
       <CCardBody>
-        <CCardTitle as="h5">Yorum {review ? 'Güncelle' : 'Ekle'}</CCardTitle>
+        <CCardTitle as="h5">{review ? 'Update Review' : 'Add Review'}</CCardTitle>
         <CFormUI onSubmit={handleSubmit}>
           <CFormInput
             className="mb-3"
             type="text"
             value={name}
             onChange={e => setName(e.target.value)}
-            placeholder="Adınız (Opsiyonel)"
+            placeholder="Your Name (Optional)"
             disabled={!!review}
           />
           <div className="mb-3">
-            <label className="mb-1">Değerlendirme</label>
+            <label className="mb-1">Rating</label>
             <div>
               {[1, 2, 3, 4, 5].map(star => (
                 <FiStar
                   key={star}
                   fill={star <= rating ? '#FFD700' : 'none'}
+                  color={star <= rating ? '#FFD700' : '#ccc'}
                   onClick={() => setRating(star)}
                   style={{ cursor: 'pointer', fontSize: 22 }}
                 />
@@ -59,12 +60,12 @@ const ReviewForm = ({ onSubmit, review }) => {
             className="mb-3"
             value={comment}
             onChange={e => setComment(e.target.value)}
-            placeholder="Ürün hakkındaki düşünceleriniz..."
+            placeholder="Your thoughts about the product..."
             required
             rows={4}
           />
           <CButton type="submit" color="primary" className="w-100">
-            <FiSend className="me-2" /> {review ? 'Güncelle' : 'Gönder'}
+            <FiSend className="me-2" /> {review ? 'Update' : 'Submit'}
           </CButton>
         </CFormUI>
       </CCardBody>

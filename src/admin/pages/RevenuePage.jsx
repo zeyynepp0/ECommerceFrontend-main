@@ -4,11 +4,11 @@ import { CContainer, CCard, CCardBody, CCardTitle, CCardText, CSpinner, CAlert, 
 
 const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i); // Son 5 yıl
 const months = [
-  { value: '', label: 'Tümü' },
-  { value: 1, label: 'Ocak' }, { value: 2, label: 'Şubat' }, { value: 3, label: 'Mart' },
-  { value: 4, label: 'Nisan' }, { value: 5, label: 'Mayıs' }, { value: 6, label: 'Haziran' },
-  { value: 7, label: 'Temmuz' }, { value: 8, label: 'Ağustos' }, { value: 9, label: 'Eylül' },
-  { value: 10, label: 'Ekim' }, { value: 11, label: 'Kasım' }, { value: 12, label: 'Aralık' }
+  { value: '', label: 'All' },
+  { value: 1, label: 'January' }, { value: 2, label: 'February' }, { value: 3, label: 'March' },
+  { value: 4, label: 'April' }, { value: 5, label: 'May' }, { value: 6, label: 'June' },
+  { value: 7, label: 'July' }, { value: 8, label: 'August' }, { value: 9, label: 'September' },
+  { value: 10, label: 'October' }, { value: 11, label: 'November' }, { value: 12, label: 'December' }
 ];
 
 const RevenuePage = () => {
@@ -26,9 +26,9 @@ const RevenuePage = () => {
     apiGet(url)
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) setRevenue(data[0]);
-        else setError('Gelir raporu bulunamadı.');
+        else setError('Revenue report not found.');
       })
-      .catch(() => setError('Gelir raporu yüklenemedi.'))
+      .catch(() => setError('Revenue report could not be loaded.'))
       .finally(() => setLoading(false));
   };
 
@@ -40,7 +40,7 @@ const RevenuePage = () => {
     <CContainer className="py-4">
       <CCard className="mx-auto" style={{ maxWidth: 480 }}>
         <CCardBody>
-          <CCardTitle>Gelir Raporu</CCardTitle>
+          <CCardTitle>Revenue Report</CCardTitle>
           <CRow className="mb-3">
             <CCol>
               <CFormSelect value={selectedYear} onChange={e => setSelectedYear(Number(e.target.value))}>
@@ -59,13 +59,13 @@ const RevenuePage = () => {
             <CAlert color="danger">{error}</CAlert>
           ) : revenue ? (
             <>
-              <CCardText>Dönem: <strong>{selectedMonth ? `${months.find(m => m.value === selectedMonth)?.label} ${selectedYear}` : `${selectedYear} (Tüm Yıl)`}</strong></CCardText>
-              <CCardText>Rapor Aralığı: <strong>{revenue.startDate ? new Date(revenue.startDate).toLocaleDateString() : '-'} - {revenue.endDate ? new Date(revenue.endDate).toLocaleDateString() : '-'}</strong></CCardText>
+              <CCardText>Period: <strong>{selectedMonth ? `${months.find(m => m.value === selectedMonth)?.label} ${selectedYear}` : `${selectedYear} (Full Year)`}</strong></CCardText>
+              <CCardText>Report Range: <strong>{revenue.startDate ? new Date(revenue.startDate).toLocaleDateString() : '-'} - {revenue.endDate ? new Date(revenue.endDate).toLocaleDateString() : '-'}</strong></CCardText>
               <hr />
-              <CCardText className="mb-2"><span className="fw-bold">Toplam Gelir:</span> <span className="text-success fw-bold">{revenue.totalRevenue?.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</span></CCardText>
-              <CCardText className="mb-2"><span className="fw-bold">İptal Edilen Tutarlar:</span> <span className="text-danger fw-bold">{revenue.cancelledRevenue?.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</span></CCardText>
-              <CCardText className="mb-2"><span className="fw-bold">İade Edilen Tutarlar:</span> <span className="text-warning fw-bold">{revenue.refundedRevenue?.toLocaleString('tr-TR', {minimumFractionDigits:2})} ₺</span></CCardText>
-              <CCardText className="mb-2"><span className="fw-bold">Toplam Sipariş:</span> <span>{revenue.orderCount}</span></CCardText>
+              <CCardText className="mb-2"><span className="fw-bold">Total Revenue:</span> <span className="text-success fw-bold">{revenue.totalRevenue?.toLocaleString('en-US', {minimumFractionDigits:2})} ₺</span></CCardText>
+              <CCardText className="mb-2"><span className="fw-bold">Cancelled Amounts:</span> <span className="text-danger fw-bold">{revenue.cancelledRevenue?.toLocaleString('en-US', {minimumFractionDigits:2})} ₺</span></CCardText>
+              <CCardText className="mb-2"><span className="fw-bold">Refunded Amounts:</span> <span className="text-warning fw-bold">{revenue.refundedRevenue?.toLocaleString('en-US', {minimumFractionDigits:2})} ₺</span></CCardText>
+              <CCardText className="mb-2"><span className="fw-bold">Total Orders:</span> <span>{revenue.orderCount}</span></CCardText>
             </>
           ) : null}
         </CCardBody>

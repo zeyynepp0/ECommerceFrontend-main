@@ -21,7 +21,7 @@ const CategoriesPage = () => {
         const data = await apiGet('http://localhost:5220/api/Category');
         setCategories(data);
       } catch (err) {
-        setError('Kategoriler yüklenemedi.');
+        setError('Categories could not be loaded.');
       } finally {
         setLoading(false);
       }
@@ -30,12 +30,12 @@ const CategoriesPage = () => {
   }, []);
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Bu kategoriyi silmek istediğinize emin misiniz?')) return;
+    if (!window.confirm('Are you sure you want to delete this category?')) return;
     try {
       await apiDelete(`http://localhost:5220/api/Category/delete/${id}`);
       setCategories(categories.filter(c => c.id !== id));
     } catch (err) {
-      let msg = 'Kategori silinemedi.';
+      let msg = 'Category could not be deleted.';
       if (err?.response?.data?.message) msg = err.response.data.message;
       setError(msg);
       alert(msg);
@@ -52,10 +52,10 @@ const CategoriesPage = () => {
       });
       setCategories(categories.map(c => c.id === category.id ? { ...c, isActive: !c.isActive } : c));
     } catch (err) {
-      let msg = 'Aktiflik durumu değiştirilemedi.';
+      let msg = 'Active status could not be changed.';
       if (err?.response?.data) msg = err.response.data;
       if (typeof msg === 'string' && msg.includes('kategori') && msg.includes('aktif ürün')) {
-        alert('Bu kategoride aktif ürün(ler) varken kategori pasif yapılamaz!');
+        alert('This category cannot be deactivated while it has active product(s)!');
       } else {
         setError(msg);
         alert(msg);
@@ -72,12 +72,12 @@ const CategoriesPage = () => {
       <CCard>
         <CCardBody>
           <div className="d-flex justify-content-between align-items-center mb-3">
-            <CCardTitle>Kategoriler</CCardTitle>
+            <CCardTitle>Categories</CCardTitle>
             <div>
-              <CButton color={filter === 'all' ? 'secondary' : 'light'} className="me-2" onClick={() => setFilter('all')}>Tümü</CButton>
-              <CButton color={filter === 'active' ? 'success' : 'light'} className="me-2" onClick={() => setFilter('active')}>Aktifleri Göster</CButton>
-              <CButton color={filter === 'passive' ? 'danger' : 'light'} onClick={() => setFilter('passive')}>Pasifleri Göster</CButton>
-              <CButton color="success" as={Link} to="/admin/categories/add" className="ms-3">+ Yeni Kategori Ekle</CButton>
+              <CButton color={filter === 'all' ? 'secondary' : 'light'} className="me-2" onClick={() => setFilter('all')}>All</CButton>
+              <CButton color={filter === 'active' ? 'success' : 'light'} className="me-2" onClick={() => setFilter('active')}>Show Active</CButton>
+              <CButton color={filter === 'passive' ? 'danger' : 'light'} onClick={() => setFilter('passive')}>Show Passive</CButton>
+              <CButton color="success" as={Link} to="/admin/categories/add" className="ms-3">+ Add New Category</CButton>
             </div>
           </div>
           {loading ? (
@@ -89,10 +89,10 @@ const CategoriesPage = () => {
               <CTableHead color="light">
                 <CTableRow>
                   <CTableHeaderCell>ID</CTableHeaderCell>
-                  <CTableHeaderCell>Görsel</CTableHeaderCell>
-                  <CTableHeaderCell>Ad</CTableHeaderCell>
-                  <CTableHeaderCell>Aktif mi?</CTableHeaderCell>
-                  <CTableHeaderCell>İşlemler</CTableHeaderCell>
+                  <CTableHeaderCell>Image</CTableHeaderCell>
+                  <CTableHeaderCell>Name</CTableHeaderCell>
+                  <CTableHeaderCell>Active?</CTableHeaderCell>
+                  <CTableHeaderCell>Actions</CTableHeaderCell>
                 </CTableRow>
               </CTableHead>
               <CTableBody>
@@ -111,7 +111,7 @@ const CategoriesPage = () => {
                     </CTableDataCell>
                     <CTableDataCell style={{ cursor: 'pointer', color: '#0d6efd', textDecoration: 'underline' }} onClick={() => navigate(`/admin/categories/edit/${category.id}`)}>{category.name}</CTableDataCell>
                     <CTableDataCell>
-                      <span className={`badge ${category.isActive ? 'bg-success' : 'bg-danger'}`}>{category.isActive ? 'Aktif' : 'Pasif'}</span>
+                      <span className={`badge ${category.isActive ? 'bg-success' : 'bg-danger'}`}>{category.isActive ? 'Active' : 'Passive'}</span>
                     </CTableDataCell>
                     <CTableDataCell>
                       <CButton
@@ -121,7 +121,7 @@ const CategoriesPage = () => {
                         onClick={() => handleToggleActive(category)}
                         className="me-2"
                       >
-                        {category.isActive ? 'Pasif Yap' : 'Aktif Yap'}
+                        {category.isActive ? 'Make Passive' : 'Make Active'}
                       </CButton>
                       <CButton
                         color="primary"
@@ -130,7 +130,7 @@ const CategoriesPage = () => {
                         as={Link}
                         to={`/admin/categories/edit/${category.id}`}
                       >
-                        Düzenle
+                        Edit
                       </CButton>
                     </CTableDataCell>
                   </CTableRow>

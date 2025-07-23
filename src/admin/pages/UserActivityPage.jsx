@@ -13,14 +13,14 @@ const UserActivityPage = () => {
   useEffect(() => {
     apiGet('http://localhost:5220/api/Admin/user-activity')
       .then(setActivity)
-      .catch(() => setError('Aktiviteler yüklenemedi.'))
+      .catch(() => setError('Activities could not be loaded.'))
       .finally(() => setLoading(false));
   }, []);
   return (
     <CContainer className="py-4">
       <CCard>
         <CCardBody>
-          <CCardTitle>Kullanıcı Aktiviteleri</CCardTitle>
+          <CCardTitle>User Activities</CCardTitle>
           {loading ? (
             <div className="d-flex justify-content-center align-items-center py-5"><CSpinner color="primary" /></div>
           ) : error ? (
@@ -29,12 +29,12 @@ const UserActivityPage = () => {
             <CTable hover responsive bordered align="middle">
               <CTableHead color="light">
                 <CTableRow>
-                  <CTableHeaderCell>Ad Soyad</CTableHeaderCell>
-                  <CTableHeaderCell>E-posta</CTableHeaderCell>
-                  <CTableHeaderCell>Son Sipariş</CTableHeaderCell>
-                  <CTableHeaderCell>Son Yorum</CTableHeaderCell>
-                  <CTableHeaderCell>Toplam Sipariş</CTableHeaderCell>
-                  <CTableHeaderCell>Toplam Yorum</CTableHeaderCell>
+                  <CTableHeaderCell>Full Name</CTableHeaderCell>
+                  <CTableHeaderCell>Email</CTableHeaderCell>
+                  <CTableHeaderCell>Last Order</CTableHeaderCell>
+                  <CTableHeaderCell>Last Review</CTableHeaderCell>
+                  <CTableHeaderCell>Total Orders</CTableHeaderCell>
+                  <CTableHeaderCell>Total Reviews</CTableHeaderCell>
                 </CTableRow>
               </CTableHead>
               <CTableBody>
@@ -42,8 +42,8 @@ const UserActivityPage = () => {
                   <CTableRow key={i}>
                     <CTableDataCell style={{ color: '#0d6efd', textDecoration: 'underline', cursor: 'pointer' }} onClick={() => navigate(`/admin/users/${item.userId}`)}>{item.fullName}</CTableDataCell>
                     <CTableDataCell>{item.email}</CTableDataCell>
-                    <CTableDataCell>{item.lastOrderDate ? new Date(item.lastOrderDate).toLocaleString() : 'Yok'}</CTableDataCell>
-                    <CTableDataCell>{item.lastReviewDate ? new Date(item.lastReviewDate).toLocaleString() : 'Yok'}</CTableDataCell>
+                    <CTableDataCell>{item.lastOrderDate ? new Date(item.lastOrderDate).toLocaleString() : 'None'}</CTableDataCell>
+                    <CTableDataCell>{item.lastReviewDate ? new Date(item.lastReviewDate).toLocaleString() : 'None'}</CTableDataCell>
                     <CTableDataCell>{item.totalOrders}</CTableDataCell>
                     <CTableDataCell>{item.totalReviews}</CTableDataCell>
                   </CTableRow>

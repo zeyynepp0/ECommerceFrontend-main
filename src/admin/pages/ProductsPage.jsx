@@ -26,7 +26,7 @@ const ProductsPage = () => {
         setProducts(productsData);
         setCategories(categoriesData);
       } catch (err) {
-        setError('Ürünler veya kategoriler yüklenemedi.');
+        setError('Products or categories could not be loaded.');
       } finally {
         setLoading(false);
       }
@@ -35,12 +35,12 @@ const ProductsPage = () => {
   }, []);
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Bu ürünü silmek istediğinize emin misiniz?')) return;
+    if (!window.confirm('Are you sure you want to delete this product?')) return;
     try {
       await apiDelete(`http://localhost:5220/api/Product/delete/${id}`);
       setProducts(products.filter(p => p.id !== id));
     } catch (err) {
-      let msg = 'Ürün silinemedi.';
+      let msg = 'Product could not be deleted.';
       if (err?.response?.data?.message) msg = err.response.data.message;
       setError(msg);
       alert(msg);
@@ -50,7 +50,7 @@ const ProductsPage = () => {
   const handleToggleActive = async (product) => {
     const category = categories.find(c => c.id === product.categoryId);
     if (!product.isActive && category && !category.isActive) {
-      alert('Ürünün kategorisi pasifken ürün aktif yapılamaz!');
+      alert('A product cannot be activated if its category is passive!');
       return;
     }
     try {
@@ -65,7 +65,7 @@ const ProductsPage = () => {
       });
       setProducts(products.map(p => p.id === product.id ? { ...p, isActive: !p.isActive } : p));
     } catch (err) {
-      let msg = 'Aktiflik durumu değiştirilemedi.';
+      let msg = 'Could not change active status.';
       if (err?.response?.data) msg = err.response.data;
       setError(msg);
       alert(msg);
@@ -81,12 +81,12 @@ const ProductsPage = () => {
       <CCard>
         <CCardBody>
           <div className="d-flex justify-content-between align-items-center mb-3">
-            <CCardTitle>Ürünler</CCardTitle>
+            <CCardTitle>Products</CCardTitle>
             <div>
-              <CButton color={filter === 'all' ? 'secondary' : 'light'} className="me-2" onClick={() => setFilter('all')}>Tümü</CButton>
-              <CButton color={filter === 'active' ? 'success' : 'light'} className="me-2" onClick={() => setFilter('active')}>Aktifleri Göster</CButton>
-              <CButton color={filter === 'passive' ? 'danger' : 'light'} onClick={() => setFilter('passive')}>Pasifleri Göster</CButton>
-              <CButton color="success" as={Link} to="/admin/products/add" className="ms-3">+ Yeni Ürün Ekle</CButton>
+              <CButton color={filter === 'all' ? 'secondary' : 'light'} className="me-2" onClick={() => setFilter('all')}>All</CButton>
+              <CButton color={filter === 'active' ? 'success' : 'light'} className="me-2" onClick={() => setFilter('active')}>Show Active</CButton>
+              <CButton color={filter === 'passive' ? 'danger' : 'light'} onClick={() => setFilter('passive')}>Show Passive</CButton>
+              <CButton color="success" as={Link} to="/admin/products/add" className="ms-3">+ Add New Product</CButton>
             </div>
           </div>
           {loading ? (
@@ -98,13 +98,13 @@ const ProductsPage = () => {
               <CTableHead color="light">
                 <CTableRow>
                   <CTableHeaderCell>ID</CTableHeaderCell>
-                  <CTableHeaderCell>Görsel</CTableHeaderCell>
-                  <CTableHeaderCell>Ad</CTableHeaderCell>
-                  <CTableHeaderCell>Kategori</CTableHeaderCell>
-                  <CTableHeaderCell>Fiyat</CTableHeaderCell>
-                  <CTableHeaderCell>Stok</CTableHeaderCell>
-                  <CTableHeaderCell>Aktif mi?</CTableHeaderCell>
-                  <CTableHeaderCell>İşlemler</CTableHeaderCell>
+                  <CTableHeaderCell>Image</CTableHeaderCell>
+                  <CTableHeaderCell>Name</CTableHeaderCell>
+                  <CTableHeaderCell>Category</CTableHeaderCell>
+                  <CTableHeaderCell>Price</CTableHeaderCell>
+                  <CTableHeaderCell>Stock</CTableHeaderCell>
+                  <CTableHeaderCell>Active?</CTableHeaderCell>
+                  <CTableHeaderCell>Actions</CTableHeaderCell>
                 </CTableRow>
               </CTableHead>
               <CTableBody>
@@ -126,7 +126,7 @@ const ProductsPage = () => {
                     <CTableDataCell>{product.price} ₺</CTableDataCell>
                     <CTableDataCell>{product.stock}</CTableDataCell>
                     <CTableDataCell>
-                      <span className={`badge ${product.isActive ? 'bg-success' : 'bg-danger'}`}>{product.isActive ? 'Aktif' : 'Pasif'}</span>
+                      <span className={`badge ${product.isActive ? 'bg-success' : 'bg-danger'}`}>{product.isActive ? 'Active' : 'Passive'}</span>
                     </CTableDataCell>
                     <CTableDataCell>
                       <CButton
@@ -136,7 +136,7 @@ const ProductsPage = () => {
                         onClick={() => handleToggleActive(product)}
                         className="me-2"
                       >
-                        {product.isActive ? 'Pasif Yap' : 'Aktif Yap'}
+                        {product.isActive ? 'Make Passive' : 'Make Active'}
                       </CButton>
                       <CButton
                         color="info"
@@ -146,7 +146,7 @@ const ProductsPage = () => {
                         to={`/admin/products/edit/${product.id}`}
                         className="me-2"
                       >
-                        Düzenle
+                        Edit
                       </CButton>
                       <CButton
                         color="primary"
@@ -155,7 +155,7 @@ const ProductsPage = () => {
                         as={Link}
                         to={`/products/${product.id}`}
                       >
-                        Detay
+                        Detail
                       </CButton>
                     </CTableDataCell>
                   </CTableRow>

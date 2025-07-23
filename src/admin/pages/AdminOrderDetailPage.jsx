@@ -20,7 +20,7 @@ const AdminOrderDetailPage = () => {
         const data = await apiGet(`${API_BASE}/api/Order/${id}`);
         setOrder(data);
       } catch {
-        setError('Sipariş detayları yüklenemedi.');
+        setError('Order details could not be loaded.');
       } finally {
         setLoading(false);
       }
@@ -30,7 +30,7 @@ const AdminOrderDetailPage = () => {
 
   if (loading) return <div className="d-flex justify-content-center align-items-center py-5"><CSpinner color="primary" /></div>;
   if (error) return <CAlert color="danger">{error}</CAlert>;
-  if (!order) return <CAlert color="warning">Sipariş bulunamadı.</CAlert>;
+  if (!order) return <CAlert color="warning">Order not found.</CAlert>;
 
   // Durum badge'i
   const statusBadge = (statusText) => {
@@ -43,6 +43,14 @@ const AdminOrderDetailPage = () => {
       'İptal Edildi': 'danger',
       'İade Talebi': 'dark',
       'İade Edildi': 'success',
+      'Pending Approval': 'warning',
+      'Approved': 'success',
+      'Preparing': 'info',
+      'Shipped': 'primary',
+      'Delivered': 'success',
+      'Cancelled': 'danger',
+      'Refund Requested': 'dark',
+      'Refunded': 'success',
     };
     return <CBadge color={map[statusText] || 'secondary'} className="fs-6">{statusText}</CBadge>;
   };
@@ -52,12 +60,14 @@ const AdminOrderDetailPage = () => {
     let endpoint = '';
     if (order.userRequestText === 'İptal Talebi') endpoint = `/api/admin/order/${order.id}/cancel/approve`;
     else if (order.userRequestText === 'İade Talebi') endpoint = `/api/admin/order/${order.id}/refund/approve`;
+    else if (order.userRequestText === 'Cancel Request') endpoint = `/api/admin/order/${order.id}/cancel/approve`;
+    else if (order.userRequestText === 'Refund Request') endpoint = `/api/admin/order/${order.id}/refund/approve`;
     if (!endpoint) return;
     try {
       await apiPost(endpoint);
       window.location.reload();
     } catch (err) {
-      alert('İşlem başarısız: ' + (err?.message || ''));
+      alert('Operation failed: ' + (err?.message || ''));
     }
   };
   const handleRejectUserRequest = async () => {
@@ -67,7 +77,7 @@ const AdminOrderDetailPage = () => {
       await apiPost(`/api/admin/order/${order.id}/user-request/reject`);
       window.location.reload();
     } catch (err) {
-      alert('İşlem başarısız: ' + (err?.message || ''));
+      alert('Operation failed: ' + (err?.message || ''));
     }
   };
 
@@ -76,59 +86,59 @@ const AdminOrderDetailPage = () => {
       <CCard className="mb-4">
         <CCardBody>
           <CRow className="mb-3">
-            <CCol md={8}><CCardTitle className="fs-4">Sipariş #{order.id}</CCardTitle></CCol>
+            <CCol md={8}><CCardTitle className="fs-4">Order #{order.id}</CCardTitle></CCol>
             <CCol md={4} className="text-md-end">
               {statusBadge(order.statusText)}
             </CCol>
           </CRow>
           <CRow className="mb-2">
-            <CCol md={6}><b>Kullanıcı Email:</b> {order.userEmail}</CCol>
-            <CCol md={6}><b>Sipariş Tarihi:</b> {new Date(order.orderDate).toLocaleString('tr-TR')}</CCol>
+            <CCol md={6}><b>User Email:</b> {order.userEmail}</CCol>
+            <CCol md={6}><b>Order Date:</b> {new Date(order.orderDate).toLocaleString('en-US')}</CCol>
           </CRow>
           <CRow className="mb-2">
-            <CCol md={6}><b>Kullanıcı İsteği:</b> {order.userRequestText}</CCol>
+            <CCol md={6}><b>User Request:</b> {order.userRequestText}</CCol>
           </CRow>
           <CRow className="mb-2">
             <CCol md={6}>
-              <b>Teslimat Adresi:</b>
+              <b>Delivery Address:</b>
               <div className="ms-2">
-                <div><b>Başlık:</b> {order.address?.addressTitle}</div>
-                <div><b>Sokak:</b> {order.address?.street}</div>
-                <div><b>Şehir:</b> {order.address?.city} / {order.address?.state}</div>
-                <div><b>Ülke:</b> {order.address?.country}</div>
-                <div><b>Posta Kodu:</b> {order.address?.postalCode}</div>
-                <div><b>İletişim:</b> {order.address?.contactName} {order.address?.contactSurname} ({order.address?.contactPhone})</div>
+                <div><b>Title:</b> {order.address?.addressTitle}</div>
+                <div><b>Street:</b> {order.address?.street}</div>
+                <div><b>City:</b> {order.address?.city} / {order.address?.state}</div>
+                <div><b>Country:</b> {order.address?.country}</div>
+                <div><b>Postal Code:</b> {order.address?.postalCode}</div>
+                <div><b>Contact:</b> {order.address?.contactName} {order.address?.contactSurname} ({order.address?.contactPhone})</div>
               </div>
             </CCol>
             <CCol md={6}>
-              <b>Teslim Alacak Kişi:</b> {order.deliveryPersonName}<br/>
-              <b>Telefon:</b> {order.deliveryPersonPhone}
+              <b>Recipient:</b> {order.deliveryPersonName}<br/>
+              <b>Phone:</b> {order.deliveryPersonPhone}
             </CCol>
           </CRow>
           <CRow className="mb-2">
-            <CCol md={6}><b>Kargo Firması:</b> {order.shippingCompanyName || '-'}</CCol>
-            <CCol md={6}><b>Kargo Ücreti:</b> {order.shippingCost === 0 ? 'Ücretsiz' : `${order.shippingCost}₺`}</CCol>
+            <CCol md={6}><b>Shipping Company:</b> {order.shippingCompanyName || '-'}</CCol>
+            <CCol md={6}><b>Shipping Cost:</b> {order.shippingCost === 0 ? 'Free' : `${order.shippingCost}₺`}</CCol>
           </CRow>
           <CRow className="mb-2">
-            <CCol md={6}><b>Ödeme Yöntemi:</b> {order.paymentMethod === 0 ? 'Kredi Kartı' : order.paymentMethod === 1 ? 'Banka Kartı' : order.paymentMethod === 2 ? 'Banka Havalesi' : 'Nakit'}</CCol>
-            <CCol md={6}><b>Admin Durumu:</b> {order.adminStatus}</CCol>
+            <CCol md={6}><b>Payment Method:</b> {order.paymentMethod === 0 ? 'Credit Card' : order.paymentMethod === 1 ? 'Debit Card' : order.paymentMethod === 2 ? 'Bank Transfer' : 'Cash'}</CCol>
+            <CCol md={6}><b>Admin Status:</b> {order.adminStatus}</CCol>
           </CRow>
           <CRow className="mb-2">
-            <CCol md={6}><b>Sipariş Notu:</b> {order.note || '-'}</CCol>
-            <CCol md={6}><b>Toplam Tutar:</b> {order.totalAmount} ₺</CCol>
+            <CCol md={6}><b>Order Note:</b> {order.note || '-'}</CCol>
+            <CCol md={6}><b>Total Amount:</b> {order.totalAmount} ₺</CCol>
           </CRow>
           <hr />
-          <h5 className="mb-3">Ürünler</h5>
+          <h5 className="mb-3">Products</h5>
           <CTable hover responsive bordered align="middle">
             <CTableHead color="light">
               <CTableRow>
-                <CTableHeaderCell>Görsel</CTableHeaderCell>
-                <CTableHeaderCell>Ürün</CTableHeaderCell>
-                <CTableHeaderCell>Açıklama</CTableHeaderCell>
-                <CTableHeaderCell>Kategori</CTableHeaderCell>
-                <CTableHeaderCell>Adet</CTableHeaderCell>
-                <CTableHeaderCell>Birim Fiyat</CTableHeaderCell>
-                <CTableHeaderCell>Toplam</CTableHeaderCell>
+                <CTableHeaderCell>Image</CTableHeaderCell>
+                <CTableHeaderCell>Product</CTableHeaderCell>
+                <CTableHeaderCell>Description</CTableHeaderCell>
+                <CTableHeaderCell>Category</CTableHeaderCell>
+                <CTableHeaderCell>Quantity</CTableHeaderCell>
+                <CTableHeaderCell>Unit Price</CTableHeaderCell>
+                <CTableHeaderCell>Total</CTableHeaderCell>
               </CTableRow>
             </CTableHead>
             <CTableBody>
@@ -145,22 +155,22 @@ const AdminOrderDetailPage = () => {
                   <CTableDataCell>{(item.quantity * item.unitPrice).toFixed(2)} ₺</CTableDataCell>
                 </CTableRow>
               )) : (
-                <CTableRow><CTableDataCell colSpan={7} className="text-center">Ürün bulunamadı.</CTableDataCell></CTableRow>
+                <CTableRow><CTableDataCell colSpan={7} className="text-center">No products found.</CTableDataCell></CTableRow>
               )}
             </CTableBody>
           </CTable>
           <CRow className="mt-4">
-            <CCol md={6} className="fw-bold fs-5">Ürünler Toplamı: {order.orderItems ? order.orderItems.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0).toFixed(2) : '0.00'} ₺</CCol>
-            <CCol md={6} className="fw-bold fs-5 text-end">Genel Toplam: {order.totalAmount} ₺</CCol>
+            <CCol md={6} className="fw-bold fs-5">Products Total: {order.orderItems ? order.orderItems.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0).toFixed(2) : '0.00'} ₺</CCol>
+            <CCol md={6} className="fw-bold fs-5 text-end">Grand Total: {order.totalAmount} ₺</CCol>
           </CRow>
           {/* İptal/iade talebi ve admin onay butonları */}
           <CRow className="mt-4">
             <CCol>
-              {order.userRequestText !== 'Yok' ? (
+              {order.userRequestText !== 'Yok' && order.userRequestText !== 'None' ? (
                 <>
-                  <CAlert color="warning" className="mb-3">Kullanıcı bu sipariş için {order.userRequestText.toLowerCase()} oluşturdu.</CAlert>
-                  <CButton color="danger" className="me-2" onClick={handleApproveUserRequest}>{order.userRequestText} Onayla</CButton>
-                  <CButton color="success" onClick={handleRejectUserRequest}>Reddet</CButton>
+                  <CAlert color="warning" className="mb-3">The user has created a {order.userRequestText.toLowerCase()} for this order.</CAlert>
+                  <CButton color="danger" className="me-2" onClick={handleApproveUserRequest}>Approve {order.userRequestText}</CButton>
+                  <CButton color="success" onClick={handleRejectUserRequest}>Reject</CButton>
                 </>
               ) : null}
             </CCol>

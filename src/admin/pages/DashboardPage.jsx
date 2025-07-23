@@ -9,35 +9,35 @@ import { useNavigate } from 'react-router-dom';
 const statCards = [
   {
     key: 'userCount',
-    title: 'Kullanıcılar',
+    title: 'Users',
     icon: <FiUsers size={36} />, 
     color: 'primary',
     to: '/admin/users',
   },
   {
     key: 'productCount',
-    title: 'Ürünler',
+    title: 'Products',
     icon: <FiBox size={36} />, 
     color: 'success',
     to: '/admin/products',
   },
   {
     key: 'categoryCount',
-    title: 'Kategoriler',
+    title: 'Categories',
     icon: <FiLayers size={36} />, 
     color: 'warning',
     to: '/admin/categories',
   },
   {
     key: 'orderCount',
-    title: 'Siparişler',
+    title: 'Orders',
     icon: <FiShoppingCart size={36} />, 
     color: 'danger',
     to: '/admin/orders',
   },
   {
     key: 'shippingCompanyCount',
-    title: 'Kargo Firmaları',
+    title: 'Shipping Companies',
     icon: <FiLayers size={36} />, 
     color: 'info',
     to: '/admin/shipping-companies',
@@ -53,13 +53,13 @@ const DashboardPage = () => {
   useEffect(() => {
     apiGet('http://localhost:5220/api/Admin/dashboard')
       .then(setStats)
-      .catch(() => setError('Dashboard verileri yüklenemedi.'))
+      .catch(() => setError('Dashboard data could not be loaded.'))
       .finally(() => setLoading(false));
   }, []);
 
   return (
     <CContainer className="py-4">
-      <h2 className="fw-bold mb-4">Admin Paneli - Genel Bakış</h2>
+      <h2 className="fw-bold mb-4">Admin Panel - Overview</h2>
       {loading ? (
         <div className="d-flex justify-content-center align-items-center py-5"><CSpinner color="primary" /></div>
       ) : error ? (
@@ -74,7 +74,7 @@ const DashboardPage = () => {
                   <CCardTitle className="fs-5 fw-semibold mb-1">{card.title}</CCardTitle>
                   <CCardText className={`fs-2 fw-bold text-${card.color}`}>{stats[card.key]}</CCardText>
                   <CButton color={card.color} variant="outline" className="mt-2 px-3 py-1" onClick={() => navigate(card.to)}>
-                    Tümünü Gör <FiChevronRight />
+                    View All <FiChevronRight />
                   </CButton>
                 </CCardBody>
               </CCard>
@@ -86,15 +86,15 @@ const DashboardPage = () => {
         <CCol xs={12} md={6}>
           <CCard className="h-100 shadow-sm">
             <CCardBody>
-              <CCardTitle className="fs-5 fw-bold mb-2">Kısa Yollar</CCardTitle>
+              <CCardTitle className="fs-5 fw-bold mb-2">Shortcuts</CCardTitle>
               <div className="d-flex flex-wrap gap-2">
-                <CButton color="primary" variant="outline" onClick={() => navigate('/admin/users')}>Kullanıcılar</CButton>
-                <CButton color="success" variant="outline" onClick={() => navigate('/admin/products')}>Ürünler</CButton>
-                <CButton color="warning" variant="outline" onClick={() => navigate('/admin/categories')}>Kategoriler</CButton>
-                <CButton color="danger" variant="outline" onClick={() => navigate('/admin/orders')}>Siparişler</CButton>
-                <CButton color="info" variant="outline" onClick={() => navigate('/admin/revenue')}>Gelir Raporu</CButton>
-                <CButton color="secondary" variant="outline" onClick={() => navigate('/admin/user-activity')}>Kullanıcı Aktiviteleri</CButton>
-                <CButton color="dark" variant="outline" onClick={() => navigate('/admin/reviews')}>Yorumlar</CButton>
+                <CButton color="primary" variant="outline" onClick={() => navigate('/admin/users')}>Users</CButton>
+                <CButton color="success" variant="outline" onClick={() => navigate('/admin/products')}>Products</CButton>
+                <CButton color="warning" variant="outline" onClick={() => navigate('/admin/categories')}>Categories</CButton>
+                <CButton color="danger" variant="outline" onClick={() => navigate('/admin/orders')}>Orders</CButton>
+                <CButton color="info" variant="outline" onClick={() => navigate('/admin/revenue')}>Revenue Report</CButton>
+                <CButton color="secondary" variant="outline" onClick={() => navigate('/admin/user-activity')}>User Activities</CButton>
+                <CButton color="dark" variant="outline" onClick={() => navigate('/admin/reviews')}>Reviews</CButton>
               </div>
             </CCardBody>
           </CCard>
@@ -102,9 +102,9 @@ const DashboardPage = () => {
         <CCol xs={12} md={6}>
           <CCard className="h-100 shadow-sm">
             <CCardBody>
-              <CCardTitle className="fs-5 fw-bold mb-2">Hoş Geldiniz!</CCardTitle>
+              <CCardTitle className="fs-5 fw-bold mb-2">Welcome!</CCardTitle>
               <CCardText>
-                Bu panelden kullanıcıları, ürünleri, kategorileri, siparişleri ve daha fazlasını kolayca yönetebilirsiniz. Sol menüden veya yukarıdaki kısa yollardan istediğiniz sayfaya hızlıca geçiş yapabilirsiniz.
+                You can easily manage users, products, categories, orders, and more from this panel. You can quickly navigate to any page using the left menu or the shortcuts above.
               </CCardText>
             </CCardBody>
           </CCard>

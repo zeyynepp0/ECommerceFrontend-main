@@ -16,16 +16,16 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 const adminStatusBadge = (status) => {
   switch (status) {
     case 'Completed':
-      return <CBadge color="success">Tamamlandı</CBadge>;
+      return <CBadge color="success">Completed</CBadge>;
     case 'Rejected':
-      return <CBadge color="danger">Reddedildi</CBadge>;
+      return <CBadge color="danger">Rejected</CBadge>;
     case 'InReview':
-      return <CBadge color="info">İncelemede</CBadge>;
+      return <CBadge color="info">In Review</CBadge>;
     case 'Approved':
-      return <CBadge color="warning">Onaylandı</CBadge>;
+      return <CBadge color="warning">Approved</CBadge>;
     case 'None':
     default:
-      return <CBadge color="secondary">Yok</CBadge>;
+      return <CBadge color="secondary">None</CBadge>;
   }
 };
 
@@ -189,13 +189,12 @@ const ProfilePage = () => {
   };
 
   const ProfileSchema = Yup.object().shape({
-    firstName: Yup.string().min(2, 'Adınız en az 2 karakter olmalı').required('Adınız gereklidir'),
-    lastName: Yup.string().min(2, 'Soyadınız en az 2 karakter olmalı').required('Soyadınız gereklidir'),
-    email: Yup.string().email('Geçerli bir e-posta giriniz').required('E-posta gereklidir'),
+    firstName: Yup.string().min(2, 'First name must be at least 2 characters').required('First name is required'),
+    lastName: Yup.string().min(2, 'Last name must be at least 2 characters').required('Last name is required'),
+    email: Yup.string().email('Please enter a valid email address').required('Email is required'),
     phone: Yup.string()
-      .matches(/^(	0|0)?\d{10}$/,
-        'Telefon numarası geçersiz. Başında 0 veya +90 olmadan 10 haneli girin.')
-      .required('Telefon numarası gereklidir'),
+      .matches(/^(\t0|0)?\d{10}$/, 'Invalid phone number. Enter 10 digits without leading 0 or +90.')
+      .required('Phone number is required'),
   });
 
   if (loading) return (
@@ -214,38 +213,38 @@ const ProfilePage = () => {
   // Sipariş durumunu yazı ve renkli badge ile gösteren yardımcı fonksiyon
   const getOrderStatusBadge = (statusText) => {
     const map = {
-      'Onay Bekliyor': { color: 'warning' },
-      'Onaylandı': { color: 'success' },
-      'Hazırlanıyor': { color: 'info' },
-      'Kargoya Verildi': { color: 'primary' },
-      'Teslim Edildi': { color: 'success' },
-      'İptal Edildi': { color: 'danger' },
-      'İade Talebi': { color: 'dark' },
-      'İade Edildi': { color: 'success' },
+      'Onay Bekliyor': { color: 'warning', text: 'Pending Approval' },
+      'Onaylandı': { color: 'success', text: 'Approved' },
+      'Hazırlanıyor': { color: 'info', text: 'Preparing' },
+      'Kargoya Verildi': { color: 'primary', text: 'Shipped' },
+      'Teslim Edildi': { color: 'success', text: 'Delivered' },
+      'İptal Edildi': { color: 'danger', text: 'Cancelled' },
+      'İade Talebi': { color: 'dark', text: 'Return Requested' },
+      'İade Edildi': { color: 'success', text: 'Returned' },
     };
-    const s = map[statusText] || { color: 'secondary' };
-    return <CBadge color={s.color} className="ms-2">{statusText}</CBadge>;
+    const s = map[statusText] || { color: 'secondary', text: statusText };
+    return <CBadge color={s.color} className="ms-2">{s.text}</CBadge>;
   };
   // Sipariş aksiyonları
   const handleCancelOrder = async (orderId) => {
-    if (!window.confirm('Siparişi iptal etmek istediğinize emin misiniz?')) return;
+    if (!window.confirm('Are you sure you want to cancel this order?')) return;
     try {
       await apiPost(`http://localhost:5220/api/Order/${orderId}/cancel`);
       setOrders(orders => orders.map(o => o.id === orderId ? { ...o, status: 'Cancelled' } : o));
-      alert('Sipariş iptal talebiniz alındı. Admin onayladığında iptal edilecek.');
+      alert('Your cancellation request has been submitted. The admin will confirm and cancel it.');
     } catch (err) {
-      alert('Sipariş iptal edilemedi. ' + (err?.response?.data?.message || err?.message || ''));
+      alert('Order cancellation failed. ' + (err?.response?.data?.message || err?.message || ''));
     }
   };
   const handleReturnOrder = async (orderId) => {
-    console.log('İade Et tıklandı', orderId);
-    if (!window.confirm('Bu siparişi iade etmek istediğinize emin misiniz?')) return;
+    console.log('Return Order clicked', orderId);
+    if (!window.confirm('Are you sure you want to return this order?')) return;
     try {
       await apiPost(`http://localhost:5220/api/Order/${orderId}/return`);
       setOrders(orders => orders.map(o => o.id === orderId ? { ...o, status: 'Returned' } : o));
-      alert('İade talebiniz alındı. Admin onayladığında süreç başlatılacak.');
+      alert('Your return request has been submitted. The admin will confirm and start the process.');
     } catch (err) {
-      alert('Sipariş iade edilemedi. ' + (err?.response?.data?.message || err?.message || ''));
+      alert('Order return failed. ' + (err?.response?.data?.message || err?.message || ''));
     }
   };
   const handleTrackOrder = (orderId) => {
@@ -253,30 +252,30 @@ const ProfilePage = () => {
   };
 
   return (
-    <CContainer fluid className="py-4">
+    <CContainer fluid className="py-4" style={{ background: '#fff', color: '#333' }}>
       <CRow>
         {/* Sidebar */}
         <CCol xs={12} md={4} lg={3} className="mb-4">
-          <CCard className="mb-3 text-center p-3">
-            <CAvatar color="primary" size="xl" className="mb-2" style={{ fontSize: 36 }}>
+          <CCard className="mb-3 text-center p-3" style={{ background: '#fff', color: '#333', border: '1px solid #eee' }}>
+           {/*  <CAvatar color="primary" size="xl" className="mb-2" style={{ fontSize: 36, background: '#e0e0e0', color: '#222222' }}>
               {user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
-            </CAvatar>
+            </CAvatar> */}
             <h4 className="mb-1">{user?.firstName} {user?.lastName}</h4>
             <div className="text-muted mb-1"><FiMail className="me-1" />{user?.email}</div>
             <div className="text-muted mb-2"><FiPhone className="me-1" />{user?.phone}</div>
           </CCard>
           <CNav variant="pills" className="flex-column gap-2">
             <CNavItem>
-              <CNavLink active={activeTab === 'profile'} onClick={() => setActiveTab('profile')}><FiUser className="me-2" />Profil Bilgileri</CNavLink>
+              <CNavLink active={activeTab === 'profile'} onClick={() => setActiveTab('profile')} style={activeTab === 'profile' ? { background: '#222222', color: '#fff' } : { color: '#222222' }}><FiUser className="me-2" />Profile Info</CNavLink>
             </CNavItem>
             <CNavItem>
-              <CNavLink active={activeTab === 'address'} onClick={() => setActiveTab('address')}><FiMapPin className="me-2" />Adreslerim</CNavLink>
+              <CNavLink active={activeTab === 'address'} onClick={() => setActiveTab('address')} style={activeTab === 'address' ? { background: '#222222', color: '#fff' } : { color: '#222222' }}><FiMapPin className="me-2" />My Addresses</CNavLink>
             </CNavItem>
             <CNavItem>
-              <CNavLink active={activeTab === 'favorites'} onClick={() => setActiveTab('favorites')}><FiHeart className="me-2" />Favorilerim</CNavLink>
+              <CNavLink active={activeTab === 'favorites'} onClick={() => setActiveTab('favorites')} style={activeTab === 'favorites' ? { background: '#222222', color: '#fff' } : { color: '#222222' }}><FiHeart className="me-2" />My Favorites</CNavLink>
             </CNavItem>
             <CNavItem>
-              <CNavLink active={activeTab === 'orders'} onClick={() => setActiveTab('orders')}><FiShoppingBag className="me-2" />Siparişlerim</CNavLink>
+              <CNavLink active={activeTab === 'orders'} onClick={() => setActiveTab('orders')} style={activeTab === 'orders' ? { background: '#222222', color: '#fff' } : { color: '#222222' }}><FiShoppingBag className="me-2" />My Orders</CNavLink>
             </CNavItem>
           </CNav>
         </CCol>
@@ -284,7 +283,7 @@ const ProfilePage = () => {
         <CCol xs={12} md={8} lg={9}>
           <CTabContent>
             <CTabPane visible={activeTab === 'profile'}>
-              <CCard className="mb-4">
+              <CCard className="mb-4" style={{ background: '#fff', color: '#333', border: '1px solid #eee' }}>
                 <CCardBody>
                   <CCardTitle>Profil Bilgileri</CCardTitle>
                   <Formik
@@ -333,12 +332,12 @@ const ProfilePage = () => {
                       <Form>
                         <CRow className="mb-3">
                           <CCol md={6}>
-                            <CFormLabel>Ad</CFormLabel>
+                            <CFormLabel>First Name</CFormLabel>
                             <Field as={CFormInput} name="firstName" value={values.firstName} onChange={handleChange} />
                             <ErrorMessage name="firstName" component="div" className="text-danger small" />
                           </CCol>
                           <CCol md={6}>
-                            <CFormLabel>Soyad</CFormLabel>
+                            <CFormLabel>Last Name</CFormLabel>
                             <Field as={CFormInput} name="lastName" value={values.lastName} onChange={handleChange} />
                             <ErrorMessage name="lastName" component="div" className="text-danger small" />
                           </CCol>
@@ -350,7 +349,7 @@ const ProfilePage = () => {
                             <ErrorMessage name="email" component="div" className="text-danger small" />
                           </CCol>
                           <CCol md={6}>
-                            <CFormLabel>Telefon</CFormLabel>
+                            <CFormLabel>Phone</CFormLabel>
                             <Field as={CFormInput} name="phone" type="tel" value={values.phone} onChange={handleChange} />
                             <ErrorMessage name="phone" component="div" className="text-danger small" />
                           </CCol>
@@ -370,7 +369,7 @@ const ProfilePage = () => {
                             </div>
                           </CCol>
                         </CRow>
-                        <CButton type="submit" color="primary" disabled={isSubmitting}>
+                        <CButton type="submit" style={{ background: '#222222', color: '#fff', border: 'none' }} disabled={isSubmitting}>
                           {isSubmitting ? 'Kaydediliyor...' : 'Bilgilerimi Güncelle'}
                         </CButton>
                       </Form>
@@ -380,7 +379,7 @@ const ProfilePage = () => {
               </CCard>
             </CTabPane>
             <CTabPane visible={activeTab === 'address'}>
-              <CCard className="mb-4">
+              <CCard className="mb-4" style={{ background: '#fff', color: '#333', border: '1px solid #eee' }}>
                 <CCardBody>
                   <div className="d-flex justify-content-between align-items-center mb-3">
                     <CCardTitle>Adreslerim</CCardTitle>
@@ -462,7 +461,7 @@ const ProfilePage = () => {
               </CCard>
             </CTabPane>
             <CTabPane visible={activeTab === 'favorites'}>
-              <CCard className="mb-4">
+              <CCard className="mb-4" style={{ background: '#fff', color: '#333', border: '1px solid #eee' }}>
                 <CCardBody>
                   <CCardTitle>Favorilerim</CCardTitle>
                   {favoriteProducts.length === 0 ? (
@@ -472,20 +471,20 @@ const ProfilePage = () => {
                       <CRow className="g-3">
                         {paginatedFavorites.map(product => (
                           <CCol xs={12} sm={6} md={4} lg={3} key={product.id}>
-                            <CCard className="h-100" style={{ cursor: 'pointer' }} onClick={() => navigate(`/products/${product.id}`)}>
+                            <CCard className="h-100" style={{ cursor: 'pointer', background: '#fff', color: '#333', border: '1px solid #eee' }} onClick={() => navigate(`/products/${product.id}`)}>
                               <img
                                 src={product.imageUrl}
                                 alt={product.name}
-                                style={{ width: '100%', height: 140, objectFit: 'cover', borderTopLeftRadius: 8, borderTopRightRadius: 8 }}
+                                style={{ width: '100%', height: 140, objectFit: 'cover', borderTopLeftRadius: 8, borderTopRightRadius: 8, background: '#fff' }}
                                 onError={e => { e.target.src = '/images/default-product.jpg'; }}
                               />
                               <CCardBody>
                                 <CCardTitle>{product.name}</CCardTitle>
                                 <CCardText>{product.description}</CCardText>
-                                <div className="mb-2">Fiyat: <strong>{product.price} TL</strong></div>
-                                <div className="mb-2">Stok: <strong>{product.stock}</strong></div>
-                                <div className="mb-2">Kategori: <strong>{product.category?.name}</strong></div>
-                                <CButton color="danger" variant="outline" size="sm" onClick={e => { e.stopPropagation(); handleRemoveFavorite(product.id); }}><FiTrash2 className="me-1" />Favorilerden Kaldır</CButton>
+                                <div className="mb-2">Price: <strong>{product.price} TL</strong></div>
+                                <div className="mb-2">Stock: <strong>{product.stock}</strong></div>
+                                <div className="mb-2">Category: <strong>{product.category?.name}</strong></div>
+                                <CButton color="danger" variant="outline" size="sm" onClick={e => { e.stopPropagation(); handleRemoveFavorite(product.id); }}><FiTrash2 className="me-1" />Remove from Favorites</CButton>
                               </CCardBody>
                             </CCard>
                           </CCol>
@@ -513,7 +512,7 @@ const ProfilePage = () => {
               </CCard>
             </CTabPane>
             <CTabPane visible={activeTab === 'orders'}>
-              <CCard className="mb-4">
+              <CCard className="mb-4" style={{ background: '#fff', color: '#333', border: '1px solid #eee' }}>
                 <CCardBody>
                   <CCardTitle>Siparişlerim</CCardTitle>
                   {orders.length === 0 ? (
@@ -528,21 +527,21 @@ const ProfilePage = () => {
                         return (
                           <CListGroupItem
                             key={order.id}
-                            className={`mb-3 ${isCancelled ? 'list-group-item-danger' : isRefunded ? 'list-group-item-warning' : ''}`}
+                            className={`mb-3 ${isCancelled ? 'list-group-item-danger' : isRefunded ? 'list-group-item-warning' : ''}${isDelivered ? 'list-group-item-success' : ''}`}
                           >
                             <div className="d-flex justify-content-between align-items-center mb-2">
                               <div>
-                                <span className="fw-bold">Sipariş No: #{order.id}</span>
+                                <span className="fw-bold">Order No: #{order.id}</span>
                                 {getOrderStatusBadge(order.statusText)}
                               </div>
                               <div className="text-muted">{new Date(order.orderDate).toLocaleDateString()}</div>
                             </div>
-                            <div className="mb-2"><strong>Adres:</strong> {order.address?.addressTitle} - {order.address?.street}, {order.address?.city} {order.address?.state}, {order.address?.country} ({order.address?.postalCode})</div>
-                            <div className="mb-2"><strong>Teslim Alacak Kişi:</strong> {order.deliveryPersonName} <strong>Telefon:</strong> {order.deliveryPersonPhone}</div>
-                            <div className="mb-2"><strong>Ödeme Yöntemi:</strong> {order.paymentMethod === 0 ? 'Kredi Kartı' : order.paymentMethod === 1 ? 'Banka Kartı' : order.paymentMethod === 2 ? 'Banka Havalesi' : 'Nakit'}</div>
-                            <div className="mb-2"><strong>Kargo Ücreti:</strong> {order.shippingCost === 0 ? 'Ücretsiz' : `${order.shippingCost} TL`}</div>
-                            <div className="mb-2"><strong>Toplam Tutar:</strong> {order.totalAmount} TL</div>
-                            <div className="mb-2"><strong>Sipariş İçeriği:</strong></div>
+                            <div className="mb-2"><strong>Address:</strong> {order.address?.addressTitle} - {order.address?.street}, {order.address?.city} {order.address?.state}, {order.address?.country} ({order.address?.postalCode})</div>
+                            <div className="mb-2"><strong>Delivery Person:</strong> {order.deliveryPersonName} <strong>Phone:</strong> {order.deliveryPersonPhone}</div>
+                            <div className="mb-2"><strong>Payment Method:</strong> {order.paymentMethod === 0 ? 'Credit Card' : order.paymentMethod === 1 ? 'Bank Card' : order.paymentMethod === 2 ? 'Bank Transfer' : 'Cash'}</div>
+                            <div className="mb-2"><strong>Shipping Cost:</strong> {order.shippingCost === 0 ? 'Free' : `${order.shippingCost} TL`}</div>
+                            <div className="mb-2"><strong>Total Amount:</strong> {order.totalAmount} TL</div>
+                            <div className="mb-2"><strong>Order Items:</strong></div>
                             <CListGroup className="mb-2">
                               {order.orderItems?.map(item => (
                                 <CListGroupItem key={item.id} className="d-flex align-items-center gap-2" style={{ cursor: 'pointer' }} onClick={() => navigate(`/products/${item.productId}`)}>
@@ -557,7 +556,7 @@ const ProfilePage = () => {
                             </CListGroup>
                             {/* Sipariş aksiyon butonları */}
                             <div className="d-flex gap-2 mt-2">
-                              <CButton color="danger" size="sm" variant="outline" disabled={['Cancelled','Returned','Delivered','Refunded',5,7,4,'5','7','4'].includes(order.status) || isCancelled || isRefunded} onClick={() => handleCancelOrder(order.id)}>İptal Et</CButton>
+                              <CButton color="danger" size="sm" variant="outline" disabled={['Cancelled','Returned','Delivered','Refunded',5,7,4,'5','7','4'].includes(order.status) || isCancelled || isRefunded} onClick={() => handleCancelOrder(order.id)}>Cancel Order</CButton>
                               <CButton 
                                 color="warning" 
                                 size="sm" 
@@ -565,9 +564,9 @@ const ProfilePage = () => {
                                 disabled={!isDelivered} 
                                 onClick={() => handleReturnOrder(order.id)}
                               >
-                                İade Et
+                                Return Order
                               </CButton>
-                              <CButton color="info" size="sm" variant="outline" onClick={() => handleTrackOrder(order.id)}>Kargo Sürecini Gör</CButton>
+                              <CButton color="info" size="sm" variant="outline" onClick={() => handleTrackOrder(order.id)}>Track Shipping</CButton>
                             </div>
                           </CListGroupItem>
                         );

@@ -172,15 +172,15 @@ const ProductsPage = ({ darkMode }) => {
         {/* Ürünler Grid (sol) */}
         <CCol xs={12} md={8} lg={9}>
           <div className="d-flex justify-content-between align-items-center mb-2">
-            <h2 className="mb-0">Tüm Ürünler</h2>
-            <span className="text-muted">{filteredProducts.length} ürün bulundu</span>
+            <h2 className="mb-0">All Products</h2>
+            <span className="text-muted">{filteredProducts.length} products found</span>
           </div>
           {loading ? (
             <div className="d-flex justify-content-center align-items-center" style={{ minHeight: 200 }}>
               <CSpinner color="primary" />
             </div>
           ) : filteredProducts.length === 0 ? (
-            <div className="text-center py-5">Filtrelerinize uygun ürün bulunamadı.</div>
+            <div className="text-center py-5">No products found matching your filters.</div>
           ) : (
             <>
               <CRow className="g-3">
@@ -214,22 +214,22 @@ const ProductsPage = ({ darkMode }) => {
         </CCol>
         {/* Filtre Paneli (sağ) */}
         <CCol xs={12} md={4} lg={3}>
-          <CCard className="filters-sidebar p-3 sticky-top" style={{ top: 90 }}>
+          <CCard className="filters-sidebar p-3 sticky-top" style={{ top: 90, background: '#fff', color: undefined, border: undefined }}>
             <CCardTitle className="mb-3">Filtreler</CCardTitle>
             <div className="filter-group mb-3">
-              <label>Kategori</label>
+              <label>Category</label>
               <CFormSelect
                 value={filters.categoryId}
                 onChange={e => setFilters(f => ({ ...f, categoryId: e.target.value }))}
               >
-                <option value="">Tümü</option>
+                <option value="">All</option>
                 {categories.map(cat => (
                   <option key={cat.id} value={cat.id}>{cat.name}</option>
                 ))}
               </CFormSelect>
             </div>
             <div className="filter-group mb-3">
-              <label>Fiyat Aralığı</label>
+              <label>Price Range</label>
               <div className="d-flex gap-2">
                 <CFormInput type="number" min={0} placeholder="Min" value={filters.minPrice} onChange={e => setFilters(f => ({ ...f, minPrice: e.target.value }))} />
                 <CFormInput type="number" min={0} placeholder="Max" value={filters.maxPrice} onChange={e => setFilters(f => ({ ...f, maxPrice: e.target.value }))} />
@@ -237,9 +237,9 @@ const ProductsPage = ({ darkMode }) => {
             </div>
             {colorOptions.length > 0 && (
               <div className="filter-group mb-3">
-                <label>Renk</label>
+                <label>Color</label>
                 <CFormSelect value={filters.color} onChange={e => setFilters(f => ({ ...f, color: e.target.value }))}>
-                  <option value="">Tümü</option>
+                  <option value="">All</option>
                   {colorOptions.map(color => (
                     <option key={color} value={color}>{color}</option>
                   ))}
@@ -248,9 +248,9 @@ const ProductsPage = ({ darkMode }) => {
             )}
             {brandOptions.length > 0 && (
               <div className="filter-group mb-3">
-                <label>Marka</label>
+                <label>Brand</label>
                 <CFormSelect value={filters.brand} onChange={e => setFilters(f => ({ ...f, brand: e.target.value }))}>
-                  <option value="">Tümü</option>
+                  <option value="">All</option>
                   {brandOptions.map(brand => (
                     <option key={brand} value={brand}>{brand}</option>
                   ))}
@@ -258,38 +258,37 @@ const ProductsPage = ({ darkMode }) => {
               </div>
             )}
             <div className="filter-group mb-3">
-            <label>Stokta Olanlar</label>
+            <label>In Stock</label>
               <CFormCheck
-              
                 checked={filters.inStock}
                 onChange={e => setFilters(f => ({ ...f, inStock: e.target.checked }))}
               />
-              <label>Sadece İndirimli</label>
+              <label>Discounted Only</label>
               <CFormCheck
                 checked={filters.discountOnly}
                 onChange={e => setFilters(f => ({ ...f, discountOnly: e.target.checked }))}
               />
             </div>
             <div className="filter-group mb-3">
-              <label>Puan</label>
+              <label>Rating</label>
               <CFormSelect value={filters.rating} onChange={e => setFilters(f => ({ ...f, rating: e.target.value }))}>
-                <option value="">Tümü</option>
+                <option value="">All</option>
                 {ratingOptions.map(r => (
-                  <option key={r} value={r}>{r} yıldız ve üzeri</option>
+                  <option key={r} value={r}>{r} stars and above</option>
                 ))}
               </CFormSelect>
             </div>
             <div className="filter-group mb-3">
-              <label>Sırala</label>
+              <label>Sort By</label>
               <CFormSelect value={filters.sortBy} onChange={e => setFilters(f => ({ ...f, sortBy: e.target.value }))}>
-                <option value="default">Varsayılan</option>
-                <option value="priceLowToHigh">Fiyat: Artan</option>
-                <option value="priceHighToLow">Fiyat: Azalan</option>
-                <option value="rating">Puan</option>
-                <option value="newest">En Yeni</option>
+                <option value="default">Default</option>
+                <option value="priceLowToHigh">Price: Low to High</option>
+                <option value="priceHighToLow">Price: High to Low</option>
+                <option value="rating">Rating</option>
+                <option value="newest">Newest</option>
               </CFormSelect>
             </div>
-            <CButton color="secondary" className="w-100 mt-2" onClick={handleResetFilters}>Filtreleri Temizle</CButton>
+            <CButton color="secondary" className="w-100 mt-2" onClick={handleResetFilters}>Clear Filters</CButton>
           </CCard>
         </CCol>
       </CRow>

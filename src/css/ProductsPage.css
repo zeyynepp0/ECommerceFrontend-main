@@ -3,18 +3,9 @@
   --text-color: #333333;
   --border-color: #e0e0e0;
   --card-bg: #f9f9f9;
-  --primary-color: #4f46e5;
-  --secondary-color: #4338ca;
+  --primary-color: #333333;
+  --secondary-color: #222222;
   --discount-color: #ef4444;
-}
-
-.dark {
-  --primary-bg: #1e293b;
-  --text-color: #f8fafc;
-  --border-color: #334155;
-  --card-bg: #1e293b;
-  --primary-color: #818cf8;
-  --secondary-color: #6366f1;
 }
 
 .products-page {
@@ -38,12 +29,13 @@
   padding: 28px 22px 22px 22px;
   background: var(--card-bg);
   border-radius: 18px;
-  box-shadow: 0 4px 24px rgba(60,60,100,0.08);
+  box-shadow: 0 4px 24px rgba(60,60,100,0.08), 0 0 0 1px var(--border-color); /* subtle border+shadow */
   position: sticky;
   top: 20px;
   height: fit-content;
   transition: all 0.3s ease;
   border: 1px solid var(--border-color);
+  z-index: 99; /* Lower than header/profile dropdown */
 }
 .filter-group {
   margin-bottom: 32px;
@@ -288,7 +280,7 @@
     width: 80%;
     max-width: 100vw;
     height: 100vh;
-    z-index: 1000;
+    z-index: 99; /* Lower than header/profile dropdown */
     overflow-y: auto;
     padding-top: 70px;
     border-radius: 0 18px 18px 0;

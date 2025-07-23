@@ -107,7 +107,7 @@ const AdminUserDetailPage = () => {
           })
           .catch(() => {});
       } catch (err) {
-        setError('Kullanıcı verileri alınamadı.');
+        setError('User data could not be retrieved.');
         setUser({ id, fullName: 'Bilinmiyor', email: '-', role: '-', phone: '-', isActive: true });
         setAddresses([]);
         setOrders([]);
@@ -123,10 +123,39 @@ const AdminUserDetailPage = () => {
 
   // Profil güncelleme
   const ProfileSchema = Yup.object().shape({
-    firstName: Yup.string().min(2, 'Adı en az 2 karakter olmalı').required('Adı gereklidir'),
-    lastName: Yup.string().min(2, 'Soyadı en az 2 karakter olmalı').required('Soyadı gereklidir'),
-    email: Yup.string().email('Geçerli bir e-posta giriniz').required('E-posta gereklidir'),
-    phone: Yup.string().required('Telefon gereklidir'),
+    firstName: Yup.string()
+      .matches(/^[a-zA-ZçÇğĞıİöÖşŞüÜ\s'-]+$/, 'Sadece harf ve boşluk giriniz')
+      .min(2, 'En az 2 karakter olmalı')
+      .required('Adı gereklidir'),
+    lastName: Yup.string()
+      .matches(/^[a-zA-ZçÇğĞıİöÖşŞüÜ\s'-]+$/, 'Sadece harf ve boşluk giriniz')
+      .min(2, 'En az 2 karakter olmalı')
+      .required('Soyadı gereklidir'),
+    email: Yup.string()
+      .email('Geçerli bir e-posta giriniz')
+      .required('E-posta gereklidir'),
+    phone: Yup.string()
+      .matches(/^[0-9]{10}$/, 'Telefon numarası 10 haneli olmalı (başında 0 veya +90 olmadan)')
+      .required('Telefon gereklidir'),
+    password: Yup.string()
+      .min(8, 'Şifre en az 8 karakter olmalı')
+      .matches(/[A-Z]/, 'En az bir büyük harf olmalı')
+      .matches(/[a-z]/, 'En az bir küçük harf olmalı')
+      .matches(/[0-9]/, 'En az bir rakam olmalı')
+      .matches(/[^A-Za-z0-9]/, 'En az bir özel karakter olmalı'),
+    birthDate: Yup.date()
+      .max(new Date(), 'Doğum tarihi ileri bir tarih olamaz')
+      .test('age', '18 yaşından büyük olmalısınız', function(value) {
+        if (!value) return false;
+        const today = new Date();
+        const birthDate = new Date(value);
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const m = today.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+          age--;
+        }
+        return age >= 18;
+      })
   });
   const handleProfileUpdate = async (values, { setSubmitting }) => {
     setProfileError('');
@@ -134,12 +163,12 @@ const AdminUserDetailPage = () => {
     const emailExists = allUsers.some(u => u.email === values.email && String(u.id) !== String(user.id));
     const phoneExists = allUsers.some(u => u.phone === values.phone && String(u.id) !== String(user.id));
     if (emailExists) {
-      setProfileError('Bu e-posta başka bir kullanıcıda kayıtlı!');
+      setProfileError('This email is already registered to another user!');
       setSubmitting(false);
       return;
     }
     if (phoneExists) {
-      setProfileError('Bu telefon numarası başka bir kullanıcıda kayıtlı!');
+      setProfileError('This phone number is already registered to another user!');
       setSubmitting(false);
       return;
     }
@@ -160,9 +189,9 @@ const AdminUserDetailPage = () => {
       };
       await apiPut(`${API_BASE}/api/User`, updatePayload);
       setUser({ ...user, ...values, password: updatePayload.password, isActive: normalizeIsActive(updatePayload.isActive) });
-      alert('Kullanıcı bilgileri güncellendi!');
+      alert('User information updated!');
     } catch {
-      setProfileError('Güncelleme başarısız.');
+      setProfileError('Update failed.');
     } finally {
       setSubmitting(false);
     }
@@ -181,7 +210,7 @@ const AdminUserDetailPage = () => {
       setEditingAddress(null);
       setAddingAddress(false);
     } catch {
-      alert('Adres kaydedilemedi.');
+      alert('Address could not be saved.');
     }
   };
   const handleAddressDelete = async (addressId) => {
@@ -190,13 +219,13 @@ const AdminUserDetailPage = () => {
       const refreshed = await apiGet(`${API_BASE}/api/Address/user/${id}`);
       setAddresses(refreshed);
     } catch {
-      alert('Adres silinemedi.');
+      alert('Address could not be deleted.');
     }
   };
 
   if (loading) return <div className="d-flex justify-content-center align-items-center py-5"><CSpinner color="primary" /></div>;
   if (error) return <CAlert color="danger">{error}</CAlert>;
-  if (!user) return <CAlert color="warning">Kullanıcı bulunamadı.</CAlert>;
+  if (!user) return <CAlert color="warning">User not found.</CAlert>;
 
   return (
     <CContainer className="py-4">
@@ -212,31 +241,31 @@ const AdminUserDetailPage = () => {
             <CCol xs={12} md={9}>
               <CNav variant="tabs" role="tablist">
                 <CNavItem>
-                  <CNavLink active={activeTab === 0} onClick={() => setActiveTab(0)}>Profil</CNavLink>
+                  <CNavLink active={activeTab === 0} onClick={() => setActiveTab(0)}>Profile</CNavLink>
                 </CNavItem>
                 <CNavItem>
-                  <CNavLink active={activeTab === 1} onClick={() => setActiveTab(1)}>Adresler</CNavLink>
+                  <CNavLink active={activeTab === 1} onClick={() => setActiveTab(1)}>Addresses</CNavLink>
                 </CNavItem>
                 <CNavItem>
-                  <CNavLink active={activeTab === 2} onClick={() => setActiveTab(2)}>Sepet</CNavLink>
+                  <CNavLink active={activeTab === 2} onClick={() => setActiveTab(2)}>Cart</CNavLink>
                 </CNavItem>
                 <CNavItem>
-                  <CNavLink active={activeTab === 3} onClick={() => setActiveTab(3)}>Siparişler</CNavLink>
+                  <CNavLink active={activeTab === 3} onClick={() => setActiveTab(3)}>Orders</CNavLink>
                 </CNavItem>
                 <CNavItem>
-                  <CNavLink active={activeTab === 4} onClick={() => setActiveTab(4)}>Favoriler</CNavLink>
+                  <CNavLink active={activeTab === 4} onClick={() => setActiveTab(4)}>Favorites</CNavLink>
                 </CNavItem>
               </CNav>
               <CTabContent className="mt-4">
                 <CTabPane visible={activeTab === 0}>
                   <CCard className="mb-3">
                     <CCardBody>
-                      <CCardTitle>Profil Bilgileri</CCardTitle>
+                      <CCardTitle>Profile Information</CCardTitle>
                       <div className="mb-3">
-                        <b>Durum: </b>
+                        <b>Status: </b>
                         {typeof user.isActive === 'boolean' ? (
-                          user.isActive ? <span className="badge bg-success">Aktif</span> : <span className="badge bg-danger">Pasif</span>
-                        ) : <span className="badge bg-secondary">Bilinmiyor</span>}
+                          user.isActive ? <span className="badge bg-success">Active</span> : <span className="badge bg-danger">Passive</span>
+                        ) : <span className="badge bg-secondary">Unknown</span>}
                         <CButton
                           size="sm"
                           color={normalizeIsActive(user.isActive) ? 'danger' : 'success'}
@@ -247,11 +276,11 @@ const AdminUserDetailPage = () => {
                               await apiPut(`${API_BASE}/api/User`, { id: user.id, isActive: !normalizeIsActive(user.isActive) });
                               setUser({ ...user, isActive: !normalizeIsActive(user.isActive) });
                             } catch {
-                              alert('Durum güncellenemedi.');
+                              alert('Status could not be updated.');
                             }
                           }}
                         >
-                          {normalizeIsActive(user.isActive) ? 'Pasif Yap' : 'Aktif Yap'}
+                          {normalizeIsActive(user.isActive) ? 'Make Passive' : 'Make Active'}
                         </CButton>
                       </div>
                       <Formik
@@ -271,12 +300,12 @@ const AdminUserDetailPage = () => {
                             {profileError && <div className="text-danger mb-2">{profileError}</div>}
                             <CRow className="mb-3">
                               <CCol md={6}>
-                                <CFormLabel>Ad</CFormLabel>
+                                <CFormLabel>First Name</CFormLabel>
                                 <Field as={CFormInput} name="firstName" value={values.firstName} onChange={handleChange} />
                                 <ErrorMessage name="firstName" component="div" className="text-danger small" />
                               </CCol>
                               <CCol md={6}>
-                                <CFormLabel>Soyad</CFormLabel>
+                                <CFormLabel>Last Name</CFormLabel>
                                 <Field as={CFormInput} name="lastName" value={values.lastName} onChange={handleChange} />
                                 <ErrorMessage name="lastName" component="div" className="text-danger small" />
                               </CCol>
@@ -288,14 +317,14 @@ const AdminUserDetailPage = () => {
                                 <ErrorMessage name="email" component="div" className="text-danger small" />
                               </CCol>
                               <CCol md={6}>
-                                <CFormLabel>Telefon</CFormLabel>
+                                <CFormLabel>Phone</CFormLabel>
                                 <Field as={CFormInput} name="phone" type="tel" value={values.phone} onChange={handleChange} />
                                 <ErrorMessage name="phone" component="div" className="text-danger small" />
                               </CCol>
                             </CRow>
                             <CRow className="mb-3">
                               <CCol md={6}>
-                                <CFormLabel>Şifre (değiştirmek için doldurun)</CFormLabel>
+                                <CFormLabel>Password (fill to change)</CFormLabel>
                                 <div style={{ position: 'relative' }}>
                                   <Field as={CFormInput} name="password" type={showPassword ? 'text' : 'password'} value={values.password} onChange={handleChange} autoComplete="new-password" />
                                   <span style={{ position: 'absolute', right: 10, top: 8, cursor: 'pointer' }} onClick={() => setShowPassword(v => !v)}>
@@ -305,7 +334,7 @@ const AdminUserDetailPage = () => {
                               </CCol>
                             </CRow>
                             <CButton type="submit" color="primary" disabled={isSubmitting}>
-                              {isSubmitting ? 'Kaydediliyor...' : 'Bilgilerimi Güncelle'}
+                              {isSubmitting ? 'Saving...' : 'Update My Information'}
                             </CButton>
                           </Form>
                         )}
@@ -315,25 +344,25 @@ const AdminUserDetailPage = () => {
                 </CTabPane>
                 <CTabPane visible={activeTab === 1}>
                   <div className="d-flex justify-content-between align-items-center mb-3">
-                    <CCardTitle>Adresler</CCardTitle>
-                    <CButton color="success" variant="outline" onClick={() => { setAddingAddress(true); setEditingAddress(null); }}>Yeni Adres</CButton>
+                    <CCardTitle>Addresses</CCardTitle>
+                    <CButton color="success" variant="outline" onClick={() => { setAddingAddress(true); setEditingAddress(null); }}>New Address</CButton>
                   </div>
                   <CRow className="g-3">
                     {addresses.map(addr => (
                       <CCol xs={12} md={6} lg={4} key={addr.id}>
                         <CCard className="h-100 shadow-sm">
                           <CCardBody>
-                            <CCardTitle>{addr.addressTitle || 'Adres Başlığı'}</CCardTitle>
-                            <div><b>Ad Soyad:</b> {addr.contactName} {addr.contactSurname}</div>
-                            <div><b>Telefon:</b> {addr.contactPhone}</div>
-                            <div><b>Şehir:</b> {addr.city}</div>
-                            <div><b>İlçe:</b> {addr.state}</div>
-                            <div><b>Sokak:</b> {addr.street}</div>
-                            <div><b>Posta Kodu:</b> {addr.postalCode}</div>
-                            <div><b>Ülke:</b> {addr.country}</div>
+                            <CCardTitle>{addr.addressTitle || 'Address Title'}</CCardTitle>
+                            <div><b>Full Name:</b> {addr.contactName} {addr.contactSurname}</div>
+                            <div><b>Phone:</b> {addr.contactPhone}</div>
+                            <div><b>City:</b> {addr.city}</div>
+                            <div><b>State:</b> {addr.state}</div>
+                            <div><b>Street:</b> {addr.street}</div>
+                            <div><b>Postal Code:</b> {addr.postalCode}</div>
+                            <div><b>Country:</b> {addr.country}</div>
                             <div className="d-flex gap-2 mt-2">
-                              <CButton color="primary" size="sm" variant="outline" onClick={() => { setEditingAddress(addr); setAddingAddress(false); }}>Düzenle</CButton>
-                              <CButton color="danger" size="sm" variant="outline" onClick={() => handleAddressDelete(addr.id)}>Sil</CButton>
+                              <CButton color="primary" size="sm" variant="outline" onClick={() => { setEditingAddress(addr); setAddingAddress(false); }}>Edit</CButton>
+                              <CButton color="danger" size="sm" variant="outline" onClick={() => handleAddressDelete(addr.id)}>Delete</CButton>
                             </div>
                           </CCardBody>
                         </CCard>
@@ -344,7 +373,7 @@ const AdminUserDetailPage = () => {
                   {(editingAddress || addingAddress) && (
                     <CCard className="mt-4">
                       <CCardBody>
-                        <CCardTitle>{addingAddress ? 'Yeni Adres Ekle' : 'Adresi Düzenle'}</CCardTitle>
+                        <CCardTitle>{addingAddress ? 'Add New Address' : 'Edit Address'}</CCardTitle>
                         <Formik
                           enableReinitialize
                           initialValues={editingAddress || {
@@ -356,53 +385,53 @@ const AdminUserDetailPage = () => {
                             <Form>
                               <CRow className="mb-3">
                                 <CCol md={6}>
-                                  <CFormLabel>Adres Başlığı</CFormLabel>
+                                  <CFormLabel>Address Title</CFormLabel>
                                   <Field as={CFormInput} name="addressTitle" value={values.addressTitle} onChange={handleChange} />
                                 </CCol>
                                 <CCol md={6}>
-                                  <CFormLabel>Şehir</CFormLabel>
+                                  <CFormLabel>City</CFormLabel>
                                   <Field as={CFormInput} name="city" value={values.city} onChange={handleChange} />
                                 </CCol>
                               </CRow>
                               <CRow className="mb-3">
                                 <CCol md={6}>
-                                  <CFormLabel>Sokak</CFormLabel>
+                                  <CFormLabel>Street</CFormLabel>
                                   <Field as={CFormInput} name="street" value={values.street} onChange={handleChange} />
                                 </CCol>
                                 <CCol md={6}>
-                                  <CFormLabel>İlçe</CFormLabel>
+                                  <CFormLabel>State</CFormLabel>
                                   <Field as={CFormInput} name="state" value={values.state} onChange={handleChange} />
                                 </CCol>
                               </CRow>
                               <CRow className="mb-3">
                                 <CCol md={6}>
-                                  <CFormLabel>Posta Kodu</CFormLabel>
+                                  <CFormLabel>Postal Code</CFormLabel>
                                   <Field as={CFormInput} name="postalCode" value={values.postalCode} onChange={handleChange} />
                                 </CCol>
                                 <CCol md={6}>
-                                  <CFormLabel>Ülke</CFormLabel>
+                                  <CFormLabel>Country</CFormLabel>
                                   <Field as={CFormInput} name="country" value={values.country} onChange={handleChange} />
                                 </CCol>
                               </CRow>
                               <CRow className="mb-3">
                                 <CCol md={6}>
-                                  <CFormLabel>İletişim Adı</CFormLabel>
+                                  <CFormLabel>Contact Name</CFormLabel>
                                   <Field as={CFormInput} name="contactName" value={values.contactName} onChange={handleChange} />
                                 </CCol>
                                 <CCol md={6}>
-                                  <CFormLabel>İletişim Soyadı</CFormLabel>
+                                  <CFormLabel>Contact Surname</CFormLabel>
                                   <Field as={CFormInput} name="contactSurname" value={values.contactSurname} onChange={handleChange} />
                                 </CCol>
                               </CRow>
                               <CRow className="mb-3">
                                 <CCol md={6}>
-                                  <CFormLabel>İletişim Telefonu</CFormLabel>
+                                  <CFormLabel>Contact Phone</CFormLabel>
                                   <Field as={CFormInput} name="contactPhone" value={values.contactPhone} onChange={handleChange} />
                                 </CCol>
                               </CRow>
                               <div className="d-flex gap-2">
-                                <CButton type="submit" color="primary" disabled={isSubmitting}>{isSubmitting ? 'Kaydediliyor...' : 'Kaydet'}</CButton>
-                                <CButton type="button" color="secondary" variant="outline" onClick={() => { setEditingAddress(null); setAddingAddress(false); }}>İptal</CButton>
+                                <CButton type="submit" color="primary" disabled={isSubmitting}>{isSubmitting ? 'Saving...' : 'Save'}</CButton>
+                                <CButton type="button" color="secondary" variant="outline" onClick={() => { setEditingAddress(null); setAddingAddress(false); }}>Cancel</CButton>
                               </div>
                             </Form>
                           )}
@@ -412,7 +441,7 @@ const AdminUserDetailPage = () => {
                   )}
                 </CTabPane>
                 <CTabPane visible={activeTab === 2}>
-                  {cartProducts.length === 0 ? <div className="text-muted">Sepet boş.</div> : (
+                  {cartProducts.length === 0 ? <div className="text-muted">Cart is empty.</div> : (
                     <CRow className="g-3">
                       {cartProducts.map(item => (
                         <CCol xs={12} md={6} lg={4} key={item.id}>
@@ -420,11 +449,11 @@ const AdminUserDetailPage = () => {
                             <CImage src={item.imageUrl ? (item.imageUrl.startsWith('http') ? item.imageUrl : API_BASE + item.imageUrl) : '/images/default-product.jpg'} alt={item.name} width={80} height={80} style={{ objectFit: 'cover', borderRadius: 8 }} />
                             <CCardBody>
                               <CCardTitle>{item.name}</CCardTitle>
-                              <div><b>Adet:</b> {item.quantity}</div>
-                              <div><b>Fiyat:</b> {item.price} ₺</div>
-                              {item.category && <div><b>Kategori:</b> {item.category.name}</div>}
-                              {item.stock !== undefined && <div><b>Stok:</b> {item.stock}</div>}
-                              {item.description && <div><b>Açıklama:</b> {item.description}</div>}
+                              <div><b>Quantity:</b> {item.quantity}</div>
+                              <div><b>Price:</b> {item.price} ₺</div>
+                              {item.category && <div><b>Category:</b> {item.category.name}</div>}
+                              {item.stock !== undefined && <div><b>Stock:</b> {item.stock}</div>}
+                              {item.description && <div><b>Description:</b> {item.description}</div>}
                             </CCardBody>
                           </CCard>
                         </CCol>
@@ -433,14 +462,14 @@ const AdminUserDetailPage = () => {
                   )}
                 </CTabPane>
                 <CTabPane visible={activeTab === 3}>
-                  {orders.length === 0 ? <div className="text-muted">Sipariş bulunamadı.</div> : (
+                  {orders.length === 0 ? <div className="text-muted">No orders found.</div> : (
                     <CTable hover responsive bordered align="middle">
                       <CTableHead color="light">
                         <CTableRow>
                           <CTableHeaderCell>ID</CTableHeaderCell>
-                          <CTableHeaderCell>Tarih</CTableHeaderCell>
-                          <CTableHeaderCell>Tutar</CTableHeaderCell>
-                          <CTableHeaderCell>Durum</CTableHeaderCell>
+                          <CTableHeaderCell>Date</CTableHeaderCell>
+                          <CTableHeaderCell>Amount</CTableHeaderCell>
+                          <CTableHeaderCell>Status</CTableHeaderCell>
                         </CTableRow>
                       </CTableHead>
                       <CTableBody>
@@ -457,7 +486,7 @@ const AdminUserDetailPage = () => {
                   )}
                 </CTabPane>
                 <CTabPane visible={activeTab === 4}>
-                  {favoriteProducts.length === 0 ? <div className="text-muted">Favori ürün yok.</div> : (
+                  {favoriteProducts.length === 0 ? <div className="text-muted">No favorite products.</div> : (
                     <CRow className="g-3">
                       {favoriteProducts.map(fav => (
                         <CCol xs={12} md={6} lg={4} key={fav.id}>
@@ -465,7 +494,7 @@ const AdminUserDetailPage = () => {
                             <CImage src={fav.imageUrl ? (fav.imageUrl.startsWith('http') ? fav.imageUrl : API_BASE + fav.imageUrl) : '/images/default-product.jpg'} alt={fav.name} width={80} height={80} style={{ objectFit: 'cover', borderRadius: 8 }} />
                             <CCardBody>
                               <CCardTitle>{fav.name}</CCardTitle>
-                              <div><b>Fiyat:</b> {fav.price} ₺</div>
+                              <div><b>Price:</b> {fav.price} ₺</div>
                             </CCardBody>
                           </CCard>
                         </CCol>

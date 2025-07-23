@@ -22,7 +22,7 @@ export const FavoriteProvider = ({ children }) => {
         imageUrl: fav.imageUrl ? (fav.imageUrl.startsWith('http') ? fav.imageUrl : API_BASE + fav.imageUrl) : '/images/default-product.jpg'
       })));
     } catch (err) {
-      console.error("Favoriler alınamadı:", err);
+      console.error("Failed to fetch favorites:", err);
     }
   };
 
@@ -43,9 +43,9 @@ export const FavoriteProvider = ({ children }) => {
       });
 
       // Favorileri yeniden çek
-      await fetchFavorites();
+      await fetchFavorites(); // Fetch favorites again
     } catch (error) {
-      console.error('Favori ekleme hatası:', error);
+      console.error('Failed to add favorite:', error);
       throw error;
     }
   };
@@ -68,9 +68,9 @@ export const FavoriteProvider = ({ children }) => {
       });
 
       // Favorileri yeniden çek
-      await fetchFavorites();
+      await fetchFavorites(); // Fetch favorites again
     } catch (error) {
-      console.error('Favori silme hatası:', error);
+      console.error('Failed to remove favorite:', error);
       throw error;
     }
   };
@@ -99,7 +99,7 @@ export const FavoriteProvider = ({ children }) => {
 
     const interval = setInterval(() => {
       fetchFavorites();
-    }, 1000); // 5 saniye
+    }, 5000); // 5 seconds
 
     return () => clearInterval(interval);
   }, [userId, token]);

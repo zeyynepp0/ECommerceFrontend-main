@@ -12,8 +12,8 @@ import * as Yup from 'yup';
 const API_BASE = "http://localhost:5220";
 
 const ReviewEditSchema = Yup.object().shape({
-  comment: Yup.string().required('Yorum boş olamaz'),
-  rating: Yup.number().min(1).max(5).required('Puan gerekli'),
+  comment: Yup.string().required('Review cannot be empty'),
+  rating: Yup.number().min(1).max(5).required('Rating is required'),
 });
 
 const ReviewsPage = () => {
@@ -58,7 +58,7 @@ const ReviewsPage = () => {
         }));
         setReviews(data);
       } catch {
-        setError('Yorumlar yüklenemedi.');
+        setError('Reviews could not be loaded.');
       } finally {
         setLoading(false);
       }
@@ -66,12 +66,12 @@ const ReviewsPage = () => {
     fetchReviews();
   }, []);
   const handleDelete = async (review) => {
-    if (!window.confirm('Bu yorumu silmek istediğinize emin misiniz?')) return;
+    if (!window.confirm('Are you sure you want to delete this review?')) return;
     try {
       await apiDelete(`http://localhost:5220/api/Review/${review.id}?deletedBy=admin`);
-      setReviews(reviews.map(r => r.id === review.id ? { ...r, comment: 'Bu yorum silinmiştir' } : r));
+      setReviews(reviews.map(r => r.id === review.id ? { ...r, comment: 'This review has been deleted' } : r));
     } catch {
-      setError('Yorum silinemedi.');
+      setError('Review could not be deleted.');
     }
   };
   const handleEdit = (review) => {
@@ -90,14 +90,14 @@ const ReviewsPage = () => {
       setShowEditFormId(null);
       setEditingReview(null);
     } catch (err) {
-      setError('Yorum güncellenemedi: ' + parseApiError(err));
+      setError('Review could not be updated: ' + parseApiError(err));
     }
   };
   return (
     <CContainer className="py-4">
       <CCard>
         <CCardBody>
-          <CCardTitle>Yorumlar</CCardTitle>
+          <CCardTitle>Reviews</CCardTitle>
           {loading ? (
             <div className="d-flex justify-content-center align-items-center py-5"><CSpinner color="primary" /></div>
           ) : error ? (
@@ -107,16 +107,16 @@ const ReviewsPage = () => {
               <CTableHead color="light">
                 <CTableRow>
                   <CTableHeaderCell>ID</CTableHeaderCell>
-                  <CTableHeaderCell>Kullanıcı</CTableHeaderCell>
-                  <CTableHeaderCell>Ürün</CTableHeaderCell>
-                  <CTableHeaderCell>Yorum</CTableHeaderCell>
-                  <CTableHeaderCell>Puan</CTableHeaderCell>
-                  <CTableHeaderCell>İşlemler</CTableHeaderCell>
+                  <CTableHeaderCell>User</CTableHeaderCell>
+                  <CTableHeaderCell>Product</CTableHeaderCell>
+                  <CTableHeaderCell>Review</CTableHeaderCell>
+                  <CTableHeaderCell>Rating</CTableHeaderCell>
+                  <CTableHeaderCell>Actions</CTableHeaderCell>
                 </CTableRow>
               </CTableHead>
               <CTableBody>
                 {reviews.map(review => (
-                  <CTableRow key={review.id} className={review.comment === 'Bu yorum silinmiştir' ? 'table-danger' : ''}>
+                  <CTableRow key={review.id} className={review.comment === 'This review has been deleted' || review.comment === 'Bu yorum silinmiştir' ? 'table-danger' : ''}>
                     <CTableDataCell>{review.id}</CTableDataCell>
                     <CTableDataCell>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -186,14 +186,14 @@ const ReviewsPage = () => {
                           )}
                         </Formik>
                       ) : review.comment === 'Bu yorum silinmiştir' ? (
-                        <span style={{ textDecoration: 'line-through', color: '#dc3545' }}>{review.originalComment || review.comment}</span>
+                        <span style={{ textDecoration: 'line-through', color: '#dc3545' }}>{review.originalComment || 'This review has been deleted'}</span>
                       ) : (
                         <>
                           {review.comment}
                           {review.lastModifiedBy && review.lastModifiedAt && review.comment !== 'Bu yorum silinmiştir' && (
                             <span className="review-modified-info">
                               <br/>
-                              ({review.lastModifiedBy === 'admin' ? 'Admin' : 'Kullanıcı'} tarafından {new Date(review.lastModifiedAt).toLocaleDateString('tr-TR')} tarihinde değiştirildi)
+                              ({review.lastModifiedBy === 'admin' ? 'Admin' : 'User'} modified on {new Date(review.lastModifiedAt).toLocaleDateString()})
                             </span>
                           )}
                         </>
@@ -201,10 +201,10 @@ const ReviewsPage = () => {
                     </CTableDataCell>
                     <CTableDataCell>{review.rating}</CTableDataCell>
                     <CTableDataCell>
-                      {review.comment !== 'Bu yorum silinmiştir' && (
+                      {review.comment !== 'This review has been deleted' && review.comment !== 'Bu yorum silinmiştir' && (
                         <>
-                          <CButton color="primary" size="sm" variant="outline" className="me-2" onClick={() => { setEditingReview(review); setShowEditFormId(review.id); }}>Düzenle</CButton>
-                          <CButton color="danger" size="sm" variant="outline" onClick={() => handleDelete(review)}>Sil</CButton>
+                          <CButton color="primary" size="sm" variant="outline" className="me-2" onClick={() => { setEditingReview(review); setShowEditFormId(review.id); }}>Edit</CButton>
+                          <CButton color="danger" size="sm" variant="outline" onClick={() => handleDelete(review)}>Delete</CButton>
                         </>
                       )}
                     </CTableDataCell>

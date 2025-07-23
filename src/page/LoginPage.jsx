@@ -13,11 +13,19 @@ import {
 } from '@coreui/react';
 
 const LoginSchema = Yup.object().shape({
-  email: Yup.string().email('Geçerli bir e-posta giriniz').required('E-posta gereklidir'),
-  password: Yup.string().min(6, 'Şifre en az 6 karakter olmalı').required('Şifre gereklidir'),
+  email: Yup.string()
+    .email('Please enter a valid email address')
+    .required('Email is required'),
+  password: Yup.string()
+    .min(8, 'Password must be at least 8 characters')
+    .matches(/[A-Z]/, 'Must contain at least one uppercase letter')
+    .matches(/[a-z]/, 'Must contain at least one lowercase letter')
+    .matches(/[0-9]/, 'Must contain at least one number')
+    .matches(/[^A-Za-z0-9]/, 'Must contain at least one special character')
+    .required('Password is required'),
 });
 
-const LoginPage = ({ darkMode }) => {
+const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -29,18 +37,18 @@ const LoginPage = ({ darkMode }) => {
   };
 
   return (
-    <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '100vh', background: darkMode ? '#18181b' : '#f8f9fa' }}>
-      <CCard style={{ minWidth: 380, maxWidth: 420, width: '100%', boxShadow: '0 10px 30px rgba(0,0,0,0.08)' }}>
+    <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '100vh', background: '#f8f9fa' }}>
+      <CCard style={{ minWidth: 380, maxWidth: 420, width: '100%', boxShadow: '0 10px 30px rgba(0,0,0,0.08)', background: '#fff', color: undefined, border: undefined }}>
         <CCardHeader className="text-center bg-transparent border-0 pb-0">
-          <h3 className="fw-bold mb-1" style={{ color: '#6366f1' }}><FiLogIn /> Giriş Yap</h3>
-          <div className="text-muted mb-2">Hesabınıza giriş yapın</div>
+          <h3 className="fw-bold mb-1" style={{ color: '#6366f1' }}><FiLogIn /> Login</h3>
+          <div className="text-muted mb-2">Sign in to your account</div>
         </CCardHeader>
         <CCardBody>
           {error && <CAlert color="danger" className="py-2 text-center">{error}</CAlert>}
           <CButton color="light" className="w-100 mb-3 d-flex align-items-center justify-content-center gap-2 border" onClick={handleGoogleLogin} type="button">
-            <FcGoogle size={20} /> <span>Google ile Giriş Yap</span>
+            <FcGoogle size={20} /> <span>Sign in with Google</span>
           </CButton>
-          <div className="text-center text-muted mb-3" style={{ fontSize: 14 }}>veya</div>
+          <div className="text-center text-muted mb-3" style={{ fontSize: 14 }}>or</div>
           <Formik
             initialValues={{ email: '', password: '' }}
             validationSchema={LoginSchema}
@@ -69,7 +77,7 @@ const LoginPage = ({ darkMode }) => {
                 }
                 // Eğer user login ise ve userData varsa, aktiflik kontrolü yap
                 if (userData && userData.isActive === false) {
-                  setError('Hesabınız pasif durumda. Lütfen sayfa yöneticisi ile iletişime geçin.');
+                  setError('Your account is inactive. Please contact the site administrator.');
                   setIsLoading(false);
                   setSubmitting(false);
                   return;
@@ -81,7 +89,7 @@ const LoginPage = ({ darkMode }) => {
                 const userId = decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] || decoded.nameid || decoded.sub || decoded.id || decoded.userId;
                 const role = decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || decoded.role;
                 if (!userId) {
-                  setError('Kullanıcı ID alınamadı. Lütfen tekrar deneyin.');
+                  setError('User ID could not be retrieved. Please try again.');
                   setIsLoading(false);
                   setSubmitting(false);
                   return;
@@ -106,26 +114,26 @@ const LoginPage = ({ darkMode }) => {
               <Form className="mb-2">
                 <div className="mb-3 position-relative">
                   <FiMail className="position-absolute" style={{ left: 12, top: 14, opacity: 0.6 }} />
-                  <Field type="email" name="email" placeholder="E-posta" autoComplete="username" required className="form-control ps-5" />
+                  <Field type="email" name="email" placeholder="Email" autoComplete="username" required className="form-control ps-5" />
                   <ErrorMessage name="email" component="div" className="text-danger small ms-1 mt-1" />
                 </div>
                 <div className="mb-3 position-relative">
                   <FiLock className="position-absolute" style={{ left: 12, top: 14, opacity: 0.6 }} />
-                  <Field type={showPassword ? 'text' : 'password'} name="password" placeholder="Şifre" autoComplete="current-password" required className="form-control ps-5" />
+                  <Field type={showPassword ? 'text' : 'password'} name="password" placeholder="Password" autoComplete="current-password" required className="form-control ps-5" />
                   <CButton type="button" color="light" size="sm" style={{ position: 'absolute', right: 8, top: 8, zIndex: 2 }} onClick={() => setShowPassword(!showPassword)}>
                     {showPassword ? <FiEyeOff /> : <FiEye />}
                   </CButton>
                   <ErrorMessage name="password" component="div" className="text-danger small ms-1 mt-1" />
                 </div>
                 <CButton type="submit" color="primary" className="w-100 fw-bold" disabled={isLoading || isSubmitting}>
-                  {isLoading ? <CSpinner size="sm" /> : 'Giriş Yap'}
+                  {isLoading ? <CSpinner size="sm" /> : 'Login'}
                 </CButton>
               </Form>
             )}
           </Formik>
           <div className="text-center mt-3">
-            Hesabınız yok mu?
-            <Link to="/register" className="ms-1 fw-semibold" style={{ color: '#6366f1' }}>Kayıt Ol</Link>
+            Don't have an account?
+            <Link to="/register" className="ms-1 fw-semibold" style={{ color: '#6366f1' }}>Register</Link>
           </div>
         </CCardBody>
       </CCard>

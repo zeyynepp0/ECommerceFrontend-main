@@ -32,7 +32,7 @@ const ProductCard = ({ product, onFavoriteChange }) => {
     e.preventDefault();
     e.stopPropagation();
     if (!isLoggedIn) {
-      alert('Favorilere eklemek için giriş yapmalısınız!');
+      alert('You must be logged in to add to favorites!');
       return;
     }
     setIsLoading(true);
@@ -47,7 +47,7 @@ const ProductCard = ({ product, onFavoriteChange }) => {
         onFavoriteChange();
       }
     } catch (error) {
-      alert('Favori işlemi başarısız oldu!');
+      alert('Favorite operation failed!');
     } finally {
       setIsLoading(false);
     }
@@ -57,15 +57,15 @@ const ProductCard = ({ product, onFavoriteChange }) => {
     e.preventDefault();
     e.stopPropagation();
     if (!isLoggedIn) {
-      alert('Sepete eklemek için giriş yapmalısınız!');
+      alert('You must be logged in to add to cart!');
       return;
     }
     if (stock === 0) {
-      alert('Bu ürün stokta yok!');
+      alert('This product is out of stock!');
       return;
     }
     if (cartQuantity >= stock) {
-      alert(`Stok yetersiz! Bu üründen maksimum ${stock} adet ekleyebilirsiniz.`);
+      alert(`Insufficient stock! You can add up to ${stock} of this product.`);
       return;
     }
     setIsAddingToCart(true);
@@ -83,9 +83,9 @@ const ProductCard = ({ product, onFavoriteChange }) => {
         quantity: 1
       }));
       dispatch(fetchCartFromBackend(userId));
-      alert('Ürün sepete eklendi!');
+      alert('Product added to cart!');
     } catch (error) {
-      alert('Sepete ekleme başarısız oldu! ' + error);
+      alert('Failed to add to cart! ' + error);
     } finally {
       setIsAddingToCart(false);
     }
@@ -111,14 +111,14 @@ const ProductCard = ({ product, onFavoriteChange }) => {
         <img
           src={product.imageUrl || product.image || '/images/default-product.jpg'}
           alt={product.name}
-          style={{ width: '100%', height: 180, objectFit: 'cover', borderTopLeftRadius: 8, borderTopRightRadius: 8 }}
+          style={{ width: '100%', height: 180, objectFit: 'cover', borderTopLeftRadius: 8, borderTopRightRadius: 8, background: '#fff' }}
           onError={e => { e.target.src = '/images/default-product.jpg'; }}
         />
       </Link>
       <CCardBody>
-        <div className="mb-1 text-muted" style={{ fontSize: 13 }}>{product.categoryName || 'Kategori Yok'}</div>
+        <div className="mb-1 text-muted" style={{ fontSize: 13, color: '#a1a1aa' }}>{product.categoryName || 'No Category'}</div>
         <CCardTitle style={{ fontSize: 18, minHeight: 40 }}>
-          <Link to={`/products/${product.id}`} style={{ color: 'inherit', textDecoration: 'none' }}>{product.name || 'Ürün İsmi Yok'}</Link>
+          <Link to={`/products/${product.id}`} style={{ color: 'inherit', textDecoration: 'none' }}>{product.name || 'No Product Name'}</Link>
         </CCardTitle>
         <div className="mb-2 d-flex align-items-center gap-1">
           {[...Array(5)].map((_, i) => (
@@ -128,13 +128,13 @@ const ProductCard = ({ product, onFavoriteChange }) => {
               color={i < Math.floor(product.rating || 0) ? '#FFD700' : '#ccc'}
             />
           ))}
-          <span style={{ fontSize: 13 }}>({product.rating ?? 0})</span>
+          <span style={{ fontSize: 13 }}>{`(${product.rating ?? 0})`}</span>
         </div>
         <div className="mb-2">
           {price !== null ? (
             <span className="fw-bold fs-5">{price.toFixed(2)} ₺</span>
           ) : (
-            <span className="text-muted">Fiyat bilgisi yok</span>
+            <span className="text-muted">No price information</span>
           )}
           {hasValidDiscount && (
             <span className="text-muted ms-2 text-decoration-line-through">{discount.toFixed(2)}₺</span>
@@ -147,7 +147,7 @@ const ProductCard = ({ product, onFavoriteChange }) => {
           disabled={isAddingToCart || stock === 0 || cartQuantity >= stock}
         >
           <FiShoppingCart size={16} className="me-2" />
-          {isAddingToCart ? <CSpinner size="sm" /> : (stock === 0 ? 'Stokta Yok' : 'Sepete Ekle')}
+          {isAddingToCart ? <CSpinner size="sm" /> : (stock === 0 ? 'Out of Stock' : 'Add to Cart')}
         </CButton>
       </CCardBody>
     </CCard>

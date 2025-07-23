@@ -26,7 +26,7 @@ const EditCategoryPage = () => {
           imageUrl: category.imageUrl
         });
       } catch {
-        setError('Kategori yüklenemedi.');
+        setError('Category could not be loaded.');
       }
     };
     fetchCategory();
@@ -61,7 +61,7 @@ const EditCategoryPage = () => {
       });
       navigate('/admin/categories');
     } catch (err) {
-      setError('Kategori güncellenemedi.');
+      setError('Category could not be updated.');
     } finally {
       setLoading(false);
     }
@@ -73,15 +73,15 @@ const EditCategoryPage = () => {
     <CContainer className="py-4">
       <CCard className="mx-auto" style={{ maxWidth: 480 }}>
         <CCardBody>
-          <CCardTitle>Kategori Güncelle</CCardTitle>
+          <CCardTitle>Update Category</CCardTitle>
           <CForm onSubmit={handleSubmit}>
-            <CFormLabel>Kategori Adı</CFormLabel>
+            <CFormLabel>Category Name</CFormLabel>
             <CFormInput name="name" value={form.name} onChange={handleChange} required className="mb-3" />
-            <CFormLabel>Mevcut Görsel</CFormLabel>
+            <CFormLabel>Current Image</CFormLabel>
             {form.imageUrl && <img src={form.imageUrl.startsWith('http') ? form.imageUrl : API_BASE + form.imageUrl} alt="Kategori" style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 8 }} className="mb-3 d-block" />}
-            <CFormLabel>Yeni Görsel (değiştirmek için)</CFormLabel>
+            <CFormLabel>New Image (to change)</CFormLabel>
             <CFormInput type="file" accept="image/*" onChange={handleImageChange} className="mb-3" />
-            <CButton type="submit" color="primary" disabled={loading}>{loading ? <CSpinner size="sm" /> : 'Güncelle'}</CButton>
+            <CButton type="submit" color="primary" disabled={loading}>{loading ? <CSpinner size="sm" /> : 'Update'}</CButton>
           </CForm>
         </CCardBody>
       </CCard>

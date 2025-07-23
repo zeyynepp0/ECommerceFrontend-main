@@ -23,7 +23,7 @@ const ShippingCompaniesPage = () => {
       const data = await apiGet('/api/ShippingCompany');
       setCompanies(data);
     } catch {
-      setError('Kargo firmaları yüklenemedi.');
+      setError('Shipping companies could not be loaded.');
     } finally {
       setLoading(false);
     }
@@ -46,20 +46,20 @@ const ShippingCompaniesPage = () => {
       await fetchCompanies();
       closeModal();
     } catch (e) {
-      setError('Kayıt işlemi başarısız: ' + (e?.message || ''));
+      setError('Save operation failed: ' + (e?.message || ''));
     } finally {
       setSaving(false);
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Kargo firması silinsin mi?')) return;
+    if (!window.confirm('Are you sure you want to delete this shipping company?')) return;
     setSaving(true);
     try {
       await apiDelete(`/api/ShippingCompany/${id}`);
       await fetchCompanies();
     } catch (e) {
-      setError('Silme işlemi başarısız: ' + (e?.message || ''));
+      setError('Delete operation failed: ' + (e?.message || ''));
     } finally {
       setSaving(false);
     }
@@ -71,7 +71,7 @@ const ShippingCompaniesPage = () => {
       await apiPut(`/api/ShippingCompany/${company.id}`, { ...company, isActive: !company.isActive });
       await fetchCompanies();
     } catch (e) {
-      setError('Aktiflik durumu değiştirilemedi: ' + (e?.message || ''));
+      setError('Could not change active status: ' + (e?.message || ''));
     } finally {
       setSaving(false);
     }
@@ -85,13 +85,16 @@ const ShippingCompaniesPage = () => {
     <CContainer className="py-4">
       <CCard>
         <CCardBody>
-          <CCardTitle>Kargo Firmaları</CCardTitle>
-          <div className="mb-3">
-            <CButton color={filter === 'all' ? 'secondary' : 'light'} className="me-2" onClick={() => setFilter('all')}>Tümü</CButton>
-            <CButton color={filter === 'active' ? 'success' : 'light'} className="me-2" onClick={() => setFilter('active')}>Aktifleri Göster</CButton>
-            <CButton color={filter === 'passive' ? 'danger' : 'light'} onClick={() => setFilter('passive')}>Pasifleri Göster</CButton>
+          <div className="d-flex justify-content-between align-items-center mb-3">
+          <CCardTitle>Shipping Companies</CCardTitle>
+          <div >
+            <CButton color={filter === 'all' ? 'secondary' : 'light'} className="me-2" onClick={() => setFilter('all')}>All</CButton>
+            <CButton color={filter === 'active' ? 'success' : 'light'} className="me-2" onClick={() => setFilter('active')}>Show Active</CButton>
+            <CButton color={filter === 'passive' ? 'danger' : 'light'} onClick={() => setFilter('passive')}>Show Passive</CButton>
+          <CButton color="success" className="ms-3" onClick={openAdd}>+ Add New Shipping Company</CButton>
           </div>
-          <CButton color="success" className="mb-3" onClick={openAdd}>Yeni Kargo Firması Ekle</CButton>
+          </div>
+          
           {loading ? (
             <div className="d-flex justify-content-center align-items-center py-5"><CSpinner color="primary" /></div>
           ) : error ? (
@@ -101,11 +104,11 @@ const ShippingCompaniesPage = () => {
               <CTableHead color="light">
                 <CTableRow>
                   <CTableHeaderCell>ID</CTableHeaderCell>
-                  <CTableHeaderCell>Adı</CTableHeaderCell>
-                  <CTableHeaderCell>Ücret (₺)</CTableHeaderCell>
-                  <CTableHeaderCell>Ücretsiz Kargo Limiti (₺)</CTableHeaderCell>
-                  <CTableHeaderCell>Aktif</CTableHeaderCell>
-                  <CTableHeaderCell>İşlemler</CTableHeaderCell>
+                  <CTableHeaderCell>Name</CTableHeaderCell>
+                  <CTableHeaderCell>Price (₺)</CTableHeaderCell>
+                  <CTableHeaderCell>Free Shipping Limit (₺)</CTableHeaderCell>
+                  <CTableHeaderCell>Active</CTableHeaderCell>
+                  <CTableHeaderCell>Actions</CTableHeaderCell>
                 </CTableRow>
               </CTableHead>
               <CTableBody>
@@ -116,7 +119,7 @@ const ShippingCompaniesPage = () => {
                     <CTableDataCell>{company.price}</CTableDataCell>
                     <CTableDataCell>{company.freeShippingLimit}</CTableDataCell>
                     <CTableDataCell>
-                      <span className={`badge ${company.isActive ? 'bg-success' : 'bg-danger'}`}>{company.isActive ? 'Aktif' : 'Pasif'}</span>
+                      <span className={`badge ${company.isActive ? 'bg-success' : 'bg-danger'}`}>{company.isActive ? 'Active' : 'Passive'}</span>
                     </CTableDataCell>
                     <CTableDataCell>
                       <CButton
@@ -126,10 +129,10 @@ const ShippingCompaniesPage = () => {
                         onClick={() => handleToggleActive(company)}
                         className="me-2"
                       >
-                        {company.isActive ? 'Pasif Yap' : 'Aktif Yap'}
+                        {company.isActive ? 'Make Passive' : 'Make Active'}
                       </CButton>
                       <CButton size="sm" color="info" variant="outline" onClick={() => openEdit(company)}>
-                        Düzenle
+                        Edit
                       </CButton>
                     </CTableDataCell>
                   </CTableRow>
@@ -140,20 +143,20 @@ const ShippingCompaniesPage = () => {
         </CCardBody>
       </CCard>
       <CModal visible={modal} onClose={closeModal} backdrop="static">
-        <CModalHeader onClose={closeModal}>{editId ? 'Kargo Firması Düzenle' : 'Yeni Kargo Firması'}</CModalHeader>
+        <CModalHeader onClose={closeModal}>{editId ? 'Edit Shipping Company' : 'Add New Shipping Company'}</CModalHeader>
         <CModalBody>
-          <CFormLabel>Adı</CFormLabel>
+          <CFormLabel>Name</CFormLabel>
           <CFormInput className="mb-2" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required />
-          <CFormLabel>Ücret (₺)</CFormLabel>
+          <CFormLabel>Price (₺)</CFormLabel>
           <CFormInput className="mb-2" type="number" value={form.price} onChange={e => setForm(f => ({ ...f, price: e.target.value }))} required min={0} />
-          <CFormLabel>Ücretsiz Kargo Limiti (₺)</CFormLabel>
+          <CFormLabel>Free Shipping Limit (₺)</CFormLabel>
           <CFormInput className="mb-2" type="number" value={form.freeShippingLimit} onChange={e => setForm(f => ({ ...f, freeShippingLimit: e.target.value }))} required min={0} />
-          <CFormLabel>Aktif</CFormLabel>
+          <CFormLabel>Active</CFormLabel>
           <CFormSwitch className="mb-2" checked={form.isActive} onChange={e => setForm(f => ({ ...f, isActive: e.target.checked }))} label={form.isActive ? 'Evet' : 'Hayır'} />
         </CModalBody>
         <CModalFooter>
-          <CButton color="secondary" onClick={closeModal}>İptal</CButton>
-          <CButton color="success" onClick={handleSave} disabled={saving}>{saving ? 'Kaydediliyor...' : 'Kaydet'}</CButton>
+          <CButton color="secondary" onClick={closeModal}>Cancel</CButton>
+          <CButton color="success" onClick={handleSave} disabled={saving}>{saving ? 'Saving...' : 'Save'}</CButton>
         </CModalFooter>
       </CModal>
     </CContainer>

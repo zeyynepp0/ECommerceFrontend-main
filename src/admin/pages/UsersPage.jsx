@@ -34,7 +34,7 @@ const UsersPage = () => {
           isActive: normalizeIsActive(u.isActive)
         })));
       })
-      .catch(() => setError('Kullanıcılar yüklenemedi.'))
+      .catch(() => setError('Users could not be loaded.'))
       .finally(() => setLoading(false));
   };
 
@@ -43,13 +43,13 @@ const UsersPage = () => {
   }, []);
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Bu kullanıcıyı silmek istediğinize emin misiniz?')) return;
+    if (!window.confirm('Are you sure you want to delete this user?')) return;
     try {
       const user = users.find(u => u.id === id);
       await apiPut(`http://localhost:5220/api/User`, { ...user, isActive: false });
       fetchUsers();
     } catch {
-      setError('Kullanıcı silinemedi.');
+      setError('User could not be deleted.');
     }
   };
 
@@ -59,7 +59,7 @@ const UsersPage = () => {
       await apiPut(`http://localhost:5220/api/User`, { ...user, isActive: true });
       fetchUsers();
     } catch {
-      setError('Kullanıcı aktifleştirilemedi.');
+      setError('User could not be activated.');
     }
   };
 
@@ -87,7 +87,7 @@ const UsersPage = () => {
       setShowModal(false);
       setForm({ fullName: '', email: '', password: '', role: 'User' });
     } catch {
-      setError('Kullanıcı eklenemedi.');
+      setError('User could not be added.');
     } finally {
       setAdding(false);
     }
@@ -102,12 +102,12 @@ const UsersPage = () => {
       <CCard>
         <CCardBody>
           <div className="d-flex justify-content-between align-items-center mb-3">
-            <CCardTitle>Kullanıcılar</CCardTitle>
+            <CCardTitle>Users</CCardTitle>
             <div>
-              <CButton color={filter === 'all' ? 'secondary' : 'light'} className="me-2" onClick={() => setFilter('all')}>Tümü</CButton>
-              <CButton color={filter === 'active' ? 'success' : 'light'} className="me-2" onClick={() => setFilter('active')}>Aktifleri Göster</CButton>
-              <CButton color={filter === 'passive' ? 'danger' : 'light'} onClick={() => setFilter('passive')}>Pasifleri Göster</CButton>
-              <CButton color="success" onClick={() => setShowModal(true)} className="ms-3">+ Yeni Kullanıcı Ekle</CButton>
+              <CButton color={filter === 'all' ? 'secondary' : 'light'} className="me-2" onClick={() => setFilter('all')}>All</CButton>
+              <CButton color={filter === 'active' ? 'success' : 'light'} className="me-2" onClick={() => setFilter('active')}>Show Active</CButton>
+              <CButton color={filter === 'passive' ? 'danger' : 'light'} onClick={() => setFilter('passive')}>Show Passive</CButton>
+              <CButton color="success" onClick={() => setShowModal(true)} className="ms-3">+ Add New User</CButton>
             </div>
           </div>
           {loading ? (
@@ -119,12 +119,12 @@ const UsersPage = () => {
               <CTableHead color="light">
                 <CTableRow>
                   <CTableHeaderCell>ID</CTableHeaderCell>
-                  <CTableHeaderCell>Ad Soyad</CTableHeaderCell>
+                  <CTableHeaderCell>Full Name</CTableHeaderCell>
                   <CTableHeaderCell>Email</CTableHeaderCell>
-                  <CTableHeaderCell>Adres</CTableHeaderCell>
+                  <CTableHeaderCell>Address</CTableHeaderCell>
                   <CTableHeaderCell>Rol</CTableHeaderCell>
-                  <CTableHeaderCell>Aktif mi?</CTableHeaderCell>
-                  <CTableHeaderCell>İşlemler</CTableHeaderCell>
+                  <CTableHeaderCell>Active?</CTableHeaderCell>
+                  <CTableHeaderCell>Actions</CTableHeaderCell>
                 </CTableRow>
               </CTableHead>
               <CTableBody>
@@ -139,23 +139,23 @@ const UsersPage = () => {
                       <CTableDataCell>
                         {console.log('USER DEBUG:', user.id, user.isActive, normalizeIsActive(user.isActive))}
                         {normalizeIsActive(user.isActive) ? (
-                          <span className="badge bg-success">Aktif</span>
+                          <span className="badge bg-success">Active</span>
                         ) : (
-                          <span className="badge bg-danger">Pasif</span>
+                          <span className="badge bg-danger">Passive</span>
                         )}
                       </CTableDataCell>
                       <CTableDataCell>
                         {normalizeIsActive(user.isActive) ? (
                           <CButton color="warning" size="sm" variant="outline" className="me-2" onClick={e => { e.stopPropagation(); handleDelete(user.id); }}>
-                            Pasif Yap
+                            Make Passive
                           </CButton>
                         ) : (
                           <CButton color="success" size="sm" variant="outline" className="me-2" onClick={() => handleActivate(user.id)}>
-                            Aktif Yap
+                            Make Active
                           </CButton>
                         )}
                         <CButton color="info" size="sm" variant="outline" className="me-2" onClick={() => navigate(`/admin/users/${user.id}`)}>
-                          Detay / Düzenle
+                          Details / Edit
                         </CButton>
                       </CTableDataCell>
                     </CTableRow>
@@ -167,21 +167,21 @@ const UsersPage = () => {
       </CCard>
       <CModal visible={showModal} onClose={() => setShowModal(false)}>
         <CModalHeader onClose={() => setShowModal(false)}>
-          <CModalTitle>Yeni Kullanıcı Ekle</CModalTitle>
+          <CModalTitle>Add New User</CModalTitle>
         </CModalHeader>
         <CForm onSubmit={handleAdd}>
           <CModalBody>
-            <CFormInput className="mb-2" label="Ad Soyad" value={form.fullName} onChange={e => setForm(f => ({ ...f, fullName: e.target.value }))} required />
+            <CFormInput className="mb-2" label="Full Name" value={form.fullName} onChange={e => setForm(f => ({ ...f, fullName: e.target.value }))} required />
             <CFormInput className="mb-2" label="Email" type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} required />
-            <CFormInput className="mb-2" label="Şifre" type="password" value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} required />
-            <CFormSelect className="mb-2" label="Rol" value={form.role} onChange={e => setForm(f => ({ ...f, role: e.target.value }))}>
+            <CFormInput className="mb-2" label="Password" type="password" value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} required />
+            <CFormSelect className="mb-2" label="Role" value={form.role} onChange={e => setForm(f => ({ ...f, role: e.target.value }))}>
               <option value="User">User</option>
               <option value="Admin">Admin</option>
             </CFormSelect>
           </CModalBody>
           <CModalFooter>
-            <CButton color="secondary" onClick={() => setShowModal(false)}>İptal</CButton>
-            <CButton color="success" type="submit" disabled={adding}>{adding ? 'Ekleniyor...' : 'Ekle'}</CButton>
+            <CButton color="secondary" onClick={() => setShowModal(false)}>Cancel</CButton>
+            <CButton color="success" type="submit" disabled={adding}>{adding ? 'Adding...' : 'Add'}</CButton>
           </CModalFooter>
         </CForm>
       </CModal>

@@ -30,26 +30,26 @@
 }
 .header-search-input:focus {
   outline: none;
-  box-shadow: 0 0 0 2px #6366f1;
+  box-shadow: 0 0 0 2px #333333;
   background: #f8fafc;
 }
 .header-search-btn {
   border-radius: 0 32px 32px 0;
   font-weight: 500;
   padding: 0 1.25rem;
-  background: linear-gradient(90deg, #6366f1 0%, #818cf8 100%);
+  background: linear-gradient(90deg, #333333 0%, #222222 100%);
   color: #fff;
   border: none;
   transition: background 0.2s;
 }
 .header-search-btn:hover, .header-search-btn:focus {
-  background: linear-gradient(90deg, #818cf8 0%, #6366f1 100%);
+  background: linear-gradient(90deg, #333333 0%, #222222 100%);
   color: #fff;
 }
 .input-group-text {
   background: transparent !important;
   border: none !important;
-  color: #6366f1;
+  color: #333333;
   font-size: 1.1rem;
 }
 @media (max-width: 768px) {
@@ -100,7 +100,7 @@
 }
 .category-bar-dropdown-toggle:focus,
 .category-bar-dropdown-toggle:hover {
-  background: #6366f1 !important;
+  background: #333333 !important;
   color: #fff !important;
 }
 .category-bar-dropdown-menu {
@@ -124,7 +124,7 @@
 .category-bar-dropdown-menu .c-dropdown-item:focus,
 .category-bar-dropdown-menu .dropdown-item:hover,
 .category-bar-dropdown-menu .c-dropdown-item:hover {
-  background: #6366f1 !important;
+  background: #333333 !important;
   color: #fff !important;
 }
 .category-bar-list {
@@ -148,7 +148,7 @@
 .category-bar-btn.active,
 .category-bar-btn:focus,
 .category-bar-btn:hover {
-  background: #6366f1 !important;
+  background: #333333 !important;
   color: #fff !important;
 }
 @media (max-width: 900px) {
@@ -181,3 +181,24 @@
 
 /* Eski scroll bar ve buton stilleri kaldırıldı */
 .category-bar-scroll { display: none !important; } 
+
+/* Bildirim dropdown hizalaması düzeltildi */
+.notification-dropdown-modern, .notification-dropdown {
+  right: 0 !important;
+  left: auto !important;
+  min-width: 340px;
+  max-width: 400px;
+  box-shadow: 0 4px 24px rgba(60,60,100,0.10);
+  border-radius: 12px;
+  padding: 0;
+  overflow: hidden;
+}
+
+@media (max-width: 500px) {
+  .notification-dropdown-modern, .notification-dropdown {
+    min-width: 220px;
+    max-width: 98vw;
+    right: 0 !important;
+    left: auto !important;
+  }
+} 

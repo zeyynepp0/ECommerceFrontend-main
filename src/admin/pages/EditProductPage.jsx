@@ -39,7 +39,7 @@ const EditProductPage = () => {
         });
         setCategories(cats);
       } catch {
-        setError('Veriler yüklenemedi.');
+        setError('Data could not be loaded.');
       }
     };
     fetchData();
@@ -74,7 +74,7 @@ const EditProductPage = () => {
       });
       navigate('/admin/products');
     } catch (err) {
-      setError('Ürün güncellenemedi.');
+      setError('Product could not be updated.');
     } finally {
       setLoading(false);
     }
@@ -86,28 +86,28 @@ const EditProductPage = () => {
     <CContainer className="py-4">
       <CCard className="mx-auto" style={{ maxWidth: 600 }}>
         <CCardBody>
-          <CCardTitle>Ürün Güncelle</CCardTitle>
+          <CCardTitle>Update Product</CCardTitle>
           <CForm onSubmit={handleSubmit}>
-            <CFormLabel>Ürün Adı</CFormLabel>
+            <CFormLabel>Product Name</CFormLabel>
             <CFormInput name="name" value={form.name} onChange={handleChange} required className="mb-3" />
-            <CFormLabel>Açıklama</CFormLabel>
+            <CFormLabel>Description</CFormLabel>
             <CFormInput component="textarea" name="description" value={form.description} onChange={handleChange} required className="mb-3" />
-            <CFormLabel>Fiyat</CFormLabel>
+            <CFormLabel>Price</CFormLabel>
             <CFormInput name="price" type="number" value={form.price} onChange={handleChange} required className="mb-3" />
-            <CFormLabel>Stok</CFormLabel>
+            <CFormLabel>Stock</CFormLabel>
             <CFormInput name="stock" type="number" value={form.stock} onChange={handleChange} required className="mb-3" />
-            <CFormLabel>Kategori</CFormLabel>
+            <CFormLabel>Category</CFormLabel>
             <select name="categoryId" value={form.categoryId} onChange={handleChange} required className="form-select mb-3">
-              <option value="">Seçiniz</option>
+              <option value="">Select</option>
               {categories.map(cat => (
                 <option key={cat.id} value={cat.id}>{cat.name}</option>
               ))}
             </select>
-            <CFormLabel>Mevcut Görsel</CFormLabel>
+            <CFormLabel>Current Image</CFormLabel>
             {form.imageUrl && <img src={form.imageUrl.startsWith('http') ? form.imageUrl : API_BASE + form.imageUrl} alt="Ürün" style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 8 }} className="mb-3 d-block" />}
-            <CFormLabel>Yeni Görsel (değiştirmek için)</CFormLabel>
+            <CFormLabel>New Image (to change)</CFormLabel>
             <CFormInput type="file" accept="image/*" onChange={handleImageChange} className="mb-3" />
-            <CButton type="submit" color="primary" disabled={loading}>{loading ? <CSpinner size="sm" /> : 'Güncelle'}</CButton>
+            <CButton type="submit" color="primary" disabled={loading}>{loading ? <CSpinner size="sm" /> : 'Update'}</CButton>
           </CForm>
         </CCardBody>
       </CCard>

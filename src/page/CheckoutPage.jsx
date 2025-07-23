@@ -42,11 +42,11 @@ const CheckoutPage = () => {
         setSelectedShipping(shippingRes[0]?.id || '');
         setLoading(false);
         if (!cartRes || cartRes.length === 0) {
-          setError('Sepetiniz boş.');
+          setError('Your cart is empty.');
           setTimeout(() => navigate('/cart'), 1500);
         }
       } catch (err) {
-        setError('Checkout verileri yüklenemedi.');
+        setError('Checkout data could not be loaded.');
         setLoading(false);
       }
     };
@@ -76,7 +76,7 @@ const CheckoutPage = () => {
   // Kart bilgileri validasyonu
   const validateCard = () => {
     const digits = card.number.replace(/\D/g, '');
-    if (digits.length !== 16) return 'Kart numarası 16 haneli olmalı.';
+    if (digits.length !== 16) return 'Kart numarası 16 haneli olmalı.'; // Kart validasyonu Türkçe açıklama
     if (!/^[0-9]{16}$/.test(digits)) return 'Kart numarası sadece rakamlardan oluşmalı.';
     if (!card.name.trim()) return 'Kart sahibi adı boş olamaz.';
     const month = Number(card.expiryMonth);
@@ -94,15 +94,15 @@ const CheckoutPage = () => {
     setSuccess('');
     setCardError('');
     if (!selectedAddress || !selectedShipping) {
-      setError('Adres ve kargo firması seçmelisiniz. Eğer adres veya kargo firması listelenmiyorsa, lütfen profilinizden adres ekleyin veya sistem yöneticisine başvurun.');
+      setError('You must select an address and a shipping company. If there is no address or shipping company listed, please add an address from your profile or contact the system administrator.');
       return;
     }
     if (!deliveryPerson) {
-      setError('Teslim alacak kişi adını girmelisiniz.');
+      setError('You must enter the name of the person who will receive the delivery.');
       return;
     }
     if (!deliveryPersonPhone) {
-      setError('Teslim alacak kişinin telefonunu girmelisiniz.');
+      setError('You must enter the phone number of the person who will receive the delivery.');
       return;
     }
     const cardValidation = validateCard();
@@ -148,24 +148,24 @@ const CheckoutPage = () => {
       } else if (err?.message) {
         msg += ' ' + err.message;
       }
-      setError(msg + ' Lütfen adres, kargo firması ve kart bilgilerinizi kontrol edin. Stok veya kargo firması hatası olabilir.');
+      setError(msg + ' Please check your address, shipping company, and card information. There may be a stock or shipping company error.');
       console.error('Order error:', err?.response?.data || err);
     }
   };
 
-  if (loading) return <CContainer className="py-5 d-flex justify-content-center align-items-center" style={{ minHeight: 300 }}><CSpinner color="primary" /></CContainer>;
-  if (cart.length === 0) return <CContainer className="py-5"><CAlert color="info">Sepetiniz boş. <CButton color="link" onClick={() => navigate('/')}>Alışverişe Devam Et</CButton></CAlert></CContainer>;
+  if (loading) return <CContainer className="py-5 d-flex justify-content-center align-items-center"><CSpinner color="primary" /></CContainer>;
+  if (cart.length === 0) return <CContainer className="py-5"><CAlert color="info">Your cart is empty. <CButton color="link" onClick={() => navigate('/')}>Continue Shopping</CButton></CAlert></CContainer>;
 
   return (
     <CContainer className="py-4">
       <CCard className="mb-4">
         <CCardBody>
-          <CCardTitle as="h2">Siparişi Tamamla</CCardTitle>
+          <CCardTitle as="h2">Complete Order</CCardTitle>
           {error && <CAlert color="danger">{error}</CAlert>}
           {success && <CAlert color="success">{success}</CAlert>}
           <CForm onSubmit={handleOrder} className="row g-4">
             <CCol md={6}>
-              <CFormLabel>Adres Seçimi</CFormLabel>
+              <CFormLabel>Address Selection</CFormLabel>
               <CFormSelect value={selectedAddress} onChange={e => setSelectedAddress(e.target.value)} required>
                 {addresses.map(addr => (
                   <option key={addr.id} value={addr.id}>{addr.addressTitle} - {addr.city} {addr.state}</option>
@@ -173,7 +173,7 @@ const CheckoutPage = () => {
               </CFormSelect>
             </CCol>
             <CCol md={6}>
-              <CFormLabel>Kargo Firması</CFormLabel>
+              <CFormLabel>Shipping Company</CFormLabel>
               <CFormSelect value={selectedShipping} onChange={e => setSelectedShipping(e.target.value)} required>
                 {shippingCompanies.map(s => (
                   <option key={s.id} value={s.id}>{s.name} ({s.price}₺)</option>
@@ -181,27 +181,27 @@ const CheckoutPage = () => {
               </CFormSelect>
             </CCol>
             <CCol md={6}>
-              <CFormLabel>Ödeme Yöntemi</CFormLabel>
+              <CFormLabel>Payment Method</CFormLabel>
               <CFormSelect value={paymentMethod} onChange={e => setPaymentMethod(e.target.value)} required>
-                <option value="0">Kredi Kartı</option>
-                <option value="1">Banka Kartı</option>
+                <option value="0">Credit Card</option>
+                <option value="1">Debit Card</option>
               </CFormSelect>
             </CCol>
             <CCol md={6}>
-              <CFormLabel>Teslim Alacak Kişi</CFormLabel>
-              <CFormInput placeholder="Ad Soyad" value={deliveryPerson} onChange={e => setDeliveryPerson(e.target.value)} required />
-              <CFormLabel className="mt-2">Teslim Alan Telefon</CFormLabel>
-              <CFormInput placeholder="Telefon" value={deliveryPersonPhone} onChange={e => setDeliveryPersonPhone(e.target.value)} required />
+              <CFormLabel>Recipient Name</CFormLabel>
+              <CFormInput placeholder="Full Name" value={deliveryPerson} onChange={e => setDeliveryPerson(e.target.value)} required />
+              <CFormLabel className="mt-2">Recipient Phone</CFormLabel>
+              <CFormInput placeholder="Phone" value={deliveryPersonPhone} onChange={e => setDeliveryPersonPhone(e.target.value)} required />
             </CCol>
             <CCol md={12}>
-              <CFormLabel>Kart Bilgileri</CFormLabel>
+              <CFormLabel>Card Information</CFormLabel>
               <CRow className="g-2">
                 <CCol md={6}>
-                  <CFormInput placeholder="Kart Sahibi Adı" value={card.name} onChange={e => setCard({ ...card, name: e.target.value })} required />
+                  <CFormInput placeholder="Cardholder Name" value={card.name} onChange={e => setCard({ ...card, name: e.target.value })} required />
                 </CCol>
                 <CCol md={6}>
                   <CFormInput
-                    placeholder="Kart Numarası"
+                    placeholder="Card Number"
                     value={formatCardNumber(card.number)}
                     onChange={e => {
                       // Sadece rakam girilsin ve formatlansın
@@ -212,8 +212,8 @@ const CheckoutPage = () => {
                     maxLength={19}
                   />
                 </CCol>
-                <CCol md={3}><CFormInput placeholder="Ay (MM)" value={card.expiryMonth} onChange={e => setCard({ ...card, expiryMonth: e.target.value.replace(/\D/g, '').slice(0,2) })} required maxLength={2} /></CCol>
-                <CCol md={3}><CFormInput placeholder="Yıl (YYYY)" value={card.expiryYear} onChange={e => setCard({ ...card, expiryYear: e.target.value.replace(/\D/g, '').slice(0,4) })} required maxLength={4} /></CCol>
+                <CCol md={3}><CFormInput placeholder="Month (MM)" value={card.expiryMonth} onChange={e => setCard({ ...card, expiryMonth: e.target.value.replace(/\D/g, '').slice(0,2) })} required maxLength={2} /></CCol>
+                <CCol md={3}><CFormInput placeholder="Year (YYYY)" value={card.expiryYear} onChange={e => setCard({ ...card, expiryYear: e.target.value.replace(/\D/g, '').slice(0,4) })} required maxLength={4} /></CCol>
                 <CCol md={3}><CFormInput placeholder="CVV" value={card.cvv} onChange={e => setCard({ ...card, cvv: e.target.value.replace(/\D/g, '').slice(0,4) })} required maxLength={4} /></CCol>
               </CRow>
               {cardError && <CAlert color="danger" className="mt-2">{cardError}</CAlert>}
@@ -221,15 +221,15 @@ const CheckoutPage = () => {
             <CCol md={12} className="mt-3">
               <CCard className="mb-2">
                 <CCardBody>
-                  <div className="d-flex justify-content-between mb-2"><span>Ara Toplam:</span><span>{cartTotal.toFixed(2)}₺</span></div>
-                  <div className="d-flex justify-content-between mb-2"><span>Kargo:</span><span>{shippingCost === 0 ? 'Ücretsiz' : `${shippingCost.toFixed(2)}₺`}</span></div>
-                  <div className="d-flex justify-content-between fw-bold"><span>Toplam:</span><span>{total.toFixed(2)}₺</span></div>
+                  <div className="d-flex justify-content-between mb-2"><span>Subtotal:</span><span>{cartTotal.toFixed(2)}₺</span></div>
+                  <div className="d-flex justify-content-between mb-2"><span>Shipping:</span><span>{shippingCost === 0 ? 'Free' : `${shippingCost.toFixed(2)}₺`}</span></div>
+                  <div className="d-flex justify-content-between fw-bold"><span>Total:</span><span>{total.toFixed(2)}₺</span></div>
                 </CCardBody>
               </CCard>
-              <CButton color="success" type="submit" className="w-100 py-2" size="lg">Siparişi Tamamla ve Öde</CButton>
+              <CButton color="success" type="submit" className="w-100 py-2" size="lg">Complete Order and Pay</CButton>
               <CCol md={6} className="d-flex align-items-end">
                 <CButton color="link" onClick={() => navigate(`/profile/${userId}?tab=addresses`)}>
-                  Yeni Adres Ekle
+                  Add New Address
                 </CButton>
               </CCol>
             </CCol>

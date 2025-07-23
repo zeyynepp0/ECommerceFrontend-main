@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import AdminSidebar from './AdminSidebar';
 import { Outlet } from 'react-router-dom';
 import { CContainer, CRow, CCol, CHeader, CHeaderBrand, CHeaderNav, CNavItem, CNavLink, CButton, CBadge } from '@coreui/react';
@@ -6,12 +6,13 @@ import { FiMenu, FiUser, FiShoppingCart, FiHeart, FiGift, FiLogIn, FiLogOut, FiU
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../../store/userSlice';
-import { selectFavoritesCount } from '../../store/favoriteSlice';
+import { selectFavoritesCount, clearFavorites } from '../../store/favoriteSlice';
+import { clearCart } from '../../store/cartSlice';
 import { Dropdown } from 'react-bootstrap';
 import '@coreui/coreui/dist/css/coreui.min.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-const AdminLayout = ({ darkMode, setDarkMode }) => {
+const AdminLayout = () => {
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -23,10 +24,30 @@ const AdminLayout = ({ darkMode, setDarkMode }) => {
   const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const adminId = localStorage.getItem('userId');
+  const notificationDropdownRef = useRef(null);
+  const notificationButtonRef = useRef(null);
 
   useEffect(() => {
     if (adminId) fetchUnreadCount();
   }, [adminId]);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (
+        showNotifications &&
+        notificationDropdownRef.current &&
+        !notificationDropdownRef.current.contains(event.target) &&
+        notificationButtonRef.current &&
+        !notificationButtonRef.current.contains(event.target)
+      ) {
+        setShowNotifications(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showNotifications]);
 
   const fetchUnreadCount = async () => {
     try {
@@ -59,34 +80,36 @@ const AdminLayout = ({ darkMode, setDarkMode }) => {
     localStorage.removeItem('userId');
     localStorage.removeItem('role');
     dispatch(logout());
+    dispatch(clearFavorites());
+    dispatch(clearCart());
     navigate('/login');
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }} className={darkMode ? 'dark' : ''}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <CHeader position="sticky" className="px-3 d-flex align-items-center justify-content-between">
         <div className="d-flex align-items-center">
           <CButton color="light" variant="ghost" onClick={() => setSidebarVisible(v => !v)} className="me-2">
             <FiMenu size={20} />
           </CButton>
-          <CHeaderBrand onClick={() => navigate('/admin')} style={{ cursor: 'pointer' }} className="fw-bold">Admin Paneli</CHeaderBrand>
+          <CHeaderBrand onClick={() => navigate('/admin')} style={{ cursor: 'pointer' }} className="fw-bold">Admin Panel</CHeaderBrand>
         </div>
         <CHeaderNav className="ms-auto d-flex align-items-center gap-2">
           {/* Bildirim ikonu */}
           <div className="header-icon notification" style={{ position: 'relative', marginRight: 8 }}>
-            <button onClick={handleNotificationClick} style={{ background: 'none', border: 'none', position: 'relative' }} aria-label="Bildirimler">
+            <button ref={notificationButtonRef} onClick={handleNotificationClick} style={{ background: 'none', border: 'none', position: 'relative' }} aria-label="Bildirimler">
               <FiBell size={20} />
               {notificationCount > 0 && <span className="icon-badge" style={{ position: 'absolute', top: -6, right: -6, background: 'red', color: 'white', borderRadius: '50%', fontSize: 12, padding: '2px 6px' }}>{notificationCount}</span>}
             </button>
             {showNotifications && (
-              <div className="notification-dropdown" style={{ position: 'absolute', right: 0, top: 32, zIndex: 1000, background: '#fff', border: '1px solid #eee', borderRadius: 8, minWidth: 320, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+              <div className="notification-dropdown" ref={notificationDropdownRef} style={{ position: 'absolute', right: 0, top: 32, zIndex: 1000, background: '#fff', border: '1px solid #eee', borderRadius: 8, minWidth: 320, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
                 <div className="d-flex justify-content-between align-items-center p-2 border-bottom">
                   <span className="fw-bold">Bildirimler</span>
-                  <button className="btn btn-link btn-sm" onClick={handleMarkAllAsRead}>Tümünü Okundu Yap</button>
+                  <button className="btn btn-link btn-sm" onClick={handleMarkAllAsRead}>Mark All as Read</button>
                 </div>
                 <div style={{ maxHeight: 320, overflowY: 'auto' }}>
                   {notifications.length === 0 ? (
-                    <div className="p-3 text-center text-muted">Bildirim yok.</div>
+                    <div className="p-3 text-center text-muted">No notifications.</div>
                   ) : notifications.map(n => (
                     <div key={n.id} className={`p-2 border-bottom ${n.isRead ? '' : 'bg-light'}`}>{n.message}<br /><small className="text-muted">{new Date(n.createdAt).toLocaleString()}</small></div>
                   ))}
@@ -94,12 +117,9 @@ const AdminLayout = ({ darkMode, setDarkMode }) => {
               </div>
             )}
           </div>
-          <CButton color="light" variant="ghost" onClick={() => setDarkMode && setDarkMode(!darkMode)} title={darkMode ? 'Açık mod' : 'Koyu mod'}>
-            {darkMode ? <FiSun size={20} /> : <FiMoon size={20} />}
-          </CButton>
-          <CNavItem>
-            <CNavLink onClick={() => navigate('/campaigns')} style={{ cursor: 'pointer' }}><FiGift size={20} className="me-1" />Kampanyalar</CNavLink>
-          </CNavItem>
+          {/* <CNavItem>
+            <CNavLink onClick={() => navigate('/campaigns')} style={{ cursor: 'pointer' }}><FiGift size={20} className="me-1" />Campaigns</CNavLink>
+          </CNavItem> */}
           <CNavItem>
             <CNavLink onClick={() => navigate('/cart')} style={{ cursor: 'pointer', position: 'relative' }}>
               <FiShoppingCart size={20} />
@@ -119,17 +139,17 @@ const AdminLayout = ({ darkMode, setDarkMode }) => {
             <Dropdown.Menu>
               {isLoggedIn ? (
                 <>
-                  <Dropdown.Item onClick={() => navigate(`/profile/${isLoggedIn}`)}><FiUser className="me-2" />Profilim</Dropdown.Item>
-                  <Dropdown.Item onClick={() => navigate(`/profile/${isLoggedIn}?tab=orders`)}><FiShoppingCart className="me-2" />Siparişlerim</Dropdown.Item>
-                  <Dropdown.Item onClick={() => navigate(`/profile/${isLoggedIn}?tab=favorites`)}><FiHeart className="me-2" />Favorilerim</Dropdown.Item>
-                  <Dropdown.Item onClick={() => navigate('/admin')}><FiGift className="me-2" />Admin Paneli</Dropdown.Item>
+                  <Dropdown.Item onClick={() => navigate(`/profile/${isLoggedIn}`)}><FiUser className="me-2" />My Profile</Dropdown.Item>
+                  <Dropdown.Item onClick={() => navigate(`/profile/${isLoggedIn}?tab=orders`)}><FiShoppingCart className="me-2" />My Orders</Dropdown.Item>
+                  <Dropdown.Item onClick={() => navigate(`/profile/${isLoggedIn}?tab=favorites`)}><FiHeart className="me-2" />Favorites</Dropdown.Item>
+                  <Dropdown.Item onClick={() => navigate('/admin')}><FiGift className="me-2" />Admin Panel</Dropdown.Item>
                   <Dropdown.Divider />
-                  <Dropdown.Item onClick={handleLogout}><FiLogOut className="me-2" />Çıkış Yap</Dropdown.Item>
+                  <Dropdown.Item onClick={handleLogout}><FiLogOut className="me-2" />Logout</Dropdown.Item>
                 </>
               ) : (
                 <>
-                  <Dropdown.Item onClick={() => navigate('/login')}><FiLogIn className="me-2" />Giriş Yap</Dropdown.Item>
-                  <Dropdown.Item onClick={() => navigate('/register')}><FiUserPlus className="me-2" />Kayıt Ol</Dropdown.Item>
+                  <Dropdown.Item onClick={() => navigate('/login')}><FiLogIn className="me-2" />Login</Dropdown.Item>
+                  <Dropdown.Item onClick={() => navigate('/register')}><FiUserPlus className="me-2" />Register</Dropdown.Item>
                 </>
               )}
             </Dropdown.Menu>
@@ -139,7 +159,7 @@ const AdminLayout = ({ darkMode, setDarkMode }) => {
       <CContainer fluid className="py-4" style={{ flex: 1 }}>
         <CRow>
           <CCol xs={12} md={3} lg={2} className="mb-4 mb-md-0">
-            <AdminSidebar />
+            <AdminSidebar sidebarVisible={sidebarVisible} onClose={() => setSidebarVisible(false)} />
           </CCol>
           <CCol xs={12} md={9} lg={10}>
             <Outlet />

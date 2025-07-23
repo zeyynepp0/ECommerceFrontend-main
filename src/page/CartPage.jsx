@@ -8,7 +8,7 @@ import { CContainer, CRow, CCol, CCard, CCardBody, CCardTitle, CButton, CSpinner
 
 const API_BASE = "http://localhost:5220";
 
-const CartPage = ({ darkMode }) => {
+const CartPage = () => {
   const { userId, isLoggedIn } = useSelector(state => state.user);
   const { cartItems, status } = useSelector(state => state.cart);
   const cartTotal = useSelector(selectCartTotal);
@@ -28,7 +28,7 @@ const CartPage = ({ darkMode }) => {
     const stock = typeof item.stock === 'number' ? item.stock : 99;
     if (newQuantity < 1) return;
     if (newQuantity > stock) {
-      alert(`Stok yetersiz! Bu üründen maksimum ${stock} adet ekleyebilirsiniz.`);
+      alert(`Insufficient stock! You can add up to ${stock} of this product.`);
       return;
     }
     try {
@@ -42,7 +42,7 @@ const CartPage = ({ darkMode }) => {
       }
       await dispatch(fetchCartFromBackend(userId));
     } catch (error) {
-      alert('Miktar güncellenirken hata oluştu! ' + parseApiError(error));
+      alert('An error occurred while updating the quantity! ' + parseApiError(error));
       await dispatch(fetchCartFromBackend(userId));
     }
   };
@@ -53,7 +53,7 @@ const CartPage = ({ darkMode }) => {
       await apiDelete(`http://localhost:5220/api/CartItem/${cartItemId}`);
       await dispatch(fetchCartFromBackend(userId));
     } catch (error) {
-      alert('Ürün kaldırılırken hata oluştu! ' + parseApiError(error));
+      alert('An error occurred while removing the product! ' + parseApiError(error));
       await dispatch(fetchCartFromBackend(userId));
     }
   };
@@ -65,7 +65,7 @@ const CartPage = ({ darkMode }) => {
       await apiDelete(`http://localhost:5220/api/CartItem/user/${userId}`);
       await dispatch(fetchCartFromBackend(userId));
     } catch (error) {
-      alert('Sepet temizlenirken hata oluştu! ' + parseApiError(error));
+      alert('An error occurred while clearing the cart! ' + parseApiError(error));
       await dispatch(fetchCartFromBackend(userId));
     }
   };
@@ -77,16 +77,16 @@ const CartPage = ({ darkMode }) => {
       return;
     }
     if (cartItems.length === 0) {
-      alert('Sepetiniz boş!');
+      alert('Your cart is empty!');
       return;
     }
     // Sepeti backend'den tekrar çekip güncel olup olmadığını kontrol et
     dispatch(fetchCartFromBackend(userId)).then(() => {
       if (cartItems.length === 0) {
-        alert('Sepetiniz boş!');
+        alert('Your cart is empty!');
         return;
       }
-      navigate('/checkout'); // Sadece /checkout route'u kullanılmalı
+      navigate('/checkout'); // Only /checkout route should be used
     });
   };
 
@@ -123,7 +123,7 @@ const CartPage = ({ darkMode }) => {
     return (
       <CContainer className="py-5">
         <CAlert color="warning">
-          Sepetinizi görüntülemek için giriş yapmalısınız. <CButton color="link" as={Link} to="/login">Giriş Yap</CButton>
+          You must be logged in to view your cart. <CButton color="link" as={Link} to="/login">Login</CButton>
         </CAlert>
       </CContainer>
     );
@@ -133,10 +133,10 @@ const CartPage = ({ darkMode }) => {
     <CContainer className="py-4">
       <CCard className="mb-4">
         <CCardBody>
-          <CCardTitle as="h2">Sepetim</CCardTitle>
+          <CCardTitle as="h2">My Cart</CCardTitle>
           {cartItems.length === 0 ? (
             <CAlert color="info">
-              Sepetiniz boş. <CButton color="link" as={Link} to="/">Alışverişe Devam Et</CButton>
+              Your cart is empty. <CButton color="link" as={Link} to="/">Continue Shopping</CButton>
             </CAlert>
           ) : (
             <CRow>
@@ -151,12 +151,12 @@ const CartPage = ({ darkMode }) => {
                         <img
                           src={item.image ? (item.image.startsWith('http') ? item.image : API_BASE + item.image) : '/images/default-product.jpg'}
                           alt={item.name || 'Ürün'}
-                          style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 8, cursor: 'pointer' }}
+                          style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 8, cursor: 'pointer', background: '#fff' }}
                           onClick={() => navigate(`/products/${item.productId}`)}
                           onError={e => { e.target.src = '/images/default-product.jpg'; }}
                         />
                         <div style={{ flex: 1 }}>
-                          <h5 style={{ cursor: 'pointer', color: '#007bff', textDecoration: 'underline' }} onClick={() => navigate(`/products/${item.productId}`)}>{item.name || 'Ürün İsmi Yok'}</h5>
+                          <h5 style={{ cursor: 'pointer', color: '#007bff', textDecoration: 'underline' }} onClick={() => navigate(`/products/${item.productId}`)}>{item.name || 'No Product Name'}</h5>
                           {item.categoryName && (
                             <div className="mb-2">
                               <CBadge color="info">{item.categoryName}</CBadge>
@@ -167,9 +167,9 @@ const CartPage = ({ darkMode }) => {
                             <span>{currentQuantity}</span>
                             <CButton size="sm" color="secondary" variant="outline" onClick={() => handleUpdateQuantity(item.id, currentQuantity + 1)} disabled={currentQuantity >= stock}>+</CButton>
                           </div>
-                          <div className="mb-2">Birim Fiyat: <strong>{(item.price || 0).toFixed(2)}₺</strong></div>
-                          <div className="mb-2">Toplam: <strong>{itemTotal.toFixed(2)}₺</strong></div>
-                          <CButton size="sm" color="danger" variant="outline" onClick={() => handleRemoveFromCart(item.id)}>Kaldır</CButton>
+                          <div className="mb-2">Unit Price: <strong>{(item.price || 0).toFixed(2)}₺</strong></div>
+                          <div className="mb-2">Total: <strong>{itemTotal.toFixed(2)}₺</strong></div>
+                          <CButton size="sm" color="danger" variant="outline" onClick={() => handleRemoveFromCart(item.id)}>Remove</CButton>
                         </div>
                       </CCardBody>
                     </CCard>
@@ -179,13 +179,13 @@ const CartPage = ({ darkMode }) => {
               <CCol md={4}>
                 <CCard className="mb-3">
                   <CCardBody>
-                    <CCardTitle as="h4">Sipariş Özeti</CCardTitle>
+                    <CCardTitle as="h4">Order Summary</CCardTitle>
                     <div className="mb-2 d-flex justify-content-between">
-                      <span>Ara Toplam:</span>
+                      <span>Subtotal:</span>
                       <span>{cartTotal.toFixed(2)}₺</span>
                     </div>
                     <div className="mb-2 d-flex justify-content-between">
-                      <span>Kargo:</span>
+                      <span>Shipping:</span>
                       {shippingCompanies.length > 0 ? (
                         <>
                           <select value={selectedShipping} onChange={e => setSelectedShipping(e.target.value)} style={{ marginRight: 8 }}>
@@ -193,19 +193,19 @@ const CartPage = ({ darkMode }) => {
                               <option key={s.id} value={s.id}>{s.name} ({s.price}₺)</option>
                             ))}
                           </select>
-                          <span>{shippingCost === 0 ? 'Ücretsiz' : `${shippingCost.toFixed(2)}₺`}</span>
+                          <span>{shippingCost === 0 ? 'Free' : `${shippingCost.toFixed(2)}₺`}</span>
                         </>
                       ) : (
-                        <span>Kargo ücreti, ödeme adımında seçtiğiniz kargo firmasına göre eklenecektir.</span>
+                        <span>The shipping fee will be added according to the shipping company you choose at the payment step.</span>
                       )}
                     </div>
                     <div className="mb-3 d-flex justify-content-between fw-bold">
-                      <span>Toplam:</span>
+                      <span>Total:</span>
                       <span>{(cartTotal + shippingCost).toFixed(2)}₺</span>
                     </div>
-                    <CButton color="danger" variant="outline" className="w-100 mb-2" onClick={handleClearCart}>Sepeti Temizle</CButton>
-                    <CButton color="secondary" variant="outline" className="w-100 mb-2" as={Link} to="/">Alışverişe Devam Et</CButton>
-                    <CButton color="success" className="w-100" onClick={handleCheckout}>Alışverişi Tamamla</CButton>
+                    <CButton color="danger" variant="outline" className="w-100 mb-2" onClick={handleClearCart}>Clear Cart</CButton>
+                    <CButton color="secondary" variant="outline" className="w-100 mb-2" as={Link} to="/">Continue Shopping</CButton>
+                    <CButton color="success" className="w-100" onClick={handleCheckout}>Checkout</CButton>
                   </CCardBody>
                 </CCard>
               </CCol>
