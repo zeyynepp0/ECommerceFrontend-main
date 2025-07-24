@@ -28,6 +28,7 @@ const LoginSchema = Yup.object().shape({
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [info, setInfo] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -45,6 +46,7 @@ const LoginPage = () => {
         </CCardHeader>
         <CCardBody>
           {error && <CAlert color="danger" className="py-2 text-center">{error}</CAlert>}
+          {info && <CAlert color="info" className="py-2 text-center">{info}</CAlert>}
           <CButton color="light" className="w-100 mb-3 d-flex align-items-center justify-content-center gap-2 border" onClick={handleGoogleLogin} type="button">
             <FcGoogle size={20} /> <span>Sign in with Google</span>
           </CButton>
@@ -55,6 +57,7 @@ const LoginPage = () => {
             onSubmit={async (values, { setSubmitting }) => {
               setIsLoading(true);
               setError('');
+              setInfo('');
               try {
                 // Önce user login dene
                 const loginUrl = 'http://localhost:5220/api/User/login';
@@ -103,7 +106,26 @@ const LoginPage = () => {
                   navigate(`/profile/${userId}`);
                 }
               } catch (error) {
-                setError(parseApiError(error));
+                const msg = parseApiError(error);
+                if (msg && (msg.toLowerCase().includes('verification link') || msg.toLowerCase().includes('not verified') || msg.toLowerCase().includes('doğrulama linki') || msg.toLowerCase().includes('doğrulanmamış'))) {
+                  setInfo(msg || 'A verification link has been sent to your email address.');
+                  setError('');
+                } else if (msg && (msg.toLowerCase().includes('invalid email') || msg.toLowerCase().includes('wrong password') || msg.toLowerCase().includes('password') || msg.toLowerCase().includes('unauthorized') || msg.toLowerCase().includes('geçersiz e-posta') || msg.toLowerCase().includes('şifre yanlış') || msg.toLowerCase().includes('şifre'))) {
+                  setError('Invalid email or password.');
+                  setInfo('');
+                } else if (msg && (msg.toLowerCase().includes('user not found') || msg.toLowerCase().includes('not found') || msg.toLowerCase().includes('kayıtlı kullanıcı bulunamadı') || msg.toLowerCase().includes('bulunamadı'))) {
+                  setError('No user found with this email address.');
+                  setInfo('');
+                } else if (msg && (msg.toLowerCase().includes('inactive') || msg.toLowerCase().includes('passive') || msg.toLowerCase().includes('pasif'))) {
+                  setError('Your account is inactive. Please contact the site administrator.');
+                  setInfo('');
+                } else if (msg) {
+                  setError(msg);
+                  setInfo('');
+                } else {
+                  setError('An unknown error occurred.');
+                  setInfo('');
+                }
               } finally {
                 setIsLoading(false);
                 setSubmitting(false);
@@ -134,6 +156,9 @@ const LoginPage = () => {
           <div className="text-center mt-3">
             Don't have an account?
             <Link to="/register" className="ms-1 fw-semibold" style={{ color: '#6366f1' }}>Register</Link>
+          </div>
+          <div className="text-center mt-2">
+            <Link to="/forgot-password" className="fw-semibold" style={{ color: '#6366f1', fontSize: 14 }}>Şifremi Unuttum?</Link>
           </div>
         </CCardBody>
       </CCard>

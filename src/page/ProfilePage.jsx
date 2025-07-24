@@ -7,7 +7,7 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { apiGet, apiPost, apiPut, apiDelete } from '../utils/api';
 import {
-  CContainer, CRow, CCol, CCard, CCardBody, CCardTitle, CCardText, CButton, CNav, CNavItem, CNavLink, CTabContent, CTabPane, CFormInput, CFormLabel, CForm, CListGroup, CListGroupItem, CAvatar, CBadge, CAlert, CSpinner, CPagination, CPaginationItem, CTable, CTableHead, CTableRow, CTableHeaderCell, CTableBody, CTableDataCell
+  CContainer, CRow, CCol, CCard, CCardBody, CCardTitle, CCardText, CButton, CNav, CNavItem, CNavLink, CTabContent, CTabPane, CFormInput, CFormLabel, CForm, CListGroup, CListGroupItem, CAvatar, CBadge, CAlert, CSpinner, CPagination, CPaginationItem, CTable, CTableHead, CTableRow, CTableHeaderCell, CTableBody, CTableDataCell, CFormSelect
 } from '@coreui/react';
 import { FiUser, FiMapPin, FiHeart, FiShoppingBag, FiPlus, FiTrash2, FiEdit2, FiMail, FiPhone, FiEye, FiEyeOff } from 'react-icons/fi';
 import '@coreui/coreui/dist/css/coreui.min.css';
@@ -53,6 +53,18 @@ const ProfilePage = () => {
 
   const [favoritesPage, setFavoritesPage] = useState(1);
   const [addressesPage, setAddressesPage] = useState(1);
+  const [orderStatusFilter, setOrderStatusFilter] = useState('All');
+  const ORDER_STATUS_OPTIONS = [
+    { value: 'All', label: 'All' },
+    { value: 'Pending Approval', label: 'Pending Approval' },
+    { value: 'Approved', label: 'Approved' },
+    { value: 'Preparing', label: 'Preparing' },
+    { value: 'Shipped', label: 'Shipped' },
+    { value: 'Delivered', label: 'Delivered' },
+    { value: 'Cancelled', label: 'Cancelled' },
+    { value: 'Return Requested', label: 'Return Requested' },
+    { value: 'Returned', label: 'Returned' },
+  ];
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -514,63 +526,80 @@ const ProfilePage = () => {
             <CTabPane visible={activeTab === 'orders'}>
               <CCard className="mb-4" style={{ background: '#fff', color: '#333', border: '1px solid #eee' }}>
                 <CCardBody>
-                  <CCardTitle>Siparişlerim</CCardTitle>
+                  <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 gap-2">
+                    <CCardTitle className="mb-0">My Orders</CCardTitle>
+                    <div style={{ minWidth: 220 }}>
+                      <CFormLabel htmlFor="orderStatusFilter" className="mb-1">Filter by Order Status</CFormLabel>
+                      <CFormSelect
+                        id="orderStatusFilter"
+                        value={orderStatusFilter}
+                        onChange={e => setOrderStatusFilter(e.target.value)}
+                        size="sm"
+                      >
+                        {ORDER_STATUS_OPTIONS.map(opt => (
+                          <option key={opt.value} value={opt.value}>{opt.label}</option>
+                        ))}
+                      </CFormSelect>
+                    </div>
+                  </div>
                   {orders.length === 0 ? (
-                    <CAlert color="info" className="text-center my-4">Henüz siparişiniz bulunmamaktadır.</CAlert>
+                    <CAlert color="info" className="text-center my-4">You have no orders yet.</CAlert>
                   ) : (
                     <CListGroup>
-                      {orders.map(order => {
-                        // Durumları hem sayı, hem string, hem Türkçe olarak kontrol et
-                        const isCancelled = order.status === 5 || order.status === 'Cancelled' || order.status === '5' || order.statusText === 'İptal Edildi';
-                        const isRefunded = order.status === 7 || order.status === 'Refunded' || order.status === '7' || order.statusText === 'İade Edildi';
-                        const isDelivered = order.status === 4 || order.status === 'Delivered' || order.status === '4' || (order.statusText && order.statusText.toLowerCase() === 'teslim edildi') || String(order.status).toLowerCase() === 'delivered';
-                        return (
-                          <CListGroupItem
-                            key={order.id}
-                            className={`mb-3 ${isCancelled ? 'list-group-item-danger' : isRefunded ? 'list-group-item-warning' : ''}${isDelivered ? 'list-group-item-success' : ''}`}
-                          >
-                            <div className="d-flex justify-content-between align-items-center mb-2">
-                              <div>
-                                <span className="fw-bold">Order No: #{order.id}</span>
-                                {getOrderStatusBadge(order.statusText)}
+                      {orders
+                        .filter(order => orderStatusFilter === 'All' || getOrderStatusBadge(order.statusText)?.props?.children === orderStatusFilter)
+                        .map(order => {
+                          // Durumları hem sayı, hem string, hem Türkçe olarak kontrol et
+                          const isCancelled = order.status === 5 || order.status === 'Cancelled' || order.status === '5' || order.statusText === 'İptal Edildi';
+                          const isRefunded = order.status === 7 || order.status === 'Refunded' || order.status === '7' || order.statusText === 'İade Edildi';
+                          const isDelivered = order.status === 4 || order.status === 'Delivered' || order.status === '4' || (order.statusText && order.statusText.toLowerCase() === 'teslim edildi') || String(order.status).toLowerCase() === 'delivered';
+                          return (
+                            <CListGroupItem
+                              key={order.id}
+                              className={`mb-3 ${isCancelled ? 'list-group-item-danger' : isRefunded ? 'list-group-item-warning' : ''}${isDelivered ? 'list-group-item-success' : ''}`}
+                            >
+                              <div className="d-flex justify-content-between align-items-center mb-2">
+                                <div>
+                                  <span className="fw-bold">Order No: #{order.id}</span>
+                                  {getOrderStatusBadge(order.statusText)}
+                                </div>
+                                <div className="text-muted">{new Date(order.orderDate).toLocaleDateString()}</div>
                               </div>
-                              <div className="text-muted">{new Date(order.orderDate).toLocaleDateString()}</div>
-                            </div>
-                            <div className="mb-2"><strong>Address:</strong> {order.address?.addressTitle} - {order.address?.street}, {order.address?.city} {order.address?.state}, {order.address?.country} ({order.address?.postalCode})</div>
-                            <div className="mb-2"><strong>Delivery Person:</strong> {order.deliveryPersonName} <strong>Phone:</strong> {order.deliveryPersonPhone}</div>
-                            <div className="mb-2"><strong>Payment Method:</strong> {order.paymentMethod === 0 ? 'Credit Card' : order.paymentMethod === 1 ? 'Bank Card' : order.paymentMethod === 2 ? 'Bank Transfer' : 'Cash'}</div>
-                            <div className="mb-2"><strong>Shipping Cost:</strong> {order.shippingCost === 0 ? 'Free' : `${order.shippingCost} TL`}</div>
-                            <div className="mb-2"><strong>Total Amount:</strong> {order.totalAmount} TL</div>
-                            <div className="mb-2"><strong>Order Items:</strong></div>
-                            <CListGroup className="mb-2">
-                              {order.orderItems?.map(item => (
-                                <CListGroupItem key={item.id} className="d-flex align-items-center gap-2" style={{ cursor: 'pointer' }} onClick={() => navigate(`/products/${item.productId}`)}>
-                                  <img src={item.productImage ? (item.productImage.startsWith('http') ? item.productImage : API_BASE + item.productImage) : '/images/default-product.jpg'} alt={item.productName} style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 8 }} />
-                                  <div className="flex-grow-1">
-                                    <div className="fw-bold">{item.productName}</div>
-                                    <div className="text-muted">{item.quantity} × {item.unitPrice} TL</div>
-                                  </div>
-                                  <div className="fw-bold">{(item.quantity * item.unitPrice).toFixed(2)} TL</div>
-                                </CListGroupItem>
-                              ))}
-                            </CListGroup>
-                            {/* Sipariş aksiyon butonları */}
-                            <div className="d-flex gap-2 mt-2">
-                              <CButton color="danger" size="sm" variant="outline" disabled={['Cancelled','Returned','Delivered','Refunded',5,7,4,'5','7','4'].includes(order.status) || isCancelled || isRefunded} onClick={() => handleCancelOrder(order.id)}>Cancel Order</CButton>
-                              <CButton 
-                                color="warning" 
-                                size="sm" 
-                                variant="outline" 
-                                disabled={!isDelivered} 
-                                onClick={() => handleReturnOrder(order.id)}
-                              >
-                                Return Order
-                              </CButton>
-                              <CButton color="info" size="sm" variant="outline" onClick={() => handleTrackOrder(order.id)}>Track Shipping</CButton>
-                            </div>
-                          </CListGroupItem>
-                        );
-                      })}
+                              <div className="mb-2"><strong>Address:</strong> {order.address?.addressTitle} - {order.address?.street}, {order.address?.city} {order.address?.state}, {order.address?.country} ({order.address?.postalCode})</div>
+                              <div className="mb-2"><strong>Delivery Person:</strong> {order.deliveryPersonName} <strong>Phone:</strong> {order.deliveryPersonPhone}</div>
+                              <div className="mb-2"><strong>Payment Method:</strong> {order.paymentMethod === 0 ? 'Credit Card' : order.paymentMethod === 1 ? 'Bank Card' : order.paymentMethod === 2 ? 'Bank Transfer' : 'Cash'}</div>
+                              <div className="mb-2"><strong>Shipping Cost:</strong> {order.shippingCost === 0 ? 'Free' : `${order.shippingCost} TL`}</div>
+                              <div className="mb-2"><strong>Total Amount:</strong> {order.totalAmount} TL</div>
+                              <div className="mb-2"><strong>Order Items:</strong></div>
+                              <CListGroup className="mb-2">
+                                {order.orderItems?.map(item => (
+                                  <CListGroupItem key={item.id} className="d-flex align-items-center gap-2" style={{ cursor: 'pointer' }} onClick={() => navigate(`/products/${item.productId}`)}>
+                                    <img src={item.productImage ? (item.productImage.startsWith('http') ? item.productImage : API_BASE + item.productImage) : '/images/default-product.jpg'} alt={item.productName} style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 8 }} />
+                                    <div className="flex-grow-1">
+                                      <div className="fw-bold">{item.productName}</div>
+                                      <div className="text-muted">{item.quantity} × {item.unitPrice} TL</div>
+                                    </div>
+                                    <div className="fw-bold">{(item.quantity * item.unitPrice).toFixed(2)} TL</div>
+                                  </CListGroupItem>
+                                ))}
+                              </CListGroup>
+                              {/* Sipariş aksiyon butonları */}
+                              <div className="d-flex gap-2 mt-2">
+                                <CButton color="danger" size="sm" variant="outline" disabled={['Cancelled','Returned','Delivered','Refunded',5,7,4,'5','7','4'].includes(order.status) || isCancelled || isRefunded} onClick={() => handleCancelOrder(order.id)}>Cancel Order</CButton>
+                                <CButton 
+                                  color="warning" 
+                                  size="sm" 
+                                  variant="outline" 
+                                  disabled={!isDelivered} 
+                                  onClick={() => handleReturnOrder(order.id)}
+                                >
+                                  Return Order
+                                </CButton>
+                                <CButton color="info" size="sm" variant="outline" onClick={() => handleTrackOrder(order.id)}>Track Shipping</CButton>
+                              </div>
+                            </CListGroupItem>
+                          );
+                        })}
                     </CListGroup>
                   )}
                 </CCardBody>

@@ -25,7 +25,7 @@ export const apiGet = async (url, config = {}) => {
     const response = await api.get(url, { ...config, headers });
     return response.data;
   } catch (error) {
-    throw parseApiError(error);
+    throw error;
   }
 };
 
@@ -50,7 +50,7 @@ export const apiPost = async (url, data, config = {}) => {
     const response = await api.post(url, data, { ...config, headers });
     return response.data;
   } catch (error) {
-    throw parseApiError(error);
+    throw error;
   }
 };
 
@@ -68,7 +68,7 @@ export const apiPut = async (url, data, config = {}) => {
     const response = await api.put(url, data, { ...config, headers });
     return response.data;
   } catch (error) {
-    throw parseApiError(error);
+    throw error;
   }
 };
 
@@ -86,7 +86,7 @@ export const apiDelete = async (url, data, config = {}) => {
     const response = await api.delete(url, { ...config, headers, data });
     return response.data;
   } catch (error) {
-    throw parseApiError(error);
+    throw error;
   }
 };
 
@@ -101,7 +101,12 @@ export const parseApiError = (error) => {
     if (error.response.data.errors) {
       return Object.values(error.response.data.errors).flat().join(' ');
     }
+    if (error.response.data.message) return error.response.data.message;
     if (error.response.data.title) return error.response.data.title;
+    // Tüm string değerleri tara
+    for (const key in error.response.data) {
+      if (typeof error.response.data[key] === 'string') return error.response.data[key];
+    }
   }
   return error.message || 'Bilinmeyen bir hata oluştu.';
 }; 

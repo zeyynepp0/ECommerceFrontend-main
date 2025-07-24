@@ -17,6 +17,9 @@ import AdminRoutes from './admin/routes/AdminRoutes';
 import CoreUILayout from './components/CoreUILayout';
 import { useDispatch } from 'react-redux';
 import CategoriesPage from './page/CategoriesPage';
+import ForgotPasswordPage from './page/ForgotPasswordPage';
+import ResetPasswordPage from './page/ResetPasswordPage';
+import VerifyEmailPage from './page/VerifyEmailPage';
 
 const API = axios.create({
   baseURL: 'https://your-api-endpoint.com/api',
@@ -45,6 +48,9 @@ function App() {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/categories" element={<CategoriesPage />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+              <Route path="/reset-password" element={<ResetPasswordPage />} />
+              <Route path="/verify-email" element={<VerifyEmailPage />} />
             </Route>
             {/* Admin paneli için nested route */}
             <Route path="/admin/*" element={<AdminRoutes />} />
