@@ -3,7 +3,7 @@ import { apiGet } from '../../utils/api';
 import {
   CContainer, CRow, CCol, CCard, CCardBody, CCardTitle, CCardText, CSpinner, CAlert, CButton
 } from '@coreui/react';
-import { FiUsers, FiBox, FiLayers, FiShoppingCart, FiChevronRight } from 'react-icons/fi';
+import { FiUsers, FiBox, FiLayers, FiShoppingCart, FiChevronRight, FiGift } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 
 const statCards = [
@@ -41,6 +41,13 @@ const statCards = [
     icon: <FiLayers size={36} />, 
     color: 'info',
     to: '/admin/shipping-companies',
+  },
+  {
+    key: 'campaignCount',
+    title: 'Campaigns',
+    icon: <FiGift size={36} />, 
+    color: 'secondary',
+    to: '/admin/campaigns',
   },
 ];
 
@@ -95,6 +102,7 @@ const DashboardPage = () => {
                 <CButton color="info" variant="outline" onClick={() => navigate('/admin/revenue')}>Revenue Report</CButton>
                 <CButton color="secondary" variant="outline" onClick={() => navigate('/admin/user-activity')}>User Activities</CButton>
                 <CButton color="dark" variant="outline" onClick={() => navigate('/admin/reviews')}>Reviews</CButton>
+                <CButton color="secondary" variant="outline" onClick={() => navigate('/admin/campaigns')}>Campaigns</CButton>
               </div>
             </CCardBody>
           </CCard>

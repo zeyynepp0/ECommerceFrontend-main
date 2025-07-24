@@ -139,6 +139,7 @@ const OrdersPage = () => {
                 <CTableHeaderCell>Customer</CTableHeaderCell>
                 <CTableHeaderCell>Date</CTableHeaderCell>
                 <CTableHeaderCell>Amount</CTableHeaderCell>
+                <CTableHeaderCell>Campaign</CTableHeaderCell>
                 <CTableHeaderCell>Status</CTableHeaderCell>
                 <CTableHeaderCell>User Request</CTableHeaderCell>
                 <CTableHeaderCell>Order Status</CTableHeaderCell>
@@ -167,6 +168,13 @@ const OrdersPage = () => {
                     <CTableDataCell>{order.userEmail || 'Unknown'}</CTableDataCell>
                     <CTableDataCell>{new Date(order.createdAt).toLocaleDateString()}</CTableDataCell>
                     <CTableDataCell>{order.totalAmount.toFixed(2)}₺</CTableDataCell>
+                    <CTableDataCell>
+                      {order.campaignName ? (
+                        <span>{order.campaignName }</span>
+                      ) : (
+                        <span>-</span>
+                      )}
+                    </CTableDataCell>
                     <CTableDataCell>{statusBadge(order.statusText)}</CTableDataCell>
                     <CTableDataCell>
                       {userRequestBadge(order.userRequestText)}

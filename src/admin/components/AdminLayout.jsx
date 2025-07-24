@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import AdminSidebar from './AdminSidebar';
 import { Outlet } from 'react-router-dom';
 import { CContainer, CRow, CCol, CHeader, CHeaderBrand, CHeaderNav, CNavItem, CNavLink, CButton, CBadge } from '@coreui/react';
@@ -13,16 +13,15 @@ import '@coreui/coreui/dist/css/coreui.min.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const AdminLayout = () => {
-  const [sidebarVisible, setSidebarVisible] = useState(true);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const reduxUser = useSelector(state => state.user);
   const isLoggedIn = reduxUser?.userId || localStorage.getItem('userId');
   const role = localStorage.getItem('role');
   const favoritesCount = useSelector(selectFavoritesCount);
-  const [notificationCount, setNotificationCount] = useState(0);
-  const [notifications, setNotifications] = useState([]);
-  const [showNotifications, setShowNotifications] = useState(false);
+  const [notificationCount, setNotificationCount] = React.useState(0);
+  const [notifications, setNotifications] = React.useState([]);
+  const [showNotifications, setShowNotifications] = React.useState(false);
   const adminId = localStorage.getItem('userId');
   const notificationDropdownRef = useRef(null);
   const notificationButtonRef = useRef(null);
@@ -89,9 +88,6 @@ const AdminLayout = () => {
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <CHeader position="sticky" className="px-3 d-flex align-items-center justify-content-between">
         <div className="d-flex align-items-center">
-          <CButton color="light" variant="ghost" onClick={() => setSidebarVisible(v => !v)} className="me-2">
-            <FiMenu size={20} />
-          </CButton>
           <CHeaderBrand onClick={() => navigate('/admin')} style={{ cursor: 'pointer' }} className="fw-bold">Admin Panel</CHeaderBrand>
         </div>
         <CHeaderNav className="ms-auto d-flex align-items-center gap-2">
@@ -159,7 +155,7 @@ const AdminLayout = () => {
       <CContainer fluid className="py-4" style={{ flex: 1 }}>
         <CRow>
           <CCol xs={12} md={3} lg={2} className="mb-4 mb-md-0">
-            <AdminSidebar sidebarVisible={sidebarVisible} onClose={() => setSidebarVisible(false)} />
+            <AdminSidebar />
           </CCol>
           <CCol xs={12} md={9} lg={10}>
             <Outlet />

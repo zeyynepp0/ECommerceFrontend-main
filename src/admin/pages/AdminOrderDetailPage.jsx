@@ -99,6 +99,10 @@ const AdminOrderDetailPage = () => {
             <CCol md={6}><b>User Request:</b> {order.userRequestText}</CCol>
           </CRow>
           <CRow className="mb-2">
+            <CCol md={6}><b>Kampanya:</b> {order.campaignName ? `${order.campaignName} (${order.campaignDiscount ? '-' + order.campaignDiscount + ' TL' : ''})` : 'None'}</CCol>
+            <CCol md={6}><b>Order Note:</b> {order.orderNote || 'None'}</CCol>
+          </CRow>
+          <CRow className="mb-2">
             <CCol md={6}>
               <b>Delivery Address:</b>
               <div className="ms-2">
@@ -124,7 +128,7 @@ const AdminOrderDetailPage = () => {
             <CCol md={6}><b>Admin Status:</b> {order.adminStatus}</CCol>
           </CRow>
           <CRow className="mb-2">
-            <CCol md={6}><b>Order Note:</b> {order.note || '-'}</CCol>
+            
             <CCol md={6}><b>Total Amount:</b> {order.totalAmount} ₺</CCol>
           </CRow>
           <hr />

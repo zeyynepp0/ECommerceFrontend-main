@@ -35,6 +35,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { Dropdown } from 'react-bootstrap';
 import './CoreUILayout.css'; // Özel stiller için
 import { apiGet } from '../utils/api';
+import axios from 'axios';
 
 const CoreUILayout = ({ onResetFilters }) => {
   const [sidebarVisible, setSidebarVisible] = useState(true);
@@ -109,13 +110,12 @@ const CoreUILayout = ({ onResetFilters }) => {
   }, [showProfileDropdown, showNotifications]);
 
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const cats = await apiGet('http://localhost:5220/api/Category');
-        setCategories(cats);
-      } catch {}
-    };
-    fetchCategories();
+    axios.get('http://localhost:5220/api/category')
+      .then(res => {
+        const data = res.data;
+        setCategories(Array.isArray(data) ? data : (data && data.$values ? data.$values : []));
+      })
+      .catch(() => setCategories([]));
   }, []);
 
   useEffect(() => {

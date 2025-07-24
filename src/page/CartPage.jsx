@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchCartFromBackend, addToCart, removeFromCart, updateQuantity, clearCart, selectCartTotal } from '../store/cartSlice';
 import { Link, useNavigate } from 'react-router-dom';
-import { apiDelete, apiPost, parseApiError } from '../utils/api';
+import { apiDelete, apiPost, parseApiError, apiGet } from '../utils/api';
 import { CContainer, CRow, CCol, CCard, CCardBody, CCardTitle, CButton, CSpinner, CAlert, CBadge } from '@coreui/react';
 
 
@@ -14,6 +14,11 @@ const CartPage = () => {
   const cartTotal = useSelector(selectCartTotal);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const [availableCampaigns, setAvailableCampaigns] = useState([]);
+  const [selectedCampaignId, setSelectedCampaignId] = useState(null);
+  const [campaignDiscount, setCampaignDiscount] = useState(0);
+  const [discountedTotal, setDiscountedTotal] = useState(cartTotal);
 
   useEffect(() => {
     if (isLoggedIn && userId) {
@@ -70,7 +75,75 @@ const CartPage = () => {
     }
   };
 
-  // Alışverişi tamamlama fonksiyonu
+  // Kampanyaları çek
+  useEffect(() => {
+    const fetchCampaigns = async () => {
+      try {
+        const allCampaigns = await apiGet('/api/campaign');
+        // Sepetteki ürün/kategori ile eşleşen aktif kampanyaları filtrele
+        const productIds = cartItems.map(i => i.productId || i.id);
+        const categoryIds = cartItems.map(i => i.categoryId).filter(Boolean);
+        const now = new Date();
+        const validCampaigns = allCampaigns.filter(c => {
+          if (!c.isActive) return false;
+          if (c.startDate && new Date(c.startDate) > now) return false;
+          if (c.endDate && new Date(c.endDate) < now) return false;
+          // Ürün veya kategori eşleşmesi
+          const hasProduct = c.productIds?.some(pid => productIds.includes(pid));
+          const hasCategory = c.categoryIds?.some(cid => categoryIds.includes(cid));
+          return hasProduct || hasCategory;
+        });
+        setAvailableCampaigns(validCampaigns);
+      } catch (e) {
+        setAvailableCampaigns([]);
+      }
+    };
+    if (cartItems.length > 0) fetchCampaigns();
+  }, [cartItems]);
+
+  // Kampanya seçilince indirim hesapla
+  useEffect(() => {
+    if (!selectedCampaignId) {
+      setCampaignDiscount(0);
+      setDiscountedTotal(cartTotal);
+      return;
+    }
+    const campaign = availableCampaigns.find(c => c.id === Number(selectedCampaignId));
+    if (!campaign) {
+      setCampaignDiscount(0);
+      setDiscountedTotal(cartTotal);
+      return;
+    }
+    // Sepette kampanyaya dahil ürünleri bul
+    const productIds = cartItems.map(i => i.productId || i.id);
+    const categoryIds = cartItems.map(i => i.categoryId).filter(Boolean);
+    const includedItems = cartItems.filter(item =>
+      (campaign.productIds?.includes(item.productId || item.id)) ||
+      (campaign.categoryIds?.includes(item.categoryId))
+    );
+    let discount = 0;
+    if (campaign.type === 0 && campaign.percentage) {
+      // Yüzde indirim
+      const sum = includedItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+      discount = (sum * campaign.percentage) / 100;
+    } else if (campaign.type === 1 && campaign.amount) {
+      // Tutar indirimi (minOrderAmount kontrolü)
+      const sum = includedItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+      if (!campaign.minOrderAmount || sum >= campaign.minOrderAmount) {
+        discount = Math.min(campaign.amount, sum);
+      }
+    } else if (campaign.type === 2 && campaign.buyQuantity && campaign.payQuantity) {
+      // 3 al 2 öde (X al Y öde)
+      includedItems.forEach(item => {
+        const groupCount = Math.floor(item.quantity / campaign.buyQuantity);
+        discount += groupCount * (campaign.buyQuantity - campaign.payQuantity) * item.price;
+      });
+    }
+    setCampaignDiscount(discount);
+    setDiscountedTotal(cartTotal - discount);
+  }, [selectedCampaignId, availableCampaigns, cartItems, cartTotal]);
+
+  // Kampanya seçimini checkout'a aktar
   const handleCheckout = () => {
     if (!isLoggedIn || !userId) {
       navigate('/login');
@@ -80,13 +153,20 @@ const CartPage = () => {
       alert('Your cart is empty!');
       return;
     }
-    // Sepeti backend'den tekrar çekip güncel olup olmadığını kontrol et
+    // Kampanya seçimini localStorage ile aktar
+    if (selectedCampaignId) {
+      localStorage.setItem('selectedCampaignId', selectedCampaignId);
+      localStorage.setItem('campaignDiscount', campaignDiscount);
+    } else {
+      localStorage.removeItem('selectedCampaignId');
+      localStorage.removeItem('campaignDiscount');
+    }
     dispatch(fetchCartFromBackend(userId)).then(() => {
       if (cartItems.length === 0) {
         alert('Your cart is empty!');
         return;
       }
-      navigate('/checkout'); // Only /checkout route should be used
+      navigate('/checkout');
     });
   };
 
@@ -177,6 +257,31 @@ const CartPage = () => {
                 })}
               </CCol>
               <CCol md={4}>
+                {availableCampaigns.length > 0 && (
+                  <CCard className="mb-3">
+                    <CCardBody>
+                      <h5>Kampanya Seçimi</h5>
+                      <select
+                        className="form-select mb-2"
+                        value={selectedCampaignId || ''}
+                        onChange={e => setSelectedCampaignId(e.target.value)}
+                      >
+                        <option value="">Kampanya seçiniz</option>
+                        {availableCampaigns.map(c => (
+                          <option key={c.id} value={c.id}>
+                            {c.name} - {c.type === 0 ? `%${c.percentage} indirim` : c.type === 1 ? `${c.amount} TL indirim` : `${c.buyQuantity} al ${c.payQuantity} öde`}
+                          </option>
+                        ))}
+                      </select>
+                      {selectedCampaignId && (
+                        <div className="mb-2">
+                          <b>İndirim:</b> -{campaignDiscount.toFixed(2)}₺<br />
+                          <b>İndirimli Toplam:</b> {discountedTotal.toFixed(2)}₺
+                        </div>
+                      )}
+                    </CCardBody>
+                  </CCard>
+                )}
                 <CCard className="mb-3">
                   <CCardBody>
                     <CCardTitle as="h4">Order Summary</CCardTitle>
@@ -184,6 +289,12 @@ const CartPage = () => {
                       <span>Subtotal:</span>
                       <span>{cartTotal.toFixed(2)}₺</span>
                     </div>
+                    {campaignDiscount > 0 && (
+                      <div className="mb-2 d-flex justify-content-between text-success">
+                        <span>Kampanya İndirimi:</span>
+                        <span>-{campaignDiscount.toFixed(2)}₺</span>
+                      </div>
+                    )}
                     <div className="mb-2 d-flex justify-content-between">
                       <span>Shipping:</span>
                       {shippingCompanies.length > 0 ? (
@@ -201,7 +312,7 @@ const CartPage = () => {
                     </div>
                     <div className="mb-3 d-flex justify-content-between fw-bold">
                       <span>Total:</span>
-                      <span>{(cartTotal + shippingCost).toFixed(2)}₺</span>
+                      <span>{discountedTotal.toFixed(2)}₺</span>
                     </div>
                     <CButton color="danger" variant="outline" className="w-100 mb-2" onClick={handleClearCart}>Clear Cart</CButton>
                     <CButton color="secondary" variant="outline" className="w-100 mb-2" as={Link} to="/">Continue Shopping</CButton>

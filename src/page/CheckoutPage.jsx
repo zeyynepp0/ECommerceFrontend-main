@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { apiGet, apiPost, apiDelete } from '../utils/api';
@@ -20,6 +20,10 @@ const CheckoutPage = () => {
   const [deliveryPerson, setDeliveryPerson] = useState('');
   const [deliveryPersonPhone, setDeliveryPersonPhone] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('0'); // Default: CreditCard
+  const [eligibleCampaigns, setEligibleCampaigns] = useState([]);
+  const [selectedCampaignId, setSelectedCampaignId] = useState('');
+  const [campaignDiscount, setCampaignDiscount] = useState(0);
+  const [orderNote, setOrderNote] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -37,7 +41,15 @@ const CheckoutPage = () => {
         setAddresses(addressRes);
         setShippingCompanies(shippingRes);
         setCart(cartRes);
-        console.log('Cart data:', cartRes);
+        // Kampanya uygunluk sorgusu
+        const productIds = (cartRes || []).map(item => item.productId || item.id);
+        const categoryIds = (cartRes || []).map(item => item.categoryId).filter(Boolean);
+        if (productIds.length > 0 || categoryIds.length > 0) {
+          const eligible = await apiPost('/api/campaign/eligible', { productIds, categoryIds });
+          setEligibleCampaigns(eligible);
+        } else {
+          setEligibleCampaigns([]);
+        }
         setSelectedAddress(addressRes[0]?.id || '');
         setSelectedShipping(shippingRes[0]?.id || '');
         setLoading(false);
@@ -54,16 +66,57 @@ const CheckoutPage = () => {
   }, [isLoggedIn, userId, navigate]);
 
   // cartTotal hesaplamasında price ve quantity'nin sayı olduğundan emin ol
-  const cartTotal = cart.reduce((sum, item) => {
-    // item.price yoksa item.product.price kullan
+  const rawCartTotal = useMemo(() => cart.reduce((sum, item) => {
     const price = Number(item.price ?? (item.product ? item.product.price : 0)) || 0;
     const quantity = Number(item.quantity) || 0;
     return sum + price * quantity;
-  }, 0);
+  }, 0), [cart]);
+  const cartTotal = Math.max(0, rawCartTotal - campaignDiscount);
+
+  // Kampanya indirimi hesaplama
+  useEffect(() => {
+    if (!selectedCampaignId) {
+      setCampaignDiscount(0);
+      return;
+    }
+    const selected = eligibleCampaigns.find(c => c.id === Number(selectedCampaignId));
+    if (!selected) {
+      setCampaignDiscount(0);
+      return;
+    }
+    // Kampanyanın kapsadığı ürün id'leri
+    const campaignProductIds = selected.productIds || [];
+    // Sadece kampanyaya dahil ürünlerin toplamı
+    const campaignProductsTotal = cart.reduce((sum, item) => {
+      const productId = item.productId || item.id;
+      if (campaignProductIds.includes(productId)) {
+        const price = Number(item.price ?? (item.product ? item.product.price : 0)) || 0;
+        const quantity = Number(item.quantity) || 0;
+        return sum + price * quantity;
+      }
+      return sum;
+    }, 0);
+    let discount = 0;
+    if (selected.type === 0) {
+      // Yüzde indirim sadece kampanya ürünlerine
+      discount = (campaignProductsTotal * selected.percentage) / 100;
+    } else if (selected.type === 1) {
+      // Tutar indirimi, sadece kampanya ürünleri varsa uygula
+      discount = campaignProductsTotal > 0 ? selected.amount : 0;
+    } else if (selected.type === 2) {
+      // X al Y öde, sadece kampanya ürünlerine uygula (örnek basit mantık)
+      const campaignItems = cart.filter(item => campaignProductIds.includes(item.productId || item.id));
+      const minPay = Math.min(...campaignItems.map(item => item.quantity || 0));
+      discount = minPay > 0 ? (selected.buyQuantity - selected.payQuantity) * (campaignItems[0]?.price || 0) : 0;
+    }
+    setCampaignDiscount(discount);
+  }, [selectedCampaignId, eligibleCampaigns, cart]);
   const selectedShippingObj = shippingCompanies.find(s => s.id === Number(selectedShipping));
   // Backend'de ücretsiz kargo limiti kontrolü olduğu için, burada sadece seçilen firmanın fiyatını gösteriyoruz.
   const shippingCost = selectedShippingObj ? (cartTotal > selectedShippingObj.freeShippingLimit ? 0 : selectedShippingObj.price) : 0;
   const total = cartTotal + shippingCost;
+  // discountedTotal artık cartTotal ile aynı (indirimli toplam)
+  const discountedTotal = total;
 
   // Kart numarasını xxxx-xxxx-xxxx-xxxx formatında göster
   const formatCardNumber = (value) => {
@@ -124,7 +177,11 @@ const CheckoutPage = () => {
           quantity: item.quantity,
           unitPrice: Number(item.price ?? (item.product ? item.product.price : 0))
         })),
-        address: selectedAddressObj
+        address: selectedAddressObj,
+        campaignId: selectedCampaignId ? Number(selectedCampaignId) : null,
+        orderNote: orderNote,
+        totalAmount: discountedTotal // indirimli toplamı gönder
+        // campaignDiscount gönderilmeyecek
       };
       console.log('Order body:', orderBody);
       const orderRes = await apiPost('/api/Order', orderBody);
@@ -139,6 +196,8 @@ const CheckoutPage = () => {
       });
       await apiDelete(`/api/CartItem/user/${userId}`);
       localStorage.removeItem('cart');
+      localStorage.removeItem('selectedCampaignId');
+      localStorage.removeItem('campaignDiscount');
       setSuccess('Siparişiniz başarıyla oluşturuldu ve ödeme alındı!');
       setTimeout(() => navigate(`/profile/${userId}?tab=orders`), 2000);
     } catch (err) {
@@ -194,6 +253,25 @@ const CheckoutPage = () => {
               <CFormInput placeholder="Phone" value={deliveryPersonPhone} onChange={e => setDeliveryPersonPhone(e.target.value)} required />
             </CCol>
             <CCol md={12}>
+              <CFormLabel>Kampanya Seçimi</CFormLabel>
+              <CFormSelect value={selectedCampaignId} onChange={e => setSelectedCampaignId(e.target.value)}>
+                <option value="">Kampanya seçiniz</option>
+                {eligibleCampaigns.map(c => (
+                  <option key={c.id} value={c.id}>
+                    {c.name} ({c.type === 0 ? `%${c.percentage}` : c.type === 1 ? `${c.amount}₺` : 'X Al Y Öde'})
+                  </option>
+                ))}
+              </CFormSelect>
+            </CCol>
+            <CCol md={12}>
+              <CFormLabel>Sipariş Notu</CFormLabel>
+              <CFormInput
+                placeholder="Siparişinizle ilgili notunuz (isteğe bağlı)"
+                value={orderNote}
+                onChange={e => setOrderNote(e.target.value)}
+              />
+            </CCol>
+            <CCol md={12}>
               <CFormLabel>Card Information</CFormLabel>
               <CRow className="g-2">
                 <CCol md={6}>
@@ -221,9 +299,12 @@ const CheckoutPage = () => {
             <CCol md={12} className="mt-3">
               <CCard className="mb-2">
                 <CCardBody>
-                  <div className="d-flex justify-content-between mb-2"><span>Subtotal:</span><span>{cartTotal.toFixed(2)}₺</span></div>
+                  <div className="d-flex justify-content-between mb-2"><span>Subtotal:</span><span>{rawCartTotal.toFixed(2)}₺</span></div>
+                  {campaignDiscount > 0 && (
+                    <div className="d-flex justify-content-between mb-2 text-success"><span>Kampanya İndirimi:</span><span>-{campaignDiscount.toFixed(2)}₺</span></div>
+                  )}
                   <div className="d-flex justify-content-between mb-2"><span>Shipping:</span><span>{shippingCost === 0 ? 'Free' : `${shippingCost.toFixed(2)}₺`}</span></div>
-                  <div className="d-flex justify-content-between fw-bold"><span>Total:</span><span>{total.toFixed(2)}₺</span></div>
+                  <div className="d-flex justify-content-between fw-bold"><span>Total:</span><span>{discountedTotal.toFixed(2)}₺</span></div>
                 </CCardBody>
               </CCard>
               <CButton color="success" type="submit" className="w-100 py-2" size="lg">Complete Order and Pay</CButton>

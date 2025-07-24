@@ -8,20 +8,18 @@ import {
   CNavLink
 } from '@coreui/react';
 
-const AdminSidebar = ({ sidebarVisible = true, sidebarWidth = 200, role, onClose }) => {
+const AdminSidebar = ({ sidebarWidth = 200, role }) => {
   const navigate = useNavigate();
   // Yardımcı fonksiyon: önce navigate, sonra sidebar'ı kapat
   const handleNav = (path) => {
     navigate(path);
-    // onClose'u kaldırdık, sadece kapama butonunda çalışacak
   };
   return (
-    <CSidebar visible={sidebarVisible} style={{ minWidth: sidebarWidth, width: sidebarWidth, transition: 'width 0.2s' }} onHide={onClose}>
-      {sidebarVisible && (
-        <CSidebarBrand className="fw-bold">SHOP
-          <button onClick={onClose} style={{ float: 'right', background: 'none', border: 'none', fontSize: 18, cursor: 'pointer' }} aria-label="Close">×</button>
-        </CSidebarBrand>
-      )}
+    <CSidebar
+      visible={true}
+      style={{ minWidth: sidebarWidth, width: sidebarWidth, transition: 'width 0.2s' }}
+    >
+      <CSidebarBrand className="fw-bold">SHOP</CSidebarBrand>
       <CSidebarNav>
         <CNavItem>
           <CNavLink onClick={() => handleNav('/') } style={{ cursor: 'pointer' }}>Home</CNavLink>
@@ -71,7 +69,9 @@ const AdminSidebar = ({ sidebarVisible = true, sidebarWidth = 200, role, onClose
           <CNavItem>
             <CNavLink onClick={() => handleNav('/admin/shipping-companies') } style={{ cursor: 'pointer' }}>Shipping Companies</CNavLink>
           </CNavItem>
-          
+          <CNavItem>
+            <CNavLink onClick={() => handleNav('/admin/campaigns') } style={{ cursor: 'pointer' }}>Campaigns</CNavLink>
+          </CNavItem>
 
          
         

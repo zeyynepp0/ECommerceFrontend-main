@@ -565,6 +565,13 @@ const ProfilePage = () => {
                                 </div>
                                 <div className="text-muted">{new Date(order.orderDate).toLocaleDateString()}</div>
                               </div>
+                              {/* Kampanya ve sipariş notu alanı */}
+                              <div className="mb-2">
+                                <strong>Kampanya:</strong> {order.campaignName ? `${order.campaignName} ${order.campaignDiscount ? `(-${order.campaignDiscount} TL)` : ''}` : 'Yok'}
+                              </div>
+                              <div className="mb-2">
+                                <strong>Sipariş Notu:</strong> {order.orderNote || 'Yok'}
+                              </div>
                               <div className="mb-2"><strong>Address:</strong> {order.address?.addressTitle} - {order.address?.street}, {order.address?.city} {order.address?.state}, {order.address?.country} ({order.address?.postalCode})</div>
                               <div className="mb-2"><strong>Delivery Person:</strong> {order.deliveryPersonName} <strong>Phone:</strong> {order.deliveryPersonPhone}</div>
                               <div className="mb-2"><strong>Payment Method:</strong> {order.paymentMethod === 0 ? 'Credit Card' : order.paymentMethod === 1 ? 'Bank Card' : order.paymentMethod === 2 ? 'Bank Transfer' : 'Cash'}</div>

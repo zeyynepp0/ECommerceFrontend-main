@@ -16,6 +16,8 @@ import AdminLayout from '../components/AdminLayout';
 import AdminUserDetailPage from '../pages/AdminUserDetailPage';
 import AdminOrderDetailPage from '../pages/AdminOrderDetailPage';
 import ShippingCompaniesPage from '../pages/ShippingCompaniesPage';
+import CampaignsPage from '../pages/CampaignsPage';
+import CampaignDetailPage from '../pages/CampaignDetailPage';
 
 // Açıklama: Admin paneli için nested route yapısı. Tüm admin sayfaları ortak layout ile sarmalanır.
 const AdminRoutes = () => {
@@ -41,6 +43,8 @@ const AdminRoutes = () => {
         <Route path="revenue" element={<RevenuePage />} />
         <Route path="user-activity" element={<UserActivityPage />} />
         <Route path="shipping-companies" element={<ShippingCompaniesPage />} />
+        <Route path="campaigns" element={<CampaignsPage />} />
+        <Route path="campaigns/:id" element={<CampaignDetailPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/admin" replace />} />
     </Routes>
