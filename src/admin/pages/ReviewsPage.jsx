@@ -9,7 +9,7 @@ import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 
-const API_BASE = "http://localhost:5220";
+const API_BASE = "https://localhost:7098";
 
 const ReviewEditSchema = Yup.object().shape({
   comment: Yup.string().required('Review cannot be empty'),
@@ -27,14 +27,14 @@ const ReviewsPage = () => {
     const fetchReviews = async () => {
       setLoading(true);
       try {
-        let data = await apiGet('http://localhost:5220/api/Review?includeDeleted=true');
+        let data = await apiGet('https://localhost:7098/api/Review?includeDeleted=true');
         // Eksik alanları tamamla
         data = await Promise.all(data.map(async review => {
           let productImageUrl = review.productImageUrl;
           let productName = review.productName;
           if (!productImageUrl || !productName) {
             try {
-              const product = await apiGet(`http://localhost:5220/api/Product/${review.productId}`);
+              const product = await apiGet(`https://localhost:7098/api/Product/${review.productId}`);
               productImageUrl = product.imageUrl;
               productName = product.name;
             } catch {}
@@ -43,7 +43,7 @@ const ReviewsPage = () => {
           let userEmail = review.userEmail;
           if (!userAvatarUrl || !userEmail) {
             try {
-              const user = await apiGet(`http://localhost:5220/api/User/${review.userId}`);
+              const user = await apiGet(`https://localhost:7098/api/User/${review.userId}`);
               userAvatarUrl = user.avatarUrl;
               userEmail = user.email;
             } catch {}
@@ -68,7 +68,7 @@ const ReviewsPage = () => {
   const handleDelete = async (review) => {
     if (!window.confirm('Are you sure you want to delete this review?')) return;
     try {
-      await apiDelete(`http://localhost:5220/api/Review/${review.id}?deletedBy=admin`);
+      await apiDelete(`https://localhost:7098/api/Review/${review.id}?deletedBy=admin`);
       setReviews(reviews.map(r => r.id === review.id ? { ...r, comment: 'This review has been deleted' } : r));
     } catch {
       setError('Review could not be deleted.');
@@ -80,7 +80,7 @@ const ReviewsPage = () => {
   };
   const handleEditSubmit = async (data) => {
     try {
-      await apiPut(`http://localhost:5220/api/Review`, {
+      await apiPut(`https://localhost:7098/api/Review`, {
         id: data.reviewId,
         content: data.comment,
         rating: data.rating,
@@ -146,7 +146,7 @@ const ReviewsPage = () => {
                         <CButton color="danger" size="sm" variant="ghost" onClick={async () => {
                           if (window.confirm('Bu ürünü silmek istediğinize emin misiniz?')) {
                             try {
-                              await apiDelete(`http://localhost:5220/api/Product/delete/${review.productId}`);
+                              await apiDelete(`https://localhost:7098/api/Product/delete/${review.productId}`);
                               window.location.reload();
                             } catch {
                               alert('Ürün silinemedi.');

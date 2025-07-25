@@ -21,7 +21,7 @@ const VerifyEmailPage = () => {
       setError('');
       setMessage('');
       try {
-        const res = await apiPost('http://localhost:5220/api/User/verify-email', { token });
+        const res = await apiPost('https://localhost:7098/api/User/verify-email', { token });
         setMessage(res.message || 'E-posta adresiniz başarıyla doğrulandı.');
         setTimeout(() => navigate('/'), 2500);
       } catch (err) {

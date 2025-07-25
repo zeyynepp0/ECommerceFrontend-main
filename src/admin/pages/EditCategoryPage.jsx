@@ -15,12 +15,12 @@ const EditCategoryPage = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const API_BASE = "http://localhost:5220";
+  const API_BASE = "https://localhost:7098";
 
   useEffect(() => {
     const fetchCategory = async () => {
       try {
-        const category = await apiGet(`http://localhost:5220/api/Category/${id}`);
+        const category = await apiGet(`https://localhost:7098/api/Category/${id}`);
         setForm({
           name: category.name,
           imageUrl: category.imageUrl
@@ -52,10 +52,10 @@ const EditCategoryPage = () => {
         const imgData = new FormData();
         imgData.append('image', imageFile);
         imgData.append('categoryName', form.name);
-        const res = await apiPost('http://localhost:5220/api/Category/upload-image', imgData);
+        const res = await apiPost('https://localhost:7098/api/Category/upload-image', imgData);
         imageUrl = res.imageUrl;
       }
-      await apiPut(`http://localhost:5220/api/Category/update/${id}`, {
+      await apiPut(`https://localhost:7098/api/Category/update/${id}`, {
         ...form,
         imageUrl: imageUrl
       });

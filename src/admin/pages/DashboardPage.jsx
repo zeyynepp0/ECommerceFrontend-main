@@ -58,7 +58,7 @@ const DashboardPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    apiGet('http://localhost:5220/api/Admin/dashboard')
+    apiGet('https://localhost:7098/api/Admin/dashboard')
       .then(setStats)
       .catch(() => setError('Dashboard data could not be loaded.'))
       .finally(() => setLoading(false));

@@ -60,7 +60,7 @@ const LoginPage = () => {
               setInfo('');
               try {
                 // Önce user login dene
-                const loginUrl = 'http://localhost:5220/api/User/login';
+                const loginUrl = 'https://localhost:7098/api/User/login';
                 const payload = { Email: values.email.trim().toLowerCase(), Password: values.password };
                 let response;
                 let userData;
@@ -69,11 +69,11 @@ const LoginPage = () => {
                   // Kullanıcı detayını çek
                   const decoded = jwtDecode(response.token);
                   const userId = decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] || decoded.nameid || decoded.sub || decoded.id || decoded.userId;
-                  userData = await apiGet('http://localhost:5220/api/User/' + userId);
+                  userData = await apiGet('https://localhost:7098/api/User/' + userId);
                 } catch (userLoginError) {
                   // Eğer user login başarısız ve email tam olarak admin@mail.com ise admin login dene
                   if (values.email.trim().toLowerCase() === 'admin@mail.com') {
-                    response = await apiPost('http://localhost:5220/api/Admin/login', payload);
+                    response = await apiPost('https://localhost:7098/api/Admin/login', payload);
                   } else {
                     throw userLoginError;
                   }

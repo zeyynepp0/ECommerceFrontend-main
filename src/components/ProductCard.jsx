@@ -70,7 +70,7 @@ const ProductCard = ({ product, onFavoriteChange }) => {
     }
     setIsAddingToCart(true);
     try {
-      await apiPost('http://localhost:5220/api/CartItem', {
+      await apiPost('https://localhost:7098/api/CartItem', {
         userId: userId,
         productId: product.id,
         quantity: 1

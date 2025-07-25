@@ -3,9 +3,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { CButton, CCard, CCardBody, CCardHeader, CListGroup, CListGroupItem, CSpinner, CAlert } from '@coreui/react';
 
-const API_URL = 'http://localhost:5220/api/campaign';
-const PRODUCT_URL = 'http://localhost:5220/api/product';
-const CATEGORY_URL = 'http://localhost:5220/api/category';
+const API_URL = 'https://localhost:7098/api/campaign';
+const PRODUCT_URL = 'https://localhost:7098/api/product';
+const CATEGORY_URL = 'https://localhost:7098/api/category';
 
 const CampaignDetailPage = () => {
   const { id } = useParams();

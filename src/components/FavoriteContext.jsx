@@ -8,13 +8,13 @@ export const FavoriteProvider = ({ children }) => {
   const userId = localStorage.getItem('userId');
   const token = localStorage.getItem('token');
 
-  const API_BASE = "http://localhost:5220";
+  const API_BASE = "https://localhost:7098";
 
   const fetchFavorites = async () => {
     if (!userId || !token) return;
 
     try {
-      const res = await axios.get(`http://localhost:5220/api/Favorite/user/${userId}`, {
+      const res = await axios.get(`https://localhost:7098/api/Favorite/user/${userId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setFavorites(res.data.map(fav => ({
@@ -35,7 +35,7 @@ export const FavoriteProvider = ({ children }) => {
         ProductId: parseInt(productId)
       };
 
-      await axios.post('http://localhost:5220/api/Favorite/add', payload, {
+      await axios.post('https://localhost:7098/api/Favorite/add', payload, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -59,7 +59,7 @@ export const FavoriteProvider = ({ children }) => {
         ProductId: parseInt(productId)
       };
 
-      await axios.delete('http://localhost:5220/api/Favorite/remove', {
+      await axios.delete('https://localhost:7098/api/Favorite/remove', {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'

@@ -8,7 +8,7 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 
-const API_BASE = "http://localhost:5220";
+const API_BASE = "https://localhost:7098";
 
 // Kullanıcıdan gelen isActive değerini normalize eden yardımcı fonksiyon
 function normalizeIsActive(val) {
@@ -91,7 +91,7 @@ const AdminUserDetailPage = () => {
           setFavoriteProducts([]);
         }
         // Kullanıcıların tamamını çek (email/telefon benzersizliği için)
-        apiGet('http://localhost:5220/api/Admin/users')
+        apiGet('https://localhost:7098/api/Admin/users')
           .then(data => {
             console.log('API kullanıcı verisi:', data);
             data.forEach((u, i) => console.log(`Kullanıcı ${i}:`, u)); // <-- Her kullanıcıyı detaylı yazdırır

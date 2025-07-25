@@ -35,10 +35,10 @@ const AddCategoryPage = () => {
         const imgData = new FormData();
         imgData.append('image', imageFile);
         imgData.append('categoryName', form.name);
-        const res = await apiPost('http://localhost:5220/api/Category/upload-image', imgData);
+        const res = await apiPost('https://localhost:7098/api/Category/upload-image', imgData);
         imageUrl = res.imageUrl;
       }
-      await apiPost('http://localhost:5220/api/Category/add', {
+      await apiPost('https://localhost:7098/api/Category/add', {
         ...form,
         imageUrl: imageUrl
       });

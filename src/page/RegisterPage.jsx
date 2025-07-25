@@ -101,10 +101,10 @@ const RegisterPage = () => {
                   orders: [],
                   reviews: []
                 };
-                await apiPost('http://localhost:5220/api/User', payload);
+                await apiPost('https://localhost:7098/api/User', payload);
                 // Kayıt başarılı, şimdi otomatik login
                 const loginPayload = { Email: values.email.trim().toLowerCase(), Password: values.password };
-                const loginResponse = await apiPost('http://localhost:5220/api/User/login', loginPayload);
+                const loginResponse = await apiPost('https://localhost:7098/api/User/login', loginPayload);
                 const token = loginResponse.token;
                 localStorage.setItem('isLoggedIn', 'true');
                 localStorage.setItem('token', token);

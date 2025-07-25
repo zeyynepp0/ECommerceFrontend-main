@@ -21,7 +21,7 @@ const RevenuePage = () => {
   const fetchRevenue = () => {
     setLoading(true);
     setError('');
-    let url = `http://localhost:5220/api/Admin/revenue?period=${selectedMonth ? 'month' : 'year'}&year=${selectedYear}`;
+    let url = `https://localhost:7098/api/Admin/revenue?period=${selectedMonth ? 'month' : 'year'}&year=${selectedYear}`;
     if (selectedMonth) url += `&month=${selectedMonth}`;
     apiGet(url)
       .then((data) => {

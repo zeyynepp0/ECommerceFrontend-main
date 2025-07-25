@@ -110,7 +110,7 @@ const CoreUILayout = ({ onResetFilters }) => {
   }, [showProfileDropdown, showNotifications]);
 
   useEffect(() => {
-    axios.get('http://localhost:5220/api/category')
+    axios.get('https://localhost:7098/api/category')
       .then(res => {
         const data = res.data;
         setCategories(Array.isArray(data) ? data : (data && data.$values ? data.$values : []));
@@ -127,14 +127,14 @@ const CoreUILayout = ({ onResetFilters }) => {
   const fetchUnreadCount = async () => {
     if (!userId) return;
     try {
-      const count = await fetch(`http://localhost:5220/api/Notification/unread-count/${userId}`).then(r => r.json());
+      const count = await fetch(`https://localhost:7098/api/Notification/unread-count/${userId}`).then(r => r.json());
       setNotificationCount(count);
     } catch {}
   };
 
   const fetchNotifications = async () => {
     try {
-      const notifs = await fetch(`http://localhost:5220/api/Notification/user/${userId}`).then(r => r.json());
+      const notifs = await fetch(`https://localhost:7098/api/Notification/user/${userId}`).then(r => r.json());
       setNotifications(notifs);
     } catch {}
   };
@@ -150,7 +150,7 @@ const CoreUILayout = ({ onResetFilters }) => {
   };
 
   const handleMarkAllAsRead = async () => {
-    await fetch(`http://localhost:5220/api/Notification/mark-all-as-read/${userId}`, { method: 'POST', headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
+    await fetch(`https://localhost:7098/api/Notification/mark-all-as-read/${userId}`, { method: 'POST', headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
     await fetchNotifications();
     await fetchUnreadCount();
   };

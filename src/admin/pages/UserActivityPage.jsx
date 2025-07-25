@@ -11,7 +11,7 @@ const UserActivityPage = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
   useEffect(() => {
-    apiGet('http://localhost:5220/api/Admin/user-activity')
+    apiGet('https://localhost:7098/api/Admin/user-activity')
       .then(setActivity)
       .catch(() => setError('Activities could not be loaded.'))
       .finally(() => setLoading(false));

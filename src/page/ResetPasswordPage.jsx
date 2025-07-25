@@ -46,7 +46,7 @@ const ResetPasswordPage = () => {
               setError('');
               setSuccess('');
               try {
-                await apiPost('http://localhost:5220/api/User/reset-password', { token, newPassword: values.newPassword });
+                await apiPost('https://localhost:7098/api/User/reset-password', { token, newPassword: values.newPassword });
                 setSuccess('Şifreniz başarıyla güncellendi. Giriş sayfasına yönlendiriliyorsunuz...');
                 setTimeout(() => navigate('/login'), 2000);
               } catch (err) {

@@ -35,7 +35,7 @@ const ForgotPasswordPage = () => {
               setSuccess('');
               setToken('');
               try {
-                const res = await apiPost('http://localhost:5220/api/User/forgot-password', { email: values.email });
+                const res = await apiPost('https://localhost:7098/api/User/forgot-password', { email: values.email });
                 setSuccess(res.message || 'Sıfırlama bağlantısı e-posta adresinize gönderildi.');
                 if (res.token) setToken(res.token); // Demo amaçlı token göster
               } catch (err) {

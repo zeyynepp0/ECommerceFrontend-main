@@ -6,7 +6,7 @@ import { apiDelete, apiPost, parseApiError, apiGet } from '../utils/api';
 import { CContainer, CRow, CCol, CCard, CCardBody, CCardTitle, CButton, CSpinner, CAlert, CBadge } from '@coreui/react';
 
 
-const API_BASE = "http://localhost:5220";
+const API_BASE = "https://localhost:7098";
 
 const CartPage = () => {
   const { userId, isLoggedIn } = useSelector(state => state.user);
@@ -37,9 +37,9 @@ const CartPage = () => {
       return;
     }
     try {
-      await apiDelete(`http://localhost:5220/api/CartItem/${itemId}`);
+      await apiDelete(`https://localhost:7098/api/CartItem/${itemId}`);
       if (newQuantity > 0) {
-        await apiPost('http://localhost:5220/api/CartItem', {
+        await apiPost('https://localhost:7098/api/CartItem', {
           userId: userId,
           productId: item.productId,
           quantity: newQuantity
@@ -55,7 +55,7 @@ const CartPage = () => {
   // Sepetten ürün çıkarma fonksiyonu
   const handleRemoveFromCart = async (cartItemId) => {
     try {
-      await apiDelete(`http://localhost:5220/api/CartItem/${cartItemId}`);
+      await apiDelete(`https://localhost:7098/api/CartItem/${cartItemId}`);
       await dispatch(fetchCartFromBackend(userId));
     } catch (error) {
       alert('An error occurred while removing the product! ' + parseApiError(error));
@@ -67,7 +67,7 @@ const CartPage = () => {
   const handleClearCart = async () => {
     dispatch(clearCart());
     try {
-      await apiDelete(`http://localhost:5220/api/CartItem/user/${userId}`);
+      await apiDelete(`https://localhost:7098/api/CartItem/user/${userId}`);
       await dispatch(fetchCartFromBackend(userId));
     } catch (error) {
       alert('An error occurred while clearing the cart! ' + parseApiError(error));

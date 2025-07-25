@@ -20,14 +20,14 @@ const EditProductPage = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const API_BASE = "http://localhost:5220";
+  const API_BASE = "https://localhost:7098";
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const [product, cats] = await Promise.all([
-          apiGet(`http://localhost:5220/api/Product/${id}`),
-          apiGet('http://localhost:5220/api/Category')
+          apiGet(`https://localhost:7098/api/Product/${id}`),
+          apiGet('https://localhost:7098/api/Category')
         ]);
         setForm({
           name: product.name,
@@ -65,10 +65,10 @@ const EditProductPage = () => {
         const imgData = new FormData();
         imgData.append('image', imageFile);
         imgData.append('productName', form.name);
-        const res = await apiPost('http://localhost:5220/api/Product/upload-image', imgData);
+        const res = await apiPost('https://localhost:7098/api/Product/upload-image', imgData);
         imageUrl = res.imageUrl;
       }
-      await apiPut(`http://localhost:5220/api/Product/update/${id}`, {
+      await apiPut(`https://localhost:7098/api/Product/update/${id}`, {
         ...form,
         imageUrl: imageUrl
       });

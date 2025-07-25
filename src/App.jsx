@@ -30,7 +30,7 @@ const API = axios.create({
 });
 
 function App() {
-  // darkMode ve setDarkMode state'ini ve darkMode ile ilgili tüm kodları kaldır
+  
 
   return (
     <div className="default-theme">

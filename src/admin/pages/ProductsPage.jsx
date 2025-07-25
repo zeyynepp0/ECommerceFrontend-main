@@ -5,7 +5,7 @@ import {
   CContainer, CCard, CCardBody, CCardTitle, CButton, CTable, CTableHead, CTableRow, CTableHeaderCell, CTableBody, CTableDataCell, CSpinner, CAlert, CImage, CFormSwitch
 } from '@coreui/react';
 
-const API_BASE = "http://localhost:5220";
+const API_BASE = "https://localhost:7098";
 
 const ProductsPage = () => {
   const [products, setProducts] = useState([]);
@@ -20,8 +20,8 @@ const ProductsPage = () => {
       setLoading(true);
       try {
         const [productsData, categoriesData] = await Promise.all([
-          apiGet('http://localhost:5220/api/Product'),
-          apiGet('http://localhost:5220/api/Category')
+          apiGet('https://localhost:7098/api/Product'),
+          apiGet('https://localhost:7098/api/Category')
         ]);
         setProducts(productsData);
         setCategories(categoriesData);
@@ -37,7 +37,7 @@ const ProductsPage = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this product?')) return;
     try {
-      await apiDelete(`http://localhost:5220/api/Product/delete/${id}`);
+      await apiDelete(`https://localhost:7098/api/Product/delete/${id}`);
       setProducts(products.filter(p => p.id !== id));
     } catch (err) {
       let msg = 'Product could not be deleted.';
@@ -54,7 +54,7 @@ const ProductsPage = () => {
       return;
     }
     try {
-      await apiPut(`http://localhost:5220/api/Product/update/${product.id}`, {
+      await apiPut(`https://localhost:7098/api/Product/update/${product.id}`, {
         name: product.name,
         description: product.description,
         price: product.price,

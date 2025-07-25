@@ -50,13 +50,13 @@ const AdminLayout = () => {
 
   const fetchUnreadCount = async () => {
     try {
-      const count = await fetch(`http://localhost:5220/api/Notification/unread-count/${adminId}`).then(r => r.json());
+      const count = await fetch(`https://localhost:7098/api/Notification/unread-count/${adminId}`).then(r => r.json());
       setNotificationCount(count);
     } catch {}
   };
   const fetchNotifications = async () => {
     try {
-      const notifs = await fetch(`http://localhost:5220/api/Notification/user/${adminId}`).then(r => r.json());
+      const notifs = await fetch(`https://localhost:7098/api/Notification/user/${adminId}`).then(r => r.json());
       setNotifications(notifs);
     } catch {}
   };
@@ -68,7 +68,7 @@ const AdminLayout = () => {
     }
   };
   const handleMarkAllAsRead = async () => {
-    await fetch(`http://localhost:5220/api/Notification/mark-all-as-read/${adminId}`, { method: 'POST', headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
+    await fetch(`https://localhost:7098/api/Notification/mark-all-as-read/${adminId}`, { method: 'POST', headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
     await fetchNotifications();
     await fetchUnreadCount();
   };

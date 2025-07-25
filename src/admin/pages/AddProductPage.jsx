@@ -21,7 +21,7 @@ const AddProductPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    apiGet('http://localhost:5220/api/Category')
+    apiGet('https://localhost:7098/api/Category')
       .then(setCategories)
       .catch(() => setError('Categories could not be loaded.'));
   }, []);
@@ -46,10 +46,10 @@ const AddProductPage = () => {
         const imgData = new FormData();
         imgData.append('image', imageFile);
         imgData.append('productName', form.name);
-        const res = await apiPost('http://localhost:5220/api/Product/upload-image', imgData);
+        const res = await apiPost('https://localhost:7098/api/Product/upload-image', imgData);
         imageUrl = res.imageUrl;
       }
-      await apiPost('http://localhost:5220/api/Product/add', {
+      await apiPost('https://localhost:7098/api/Product/add', {
         id: 0,
         name: form.name,
         description: form.description,

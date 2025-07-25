@@ -6,7 +6,7 @@ export const fetchCartFromBackend = createAsyncThunk(
   async (userId, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5220/api/CartItem/user/${userId}`, {
+      const response = await fetch(`https://localhost:7098/api/CartItem/user/${userId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'

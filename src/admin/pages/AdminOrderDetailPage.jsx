@@ -5,7 +5,7 @@ import {
   CContainer, CCard, CCardBody, CCardTitle, CCardText, CSpinner, CAlert, CRow, CCol, CTable, CTableHead, CTableRow, CTableHeaderCell, CTableBody, CTableDataCell, CBadge, CButton
 } from '@coreui/react';
 
-const API_BASE = "http://localhost:5220";
+const API_BASE = "https://localhost:7098";
 
 const AdminOrderDetailPage = () => {
   const { id } = useParams();

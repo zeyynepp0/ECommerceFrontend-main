@@ -5,7 +5,7 @@ import {
   CContainer, CCard, CCardBody, CCardTitle, CButton, CTable, CTableHead, CTableRow, CTableHeaderCell, CTableBody, CTableDataCell, CSpinner, CAlert, CImage, CFormSwitch
 } from '@coreui/react';
 
-const API_BASE = "http://localhost:5220";
+const API_BASE = "https://localhost:7098";
 
 const CategoriesPage = () => {
   const [categories, setCategories] = useState([]);
@@ -18,7 +18,7 @@ const CategoriesPage = () => {
     const fetchCategories = async () => {
       setLoading(true);
       try {
-        const data = await apiGet('http://localhost:5220/api/Category');
+        const data = await apiGet('https://localhost:7098/api/Category');
         setCategories(data);
       } catch (err) {
         setError('Categories could not be loaded.');
@@ -32,7 +32,7 @@ const CategoriesPage = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this category?')) return;
     try {
-      await apiDelete(`http://localhost:5220/api/Category/delete/${id}`);
+      await apiDelete(`https://localhost:7098/api/Category/delete/${id}`);
       setCategories(categories.filter(c => c.id !== id));
     } catch (err) {
       let msg = 'Category could not be deleted.';
@@ -44,7 +44,7 @@ const CategoriesPage = () => {
 
   const handleToggleActive = async (category) => {
     try {
-      await apiPut(`http://localhost:5220/api/Category/update/${category.id}`, {
+      await apiPut(`https://localhost:7098/api/Category/update/${category.id}`, {
         id: category.id,
         name: category.name,
         imageUrl: category.imageUrl,

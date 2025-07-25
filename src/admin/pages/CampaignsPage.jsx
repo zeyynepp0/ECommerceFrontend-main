@@ -5,9 +5,9 @@ import {
 } from '@coreui/react';
 import { useNavigate } from 'react-router-dom';
 
-const API_URL = 'http://localhost:5220/api/Campaign';
-const PRODUCT_URL = 'http://localhost:5220/api/product';
-const CATEGORY_URL = 'http://localhost:5220/api/category';
+const API_URL = 'https://localhost:7098/api/Campaign';
+const PRODUCT_URL = 'https://localhost:7098/api/product';
+const CATEGORY_URL = 'https://localhost:7098/api/category';
 
 const CampaignsPage = () => {
   const [campaigns, setCampaigns] = useState([]);

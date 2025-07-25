@@ -25,7 +25,7 @@ import {
   CContainer, CRow, CCol, CCard, CCardBody, CCardTitle, CCardText, CButton, CBadge, CSpinner, CAlert
 } from '@coreui/react';
 
-const API_BASE = "http://localhost:5220";
+const API_BASE = "https://localhost:7098";
 
 const ProductDetailsPage = ({ darkMode }) => {
   const { id } = useParams();
@@ -64,9 +64,9 @@ const ProductDetailsPage = ({ darkMode }) => {
       try {
         setLoading(true);
         const [productRes, relatedRes, reviewsRes] = await Promise.all([
-          apiGet(`http://localhost:5220/api/Product/${id}`),
-          apiGet(`http://localhost:5220/api/Product/related/${id}`),
-          apiGet(`http://localhost:5220/api/Review?productId=${id}`)
+          apiGet(`https://localhost:7098/api/Product/${id}`),
+          apiGet(`https://localhost:7098/api/Product/related/${id}`),
+          apiGet(`https://localhost:7098/api/Review?productId=${id}`)
         ]);
         setProduct(productRes);
         setRelatedProducts(relatedRes || []);
@@ -128,7 +128,7 @@ const ProductDetailsPage = ({ darkMode }) => {
     }
     try {
       // Ortak API fonksiyonu ile backend'e sepete ekle
-      await apiPost('http://localhost:5220/api/CartItem', {
+      await apiPost('https://localhost:7098/api/CartItem', {
         userId: userId,
         productId: product.id,
         quantity: quantity
@@ -179,7 +179,7 @@ const ProductDetailsPage = ({ darkMode }) => {
       console.log('Yorum gönder payload:', payload);
       if (reviewData.isUpdate && reviewData.reviewId) {
         // Güncelleme
-        await apiPut(`http://localhost:5220/api/Review`, {
+        await apiPut(`https://localhost:7098/api/Review`, {
           id: reviewData.reviewId,
           content: reviewData.comment,
           rating: reviewData.rating,
@@ -188,7 +188,7 @@ const ProductDetailsPage = ({ darkMode }) => {
         setReviews(reviews.map(r => r.id === reviewData.reviewId ? { ...r, comment: reviewData.comment, rating: reviewData.rating, lastModifiedBy: 'user', lastModifiedAt: new Date().toISOString() } : r));
       } else {
         // Ekleme
-        const res = await apiPost(`http://localhost:5220/api/Review`, payload);
+        const res = await apiPost(`https://localhost:7098/api/Review`, payload);
         setReviews([...reviews, res]);
       }
       setShowReviewForm(false);
@@ -202,7 +202,7 @@ const ProductDetailsPage = ({ darkMode }) => {
   const handleReviewDelete = async (review) => {
     if (!window.confirm('Are you sure you want to delete this review?')) return;
     try {
-      await apiDelete(`http://localhost:5220/api/Review/${review.id}?deletedBy=user`);
+      await apiDelete(`https://localhost:7098/api/Review/${review.id}?deletedBy=user`);
       setReviews(reviews.map(r => r.id === review.id ? { ...r, comment: 'This review has been deleted' } : r));
     } catch (err) {
       alert('Failed to delete review: ' + parseApiError(err));

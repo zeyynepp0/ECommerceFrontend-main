@@ -17,7 +17,7 @@ import {
   CContainer, CRow, CCol, CButton, CSpinner, CPagination, CPaginationItem, CCard, CCardBody, CCardTitle, CFormInput, CFormSelect, CFormCheck, COffcanvas, COffcanvasHeader, COffcanvasBody, CForm, CInputGroup
 } from '@coreui/react';
 
-const API_BASE = "http://localhost:5220";
+const API_BASE = "https://localhost:7098";
 const PAGE_SIZE = 2; // sayfada kaç tane ürün gösterileceğini gösteriyor
 
 const ProductsPage = ({ darkMode }) => {
@@ -66,8 +66,8 @@ const ProductsPage = ({ darkMode }) => {
     const fetchData = async () => {
       try {
         const [productsRes, categoriesRes] = await Promise.all([
-          apiGet('http://localhost:5220/api/Product'),
-          apiGet('http://localhost:5220/api/Category')
+          apiGet('https://localhost:7098/api/Product'),
+          apiGet('https://localhost:7098/api/Category')
         ]);
         setProducts(productsRes);
         setFilteredProducts(productsRes);

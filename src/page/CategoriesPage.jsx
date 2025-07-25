@@ -3,7 +3,7 @@ import { CContainer, CRow, CCol, CCard, CCardBody, CCardImage, CCardTitle, CButt
 import { useNavigate } from 'react-router-dom';
 import { apiGet } from '../utils/api';
 
-const API_BASE = "http://localhost:5220";
+const API_BASE = "https://localhost:7098";
 
 // Mock veri kaldırıldı
 
@@ -15,7 +15,7 @@ const CategoriesPage = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const cats = await apiGet('http://localhost:5220/api/Category');
+        const cats = await apiGet('https://localhost:7098/api/Category');
         setCategories(Array.isArray(cats) ? cats : []);
       } catch {
         setCategories([]);

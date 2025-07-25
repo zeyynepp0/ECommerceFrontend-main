@@ -26,7 +26,7 @@ const UsersPage = () => {
 
   const fetchUsers = () => {
     setLoading(true);
-    apiGet('http://localhost:5220/api/Admin/users')
+    apiGet('https://localhost:7098/api/Admin/users')
       .then(data => {
         console.log('API kullanıcı verisi:', data); // API'den gelen veriyi konsola yazdır
         setUsers((data || []).map(u => ({
@@ -46,7 +46,7 @@ const UsersPage = () => {
     if (!window.confirm('Are you sure you want to delete this user?')) return;
     try {
       const user = users.find(u => u.id === id);
-      await apiPut(`http://localhost:5220/api/User`, { ...user, isActive: false });
+      await apiPut(`https://localhost:7098/api/User`, { ...user, isActive: false });
       fetchUsers();
     } catch {
       setError('User could not be deleted.');
@@ -56,7 +56,7 @@ const UsersPage = () => {
   const handleActivate = async (id) => {
     try {
       const user = users.find(u => u.id === id);
-      await apiPut(`http://localhost:5220/api/User`, { ...user, isActive: true });
+      await apiPut(`https://localhost:7098/api/User`, { ...user, isActive: true });
       fetchUsers();
     } catch {
       setError('User could not be activated.');
@@ -82,7 +82,7 @@ const UsersPage = () => {
         reviews: [],
         isActive: true // Yeni kullanıcılar aktif olarak eklenir
       };
-      const newUser = await apiPost('http://localhost:5220/api/Admin/users', payload);
+      const newUser = await apiPost('https://localhost:7098/api/Admin/users', payload);
       setUsers([...users, { ...newUser, isActive: !!newUser.isActive }]);
       setShowModal(false);
       setForm({ fullName: '', email: '', password: '', role: 'User' });

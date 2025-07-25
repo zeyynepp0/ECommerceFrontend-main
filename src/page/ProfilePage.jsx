@@ -46,7 +46,7 @@ const ProfilePage = () => {
   const dispatch = useDispatch();
   const [favoriteProducts, setFavoriteProducts] = useState([]);
   const [showPassword, setShowPassword] = useState(false);
-  const API_BASE = "http://localhost:5220";
+  const API_BASE = "https://localhost:7098";
 
   const FAVORITES_PAGE_SIZE = 8;
   const ADDRESSES_PAGE_SIZE = 8;
@@ -75,9 +75,9 @@ const ProfilePage = () => {
     const fetchData = async () => {
       try {
         const [userRes, addressRes, orderRes] = await Promise.all([
-          apiGet(`http://localhost:5220/api/User/${userIdFromContext}`),
-          apiGet(`http://localhost:5220/api/Address/user/${userIdFromContext}`),
-          apiGet(`http://localhost:5220/api/Order/user/${userIdFromContext}`)
+          apiGet(`https://localhost:7098/api/User/${userIdFromContext}`),
+          apiGet(`https://localhost:7098/api/Address/user/${userIdFromContext}`),
+          apiGet(`https://localhost:7098/api/Order/user/${userIdFromContext}`)
         ]);
         setUser({
           ...userRes,
@@ -110,7 +110,7 @@ const ProfilePage = () => {
         const token = localStorage.getItem('token');
         const productDetails = await Promise.all(
           contextFavorites.map(async fav => {
-            const res = await axios.get(`http://localhost:5220/api/Product/${fav.productId}`, {
+            const res = await axios.get(`https://localhost:7098/api/Product/${fav.productId}`, {
               headers: { Authorization: `Bearer ${token}` }
             });
             return {
@@ -133,7 +133,7 @@ const ProfilePage = () => {
 
   const saveUser = async () => {
     try {
-      await axios.put(`http://localhost:5220/api/User`, user, {
+      await axios.put(`https://localhost:7098/api/User`, user, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
       alert('Kullanıcı bilgileri güncellendi!');
@@ -156,11 +156,11 @@ const ProfilePage = () => {
     };
     try {
       if (address.id?.toString().startsWith('temp')) {
-        await apiPost(`http://localhost:5220/api/Address`, sanitizedAddress);
+        await apiPost(`https://localhost:7098/api/Address`, sanitizedAddress);
       } else {
-        await apiPut(`http://localhost:5220/api/Address`, sanitizedAddress);
+        await apiPut(`https://localhost:7098/api/Address`, sanitizedAddress);
       }
-      const refreshed = await apiGet(`http://localhost:5220/api/Address/user/${userIdFromContext}`);
+      const refreshed = await apiGet(`https://localhost:7098/api/Address/user/${userIdFromContext}`);
       setAddresses(refreshed);
     } catch (err) {
       alert('Adres kaydedilemedi. ' + err);
@@ -169,8 +169,8 @@ const ProfilePage = () => {
 
   const deleteAddress = async (id) => {
     try {
-      await apiDelete(`http://localhost:5220/api/Address/${id}`);
-      const refreshed = await apiGet(`http://localhost:5220/api/Address/user/${userIdFromContext}`);
+      await apiDelete(`https://localhost:7098/api/Address/${id}`);
+      const refreshed = await apiGet(`https://localhost:7098/api/Address/user/${userIdFromContext}`);
       setAddresses(refreshed);
     } catch (err) {
       alert('Adres silinemedi. ' + err);
@@ -241,7 +241,7 @@ const ProfilePage = () => {
   const handleCancelOrder = async (orderId) => {
     if (!window.confirm('Are you sure you want to cancel this order?')) return;
     try {
-      await apiPost(`http://localhost:5220/api/Order/${orderId}/cancel`);
+      await apiPost(`https://localhost:7098/api/Order/${orderId}/cancel`);
       setOrders(orders => orders.map(o => o.id === orderId ? { ...o, status: 'Cancelled' } : o));
       alert('Your cancellation request has been submitted. The admin will confirm and cancel it.');
     } catch (err) {
@@ -252,7 +252,7 @@ const ProfilePage = () => {
     console.log('Return Order clicked', orderId);
     if (!window.confirm('Are you sure you want to return this order?')) return;
     try {
-      await apiPost(`http://localhost:5220/api/Order/${orderId}/return`);
+      await apiPost(`https://localhost:7098/api/Order/${orderId}/return`);
       setOrders(orders => orders.map(o => o.id === orderId ? { ...o, status: 'Returned' } : o));
       alert('Your return request has been submitted. The admin will confirm and start the process.');
     } catch (err) {
@@ -325,7 +325,7 @@ const ProfilePage = () => {
                           isActive: typeof user.isActive === 'boolean' ? user.isActive : true
                         };
                         console.log('Güncelleme payload:', payload);
-                        await axios.put(`http://localhost:5220/api/User`, payload, {
+                        await axios.put(`https://localhost:7098/api/User`, payload, {
                           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
                         });
                         alert('Kullanıcı bilgileri güncellendi!');

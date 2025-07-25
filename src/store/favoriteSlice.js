@@ -9,7 +9,7 @@ export const fetchFavorites = createAsyncThunk(
     const token = localStorage.getItem('token');
     if (!userId || !token) return [];
     try {
-      const res = await axios.get(`http://localhost:5220/api/Favorite/user/${userId}`, {
+      const res = await axios.get(`https://localhost:7098/api/Favorite/user/${userId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       return res.data;
@@ -31,7 +31,7 @@ export const addFavorite = createAsyncThunk(
         UserId: parseInt(userId),
         ProductId: parseInt(productId)
       };
-      await axios.post('http://localhost:5220/api/Favorite/add', payload, {
+      await axios.post('https://localhost:7098/api/Favorite/add', payload, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -57,7 +57,7 @@ export const removeFavorite = createAsyncThunk(
         UserId: parseInt(userId),
         ProductId: parseInt(productId)
       };
-      await axios.delete('http://localhost:5220/api/Favorite/remove', {
+      await axios.delete('https://localhost:7098/api/Favorite/remove', {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
