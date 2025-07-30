@@ -1,8 +1,9 @@
+// Admin paneli ana layout bileşeni - Header, sidebar, bildirimler ve içerik alanı
 import React, { useEffect, useRef } from 'react';
 import AdminSidebar from './AdminSidebar';
 import { Outlet } from 'react-router-dom';
 import { CContainer, CRow, CCol, CHeader, CHeaderBrand, CHeaderNav, CNavItem, CNavLink, CButton, CBadge } from '@coreui/react';
-import { FiMenu, FiUser, FiShoppingCart, FiHeart, FiGift, FiLogIn, FiLogOut, FiUserPlus, FiSun, FiMoon, FiBell } from 'react-icons/fi';
+import { FiMenu, FiUser, FiShoppingCart, FiHeart, FiGift, FiLogIn, FiLogOut, FiUserPlus, FiBell } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../../store/userSlice';
@@ -13,12 +14,14 @@ import '@coreui/coreui/dist/css/coreui.min.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const AdminLayout = () => {
+  // Navigasyon ve redux işlemleri için hooklar
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const reduxUser = useSelector(state => state.user);
   const isLoggedIn = reduxUser?.userId || localStorage.getItem('userId');
   const role = localStorage.getItem('role');
   const favoritesCount = useSelector(selectFavoritesCount);
+  // Bildirimler için state
   const [notificationCount, setNotificationCount] = React.useState(0);
   const [notifications, setNotifications] = React.useState([]);
   const [showNotifications, setShowNotifications] = React.useState(false);
@@ -26,10 +29,12 @@ const AdminLayout = () => {
   const notificationDropdownRef = useRef(null);
   const notificationButtonRef = useRef(null);
 
+  // Bildirim sayısını çek
   useEffect(() => {
     if (adminId) fetchUnreadCount();
   }, [adminId]);
 
+  // Bildirim dropdown dışına tıklanınca kapat
   useEffect(() => {
     function handleClickOutside(event) {
       if (
@@ -48,18 +53,21 @@ const AdminLayout = () => {
     };
   }, [showNotifications]);
 
+  // Okunmamış bildirim sayısını backend'den çek
   const fetchUnreadCount = async () => {
     try {
       const count = await fetch(`https://localhost:7098/api/Notification/unread-count/${adminId}`).then(r => r.json());
       setNotificationCount(count);
     } catch {}
   };
+  // Bildirimleri backend'den çek
   const fetchNotifications = async () => {
     try {
       const notifs = await fetch(`https://localhost:7098/api/Notification/user/${adminId}`).then(r => r.json());
       setNotifications(notifs);
     } catch {}
   };
+  // Bildirim ikonuna tıklanınca aç/kapat
   const handleNotificationClick = async () => {
     setShowNotifications(!showNotifications);
     if (!showNotifications) {
@@ -67,12 +75,14 @@ const AdminLayout = () => {
       await fetchUnreadCount();
     }
   };
+  // Tüm bildirimleri okundu olarak işaretle
   const handleMarkAllAsRead = async () => {
     await fetch(`https://localhost:7098/api/Notification/mark-all-as-read/${adminId}`, { method: 'POST', headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
     await fetchNotifications();
     await fetchUnreadCount();
   };
 
+  // Çıkış işlemi
   const handleLogout = () => {
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('token');
@@ -84,8 +94,10 @@ const AdminLayout = () => {
     navigate('/login');
   };
 
+  // Sayfa arayüzü
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      {/* Header */}
       <CHeader position="sticky" className="px-3 d-flex align-items-center justify-content-between">
         <div className="d-flex align-items-center">
           <CHeaderBrand onClick={() => navigate('/admin')} style={{ cursor: 'pointer' }} className="fw-bold">Admin Panel</CHeaderBrand>
@@ -113,14 +125,13 @@ const AdminLayout = () => {
               </div>
             )}
           </div>
-          {/* <CNavItem>
-            <CNavLink onClick={() => navigate('/campaigns')} style={{ cursor: 'pointer' }}><FiGift size={20} className="me-1" />Campaigns</CNavLink>
-          </CNavItem> */}
+          {/* Sepet ikonu */}
           <CNavItem>
             <CNavLink onClick={() => navigate('/cart')} style={{ cursor: 'pointer', position: 'relative' }}>
               <FiShoppingCart size={20} />
             </CNavLink>
           </CNavItem>
+          {/* Favoriler ikonu */}
           <CNavItem>
             <CNavLink onClick={() => navigate('/profile/' + isLoggedIn + '?tab=favorites')} style={{ cursor: 'pointer', position: 'relative' }}>
               <FiHeart size={20} />
@@ -152,6 +163,7 @@ const AdminLayout = () => {
           </Dropdown>
         </CHeaderNav>
       </CHeader>
+      {/* Ana içerik ve sidebar */}
       <CContainer fluid className="py-4" style={{ flex: 1 }}>
         <CRow>
           <CCol xs={12} md={3} lg={2} className="mb-4 mb-md-0">

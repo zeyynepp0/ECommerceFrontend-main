@@ -1,44 +1,45 @@
 :root {
-  --primary-bg: #ffffff;
-  --text-color: #333333;
-  --border-color: #e0e0e0;
-  --card-bg: #f9f9f9;
-  --primary-color: #333333;
-  --secondary-color: #222222;
-  --discount-color: #ef4444;
+  --primary-bg: #ffffff; /* Ana arka plan rengi */
+  --text-color: #333333; /* Ana metin rengi */
+  --border-color: #e0e0e0; /* Kenarlık rengi */
+  --card-bg: #f9f9f9; /* Kart arka planı */
+  --primary-color: #333333; /* Birincil renk */
+  --secondary-color: #222222; /* İkincil renk */
+  --discount-color: #ef4444; /* İndirim etiketi rengi */
 }
 
 .products-page {
-  background: var(--primary-bg);
-  color: var(--text-color);
-  padding: 20px 0;
-  min-height: 100vh;
+  background: var(--primary-bg); /* Sayfa arka planı */
+  color: var(--text-color); /* Sayfa metin rengi */
+  padding: 20px 0; /* Üst-alt boşluk */
+  min-height: 100vh; /* Minimum yükseklik */
 }
 
 .products-container {
-  max-width: 1400px;
-  margin: 0 auto;
-  display: flex;
-  gap: 30px;
-  padding: 0 20px;
+  max-width: 1400px; /* İçerik maksimum genişliği */
+  margin: 0 auto; /* Ortala */
+  display: flex; /* Yanyana diz */
+  gap: 30px; /* Elemanlar arası boşluk */
+  padding: 0 20px; /* Yandan boşluk */
 }
 
 .filters-sidebar {
-  width: 350px;
+  width: 350px; /* Filtre paneli genişliği */
   max-width: 100%;
-  padding: 28px 22px 22px 22px;
-  background: var(--card-bg);
-  border-radius: 18px;
-  box-shadow: 0 4px 24px rgba(60,60,100,0.08), 0 0 0 1px var(--border-color); /* subtle border+shadow */
+  padding: 28px 22px 22px 22px; /* İç boşluklar */
+  background: var(--card-bg); /* Kart arka planı */
+  border-radius: 18px; /* Köşe yumuşatma */
+  box-shadow: 0 4px 24px rgba(60,60,100,0.08), 0 0 0 1px var(--border-color); /* Hafif gölge ve kenarlık */
   position: sticky;
   top: 20px;
   height: fit-content;
   transition: all 0.3s ease;
   border: 1px solid var(--border-color);
-  z-index: 99; /* Lower than header/profile dropdown */
+  z-index: 99; /* Header'dan düşük z-index */
 }
+
 .filter-group {
-  margin-bottom: 32px;
+  margin-bottom: 32px; /* Filtre grubu alt boşluk */
 }
 .filter-group label {
   display: block;
@@ -132,8 +133,8 @@
 }
 
 .product-card {
-  background: var(--card-bg);
-  border-radius: 10px;
+  background: var(--card-bg); /* Kart arka planı */
+  border-radius: 10px; /* Köşe yumuşatma */
   overflow: hidden;
   transition: all 0.3s ease;
   position: relative;
@@ -280,7 +281,7 @@
     width: 80%;
     max-width: 100vw;
     height: 100vh;
-    z-index: 99; /* Lower than header/profile dropdown */
+    z-index: 99; /* Header'dan düşük z-index */
     overflow-y: auto;
     padding-top: 70px;
     border-radius: 0 18px 18px 0;

@@ -1,3 +1,4 @@
+// Kampanyalar yönetim sayfası - Kampanya listeleme, ekleme, düzenleme, silme işlemleri
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import {
@@ -10,37 +11,30 @@ const PRODUCT_URL = 'https://localhost:7098/api/product';
 const CATEGORY_URL = 'https://localhost:7098/api/category';
 
 const CampaignsPage = () => {
+  // Kampanya, ürün, kategori ve form state'leri
   const [campaigns, setCampaigns] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [editId, setEditId] = useState(null);
   const [form, setForm] = useState({
-    name: '',
-    description: '',
-    type: 0,
-    percentage: '',
-    amount: '',
-    buyQuantity: '',
-    payQuantity: '',
-    minOrderAmount: '',
-    startDate: '',
-    endDate: '',
-    isActive: true,
-    productIds: [],
-    categoryIds: []
+    name: '', description: '', type: 0, percentage: '', amount: '', buyQuantity: '', payQuantity: '', minOrderAmount: '', startDate: '', endDate: '', isActive: true, productIds: [], categoryIds: []
   });
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [saving, setSaving] = useState(false);
+  // Sayfa yönlendirme için hook
   const navigate = useNavigate();
+  // Bugünün tarihi (input için)
   const today = new Date().toISOString().split('T')[0];
 
+  // Sayfa yüklendiğinde kampanya, ürün ve kategori verilerini çek
   useEffect(() => {
     fetchCampaigns();
     fetchProductsAndCategories();
   }, []);
 
+  // Kampanyaları backend'den çek
   const fetchCampaigns = async () => {
     setLoading(true);
     try {
@@ -55,6 +49,7 @@ const CampaignsPage = () => {
     setLoading(false);
   };
 
+  // Ürün ve kategori verilerini backend'den çek
   const fetchProductsAndCategories = async () => {
     try {
       const [prodRes, catRes] = await Promise.all([
@@ -68,6 +63,7 @@ const CampaignsPage = () => {
     }
   };
 
+  // Modal açıldığında formu hazırla (düzenleme veya ekleme)
   const handleShowModal = (campaign = null) => {
     if (campaign) {
       setEditId(campaign.id);
@@ -94,8 +90,10 @@ const CampaignsPage = () => {
     }
     setShowModal(true);
   };
+  // Modal kapat
   const handleCloseModal = () => setShowModal(false);
 
+  // Form inputları değiştiğinde çalışır
   const handleFormChange = e => {
     const { name, value, type, checked } = e.target;
     if (type === 'checkbox' && name !== 'isActive') {
@@ -114,6 +112,7 @@ const CampaignsPage = () => {
     }
   };
 
+  // Kampanya ekle/güncelle işlemi
   const handleAddOrUpdateCampaign = async e => {
     e.preventDefault();
     if (form.endDate && form.startDate && form.endDate < form.startDate) {
@@ -155,6 +154,7 @@ const CampaignsPage = () => {
     setSaving(false);
   };
 
+  // Kampanya silme işlemi
   const handleDelete = async id => {
     if (!window.confirm('Kampanya silinsin mi?')) return;
     try {
@@ -165,6 +165,7 @@ const CampaignsPage = () => {
     }
   };
 
+  // Kampanya aktif/pasif işlemi
   const handleToggleActive = async c => {
     try {
       await axios.post(`${API_URL}/${c.id}/toggle-active`, {}, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
@@ -174,6 +175,7 @@ const CampaignsPage = () => {
     }
   };
 
+  // Sayfa arayüzü
   return (
     <CContainer className="py-4">
       <CCard>
@@ -182,6 +184,7 @@ const CampaignsPage = () => {
             <CCardTitle>Kampanyalar</CCardTitle>
             <CButton color="success" onClick={() => handleShowModal()} className="ms-3">+ Yeni Kampanya</CButton>
           </div>
+          {/* Yükleniyor/hata/kampanya tablosu */}
           {loading ? (
             <div className="d-flex justify-content-center align-items-center py-5"><CSpinner color="primary" /></div>
           ) : error ? (
@@ -229,6 +232,7 @@ const CampaignsPage = () => {
           )}
         </CCardBody>
       </CCard>
+      {/* Kampanya ekle/düzenle modalı */}
       <CModal visible={showModal} onClose={handleCloseModal} size="lg" alignment="center">
         <CModalHeader onClose={handleCloseModal}>
           <CModalTitle>{editId ? 'Kampanya Düzenle' : 'Kampanya Ekle'}</CModalTitle>
@@ -245,6 +249,7 @@ const CampaignsPage = () => {
               <option value={1}>Sabit Tutar İndirim</option>
               <option value={2}>3 Al 2 Öde</option>
             </CFormSelect>
+            {/* Kampanya tipine göre ek alanlar */}
             {form.type == 0 && (
               <>
                 <CFormLabel>İndirim Oranı (%)</CFormLabel>
@@ -282,6 +287,7 @@ const CampaignsPage = () => {
             <div className="mb-2">
               <CFormLabel>Ürünler</CFormLabel>
               <div style={{ maxHeight: 200, overflowY: 'auto', border: '1px solid #eee', borderRadius: 4, padding: 8 }}>
+                {/* Ürün seçimleri */}
                 {products.map(p => (
                   <CFormCheck
                     key={p.id}
@@ -297,6 +303,7 @@ const CampaignsPage = () => {
             <div className="mb-2">
               <CFormLabel>Kategoriler</CFormLabel>
               <div style={{ maxHeight: 200, overflowY: 'auto', border: '1px solid #eee', borderRadius: 4, padding: 8 }}>
+                {/* Kategori seçimleri */}
                 {categories.map(c => (
                   <CFormCheck
                     key={c.id}

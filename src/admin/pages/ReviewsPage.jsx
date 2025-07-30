@@ -1,3 +1,4 @@
+// Yorum yönetim sayfası - Yorum listeleme, düzenleme, silme işlemleri
 import React, { useEffect, useState } from 'react';
 import { apiGet, apiDelete, apiPut, parseApiError } from '../../utils/api';
 import ReviewForm from '../../components/ReviewForm';
@@ -11,24 +12,28 @@ import * as Yup from 'yup';
 
 const API_BASE = "https://localhost:7098";
 
+// Yorum düzenleme validasyon şeması
 const ReviewEditSchema = Yup.object().shape({
   comment: Yup.string().required('Review cannot be empty'),
   rating: Yup.number().min(1).max(5).required('Rating is required'),
 });
 
 const ReviewsPage = () => {
+  // Yorumlar ve durum state'leri
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [editingReview, setEditingReview] = useState(null);
   const [showEditFormId, setShowEditFormId] = useState(null);
   const navigate = useNavigate();
+
+  // Sayfa yüklendiğinde yorumları backend'den çek
   useEffect(() => {
     const fetchReviews = async () => {
       setLoading(true);
       try {
         let data = await apiGet('https://localhost:7098/api/Review?includeDeleted=true');
-        // Eksik alanları tamamla
+        // Eksik alanları tamamla (ürün ve kullanıcı bilgileri)
         data = await Promise.all(data.map(async review => {
           let productImageUrl = review.productImageUrl;
           let productName = review.productName;
@@ -65,6 +70,8 @@ const ReviewsPage = () => {
     };
     fetchReviews();
   }, []);
+
+  // Yorum silme işlemi
   const handleDelete = async (review) => {
     if (!window.confirm('Are you sure you want to delete this review?')) return;
     try {
@@ -74,10 +81,14 @@ const ReviewsPage = () => {
       setError('Review could not be deleted.');
     }
   };
+
+  // Yorum düzenleme formunu aç
   const handleEdit = (review) => {
     setEditingReview(review);
     setShowEditFormId(review.id);
   };
+
+  // Yorum düzenleme formu gönderildiğinde çalışır
   const handleEditSubmit = async (data) => {
     try {
       await apiPut(`https://localhost:7098/api/Review`, {
@@ -93,11 +104,14 @@ const ReviewsPage = () => {
       setError('Review could not be updated: ' + parseApiError(err));
     }
   };
+
+  // Sayfa arayüzü
   return (
     <CContainer className="py-4">
       <CCard>
         <CCardBody>
           <CCardTitle>Reviews</CCardTitle>
+          {/* Yükleniyor/hata/yorum tablosu */}
           {loading ? (
             <div className="d-flex justify-content-center align-items-center py-5"><CSpinner color="primary" /></div>
           ) : error ? (
@@ -119,6 +133,7 @@ const ReviewsPage = () => {
                   <CTableRow key={review.id} className={review.comment === 'This review has been deleted' || review.comment === 'Bu yorum silinmiştir' ? 'table-danger' : ''}>
                     <CTableDataCell>{review.id}</CTableDataCell>
                     <CTableDataCell>
+                      {/* Kullanıcı bilgisi ve avatar */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         <CImage
                           src={review.userAvatarUrl ? (review.userAvatarUrl.startsWith('http') ? review.userAvatarUrl : API_BASE + review.userAvatarUrl) : '/images/default-category.jpg'}
@@ -132,6 +147,7 @@ const ReviewsPage = () => {
                       </div>
                     </CTableDataCell>
                     <CTableDataCell>
+                      {/* Ürün bilgisi ve görseli */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         <CImage
                           src={review.productImageUrl ? (review.productImageUrl.startsWith('http') ? review.productImageUrl : API_BASE + review.productImageUrl) : '/images/default-product.jpg'}
@@ -156,6 +172,7 @@ const ReviewsPage = () => {
                       </div>
                     </CTableDataCell>
                     <CTableDataCell>
+                      {/* Yorum düzenleme formu veya yorum metni */}
                       {showEditFormId === review.id ? (
                         <Formik
                           initialValues={{ comment: review.comment, rating: review.rating, reviewId: review.id }}
@@ -201,6 +218,7 @@ const ReviewsPage = () => {
                     </CTableDataCell>
                     <CTableDataCell>{review.rating}</CTableDataCell>
                     <CTableDataCell>
+                      {/* Yorum için düzenle/sil butonları */}
                       {review.comment !== 'This review has been deleted' && review.comment !== 'Bu yorum silinmiştir' && (
                         <>
                           <CButton color="primary" size="sm" variant="outline" className="me-2" onClick={() => { setEditingReview(review); setShowEditFormId(review.id); }}>Edit</CButton>

@@ -1,7 +1,8 @@
+// Redux store'unu oluşturur ve slice'ları birleştirir
 import { configureStore } from '@reduxjs/toolkit';
-import cartReducer from './cartSlice';
-import favoriteReducer from './favoriteSlice';
-import userReducer from './userSlice';
+import cartReducer from './cartSlice'; // Sepet işlemleri reducer'ı
+import favoriteReducer from './favoriteSlice'; // Favori işlemleri reducer'ı
+import userReducer from './userSlice'; // Kullanıcı işlemleri reducer'ı
 
 // Redux store'u oluşturuyoruz. Tüm slice'ları burada birleştiriyoruz.
 const store = configureStore({

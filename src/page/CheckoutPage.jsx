@@ -1,3 +1,4 @@
+// Sipariş tamamlama (checkout) sayfası - Adres, kargo, ödeme ve kampanya işlemleri
 import React, { useEffect, useState, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -5,27 +6,29 @@ import { apiGet, apiPost, apiDelete } from '../utils/api';
 import { CContainer, CRow, CCol, CCard, CCardBody, CCardTitle, CForm, CFormLabel, CFormInput, CFormSelect, CButton, CAlert, CSpinner } from '@coreui/react';
 
 const CheckoutPage = () => {
-  const { userId, isLoggedIn } = useSelector(state => state.user);
-  const [addresses, setAddresses] = useState([]);
-  const [shippingCompanies, setShippingCompanies] = useState([]);
-  const [cart, setCart] = useState([]);
-  const [selectedAddress, setSelectedAddress] = useState('');
-  const [selectedShipping, setSelectedShipping] = useState('');
-  const [card, setCard] = useState({ name: '', number: '', expiryMonth: '', expiryYear: '', cvv: '' });
-  const [cardError, setCardError] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const [orderId, setOrderId] = useState(null);
-  const [deliveryPerson, setDeliveryPerson] = useState('');
-  const [deliveryPersonPhone, setDeliveryPersonPhone] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('0'); // Default: CreditCard
-  const [eligibleCampaigns, setEligibleCampaigns] = useState([]);
-  const [selectedCampaignId, setSelectedCampaignId] = useState('');
-  const [campaignDiscount, setCampaignDiscount] = useState(0);
-  const [orderNote, setOrderNote] = useState('');
+  // Kullanıcı ve form state'leri
+  const { userId, isLoggedIn } = useSelector(state => state.user); // Kullanıcı bilgisi
+  const [addresses, setAddresses] = useState([]); // Kullanıcı adresleri
+  const [shippingCompanies, setShippingCompanies] = useState([]); // Kargo şirketleri
+  const [cart, setCart] = useState([]); // Sepet ürünleri
+  const [selectedAddress, setSelectedAddress] = useState(''); // Seçili adres
+  const [selectedShipping, setSelectedShipping] = useState(''); // Seçili kargo
+  const [card, setCard] = useState({ name: '', number: '', expiryMonth: '', expiryYear: '', cvv: '' }); // Kart bilgileri
+  const [cardError, setCardError] = useState(''); // Kart validasyon hatası
+  const [loading, setLoading] = useState(true); // Yükleniyor mu?
+  const [error, setError] = useState(''); // Genel hata
+  const [success, setSuccess] = useState(''); // Başarı mesajı
+  const [orderId, setOrderId] = useState(null); // Sipariş ID
+  const [deliveryPerson, setDeliveryPerson] = useState(''); // Teslim alacak kişi
+  const [deliveryPersonPhone, setDeliveryPersonPhone] = useState(''); // Teslim alacak telefon
+  const [paymentMethod, setPaymentMethod] = useState('0'); // Ödeme yöntemi (varsayılan: kredi kartı)
+  const [eligibleCampaigns, setEligibleCampaigns] = useState([]); // Uygun kampanyalar
+  const [selectedCampaignId, setSelectedCampaignId] = useState(''); // Seçili kampanya
+  const [campaignDiscount, setCampaignDiscount] = useState(0); // Kampanya indirimi
+  const [orderNote, setOrderNote] = useState(''); // Sipariş notu
   const navigate = useNavigate();
 
+  // Sayfa yüklendiğinde adres, kargo, sepet ve kampanya verilerini çek
   useEffect(() => {
     if (!isLoggedIn || !userId) {
       navigate('/login');
@@ -65,12 +68,13 @@ const CheckoutPage = () => {
     fetchData();
   }, [isLoggedIn, userId, navigate]);
 
-  // cartTotal hesaplamasında price ve quantity'nin sayı olduğundan emin ol
+  // Sepet toplamı hesaplama (indirim öncesi)
   const rawCartTotal = useMemo(() => cart.reduce((sum, item) => {
     const price = Number(item.price ?? (item.product ? item.product.price : 0)) || 0;
     const quantity = Number(item.quantity) || 0;
     return sum + price * quantity;
   }, 0), [cart]);
+  // Kampanya indirimi sonrası toplam
   const cartTotal = Math.max(0, rawCartTotal - campaignDiscount);
 
   // Kampanya indirimi hesaplama
@@ -111,6 +115,8 @@ const CheckoutPage = () => {
     }
     setCampaignDiscount(discount);
   }, [selectedCampaignId, eligibleCampaigns, cart]);
+
+  // Seçili kargo şirketi ve kargo ücreti hesaplama
   const selectedShippingObj = shippingCompanies.find(s => s.id === Number(selectedShipping));
   // Backend'de ücretsiz kargo limiti kontrolü olduğu için, burada sadece seçilen firmanın fiyatını gösteriyoruz.
   const shippingCost = selectedShippingObj ? (cartTotal > selectedShippingObj.freeShippingLimit ? 0 : selectedShippingObj.price) : 0;
@@ -141,6 +147,7 @@ const CheckoutPage = () => {
     return '';
   };
 
+  // Sipariş oluşturma ve ödeme işlemi
   const handleOrder = async (e) => {
     e.preventDefault();
     setError('');
@@ -183,7 +190,7 @@ const CheckoutPage = () => {
         totalAmount: discountedTotal // indirimli toplamı gönder
         // campaignDiscount gönderilmeyecek
       };
-      console.log('Order body:', orderBody);
+      // console.log('Order body:', orderBody); // Gereksiz log kaldırıldı
       const orderRes = await apiPost('/api/Order', orderBody);
       setOrderId(orderRes.orderId);
       await apiPost('/api/Order/payment', {
@@ -212,9 +219,12 @@ const CheckoutPage = () => {
     }
   };
 
+  // Yükleniyorsa spinner göster
   if (loading) return <CContainer className="py-5 d-flex justify-content-center align-items-center"><CSpinner color="primary" /></CContainer>;
+  // Sepet boşsa bilgi mesajı göster
   if (cart.length === 0) return <CContainer className="py-5"><CAlert color="info">Your cart is empty. <CButton color="link" onClick={() => navigate('/')}>Continue Shopping</CButton></CAlert></CContainer>;
 
+  // Sayfa arayüzü
   return (
     <CContainer className="py-4">
       <CCard className="mb-4">

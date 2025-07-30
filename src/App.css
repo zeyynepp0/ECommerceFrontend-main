@@ -1,31 +1,35 @@
+/* Temel body ve html ayarları */
 body, html {
-  margin: 0;
-  padding: 0;
-  width: 100%;
+  margin: 0; /* Kenar boşluklarını sıfırla */
+  padding: 0; /* İç boşlukları sıfırla */
+  width: 100%; /* Tam genişlik */
   overflow-x: hidden; /* Yatay kaydırmayı engeller */
 }
 
-
-/* Mobil düzen */
+/* Mobil düzen için ana içerik padding ayarı */
 @media (max-width: 768px) {
   main {
-    padding-top: 90px;
-    padding-bottom: 20px;
+    padding-top: 0; /* Mobilde üst boşluğu kaldır */
+    padding-bottom: 20px; /* Alt boşluk */
   }
-} */
+}
+
+/* Ana içerik alanı ayarları */
 main {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding-top: 80px; /* Header yüksekliği kadar */
+  padding-top: 0; /* Üst boşluğu kaldır */
 }
 
+/* Giriş sayfası container ayarları */
 .login-container {
   flex: 1;
   display: flex;
   flex-direction: column;
 }
 
+/* Footer ayarları */
 .footer {
   margin-top: 0; /* Footer'ın üst margin'ini kaldırın */
 }

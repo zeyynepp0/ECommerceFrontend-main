@@ -1,3 +1,4 @@
+// Sepet slice'ı - Redux ile sepet işlemlerini yönetir
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 // Sepeti backend'den çekmek için async thunk
@@ -5,7 +6,7 @@ export const fetchCartFromBackend = createAsyncThunk(
   'cart/fetchCartFromBackend',
   async (userId, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('token'); // Kullanıcı token'ı
       const response = await fetch(`https://localhost:7098/api/CartItem/user/${userId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -17,12 +18,12 @@ export const fetchCartFromBackend = createAsyncThunk(
       // Backend'den gelen veriyi CartContext formatına çeviriyoruz
       return data.map(item => ({
         id: item.id, // cartItemId olarak ayarlandı
-        productId: item.product?.id || item.productId,
-        name: item.product?.name || 'Ürün',
-        price: item.product?.price || 0,
-        image: item.product?.imageUrl || '/images/default-product.jpg',
-        quantity: item.quantity || 1,
-        stock: item.product?.stock ?? 99
+        productId: item.product?.id || item.productId, // Ürün id
+        name: item.product?.name || 'Ürün', // Ürün adı
+        price: item.product?.price || 0, // Ürün fiyatı
+        image: item.product?.imageUrl || '/images/default-product.jpg', // Ürün görseli
+        quantity: item.quantity || 1, // Miktar
+        stock: item.product?.stock ?? 99 // Stok
       }));
     } catch (error) {
       return rejectWithValue(error.message);
@@ -66,14 +67,14 @@ const cartSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchCartFromBackend.pending, (state) => {
-        state.status = 'loading';
+        state.status = 'loading'; // Yükleniyor
       })
       .addCase(fetchCartFromBackend.fulfilled, (state, action) => {
-        state.status = 'succeeded';
+        state.status = 'succeeded'; // Yüklendi
         state.cartItems = action.payload;
       })
       .addCase(fetchCartFromBackend.rejected, (state, action) => {
-        state.status = 'failed';
+        state.status = 'failed'; // Hata
         state.error = action.payload;
       });
   }

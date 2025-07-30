@@ -1,3 +1,4 @@
+// Sipariş yönetim sayfası - Sipariş listeleme, durum güncelleme, kullanıcı taleplerini onaylama/reddetme
 import React, { useEffect, useState } from 'react';
 import { apiGet, apiPost } from '../../utils/api';
 import {
@@ -34,6 +35,7 @@ const userRequestBadge = (requestText) => {
   }
 };
 
+// Admin onay durumu için badge renkleri
 const adminStatusOptions = [
   { value: 'None', label: 'None' },
   { value: 'InReview', label: 'In Review' },
@@ -41,7 +43,6 @@ const adminStatusOptions = [
   { value: 'Rejected', label: 'Rejected' },
   { value: 'Completed', label: 'Completed' }
 ];
-
 const adminStatusBadge = (status) => {
   switch (status) {
     case 'Completed':
@@ -59,6 +60,7 @@ const adminStatusBadge = (status) => {
   }
 };
 
+// Sipariş durumu için badge renkleri
 const statusBadge = (statusText) => {
   switch (statusText) {
     case 'İptal Edildi':
@@ -74,7 +76,7 @@ const statusBadge = (statusText) => {
     case 'Teslim Edildi':
       return <CBadge color="success">Delivered</CBadge>;
     case 'İade Talebi':
-      return <CBadge color="dark">Refund Requested</CBadge>;
+      return <CBadge color="secondary">Refund Requested</CBadge>; // 'dark' yerine 'secondary' kullanıldı
     case 'İade Edildi':
       return <CBadge color="success">Refunded</CBadge>;
     default:
@@ -83,15 +85,19 @@ const statusBadge = (statusText) => {
 };
 
 const OrdersPage = () => {
+  // Sipariş verileri ve durum state'leri
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  // Sayfa yönlendirme için hook
   const navigate = useNavigate();
 
+  // Sayfa yüklendiğinde siparişleri backend'den çek
   useEffect(() => {
     fetchOrders();
   }, []);
 
+  // Siparişleri backend'den çek
   const fetchOrders = async () => {
     try {
       const response = await apiGet('/api/Admin/orders');
@@ -104,6 +110,7 @@ const OrdersPage = () => {
     }
   };
 
+  // Kullanıcı talebini onayla/reddet işlemleri
   const handleUserRequestAction = async (orderId, action) => {
     try {
       if (action === 'approve') {
@@ -124,14 +131,18 @@ const OrdersPage = () => {
     }
   };
 
+  // Yükleniyor durumu
   if (loading) return <CSpinner color="primary" />;
 
+  // Sayfa arayüzü
   return (
     <CContainer className="py-4">
       <CCard>
         <CCardBody>
           <CCardTitle>Orders</CCardTitle>
+          {/* Hata mesajı */}
           {error && <CAlert color="danger">{error}</CAlert>}
+          {/* Siparişler tablosu */}
           <CTable hover>
             <CTableHead>
               <CTableRow>
@@ -148,8 +159,7 @@ const OrdersPage = () => {
             </CTableHead>
             <CTableBody>
               {(orders || []).map(order => {
-                // DEBUG: Konsolda bak
-                console.log('Order:', order.status, order.statusText);
+                // Siparişin iptal/iadeli olup olmadığını kontrol et
                 const isCancelled = order.status === 5 || order.status === 'Cancelled' || order.statusText === 'İptal Edildi';
                 const isRefunded = order.status === 7 || order.status === 'Refunded' || order.statusText === 'İade Edildi';
                 return (

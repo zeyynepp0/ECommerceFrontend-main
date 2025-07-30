@@ -1,3 +1,4 @@
+// Kullanıcı yönetim sayfası - Kullanıcı listeleme, ekleme, silme, aktif/pasif işlemleri
 import React, { useEffect, useState } from 'react';
 import { apiGet, apiDelete, apiPost, apiPut } from '../../utils/api';
 import {
@@ -14,21 +15,22 @@ function normalizeIsActive(val) {
 }
 
 const UsersPage = () => {
+  // Kullanıcı, durum ve form state'leri
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ fullName: '', email: '', password: '', role: 'User' });
   const [adding, setAdding] = useState(false);
-  const [showInactive, setShowInactive] = useState(false);
   const [filter, setFilter] = useState('all'); // 'all', 'active', 'passive'
+  // Sayfa yönlendirme için hook
   const navigate = useNavigate();
 
+  // Kullanıcıları backend'den çek
   const fetchUsers = () => {
     setLoading(true);
     apiGet('https://localhost:7098/api/Admin/users')
       .then(data => {
-        console.log('API kullanıcı verisi:', data); // API'den gelen veriyi konsola yazdır
         setUsers((data || []).map(u => ({
           ...u,
           isActive: normalizeIsActive(u.isActive)
@@ -38,10 +40,12 @@ const UsersPage = () => {
       .finally(() => setLoading(false));
   };
 
+  // Sayfa yüklendiğinde kullanıcıları çek
   useEffect(() => {
     fetchUsers();
   }, []);
 
+  // Kullanıcıyı pasif yap (silme işlemi)
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this user?')) return;
     try {
@@ -53,6 +57,7 @@ const UsersPage = () => {
     }
   };
 
+  // Kullanıcıyı aktif yap
   const handleActivate = async (id) => {
     try {
       const user = users.find(u => u.id === id);
@@ -63,6 +68,7 @@ const UsersPage = () => {
     }
   };
 
+  // Yeni kullanıcı ekle
   const handleAdd = async (e) => {
     e.preventDefault();
     setAdding(true);
@@ -93,10 +99,11 @@ const UsersPage = () => {
     }
   };
 
+  // Kullanıcıları filtrele (aktif/pasif/tümü)
   const filteredUsers = users.filter(user =>
     filter === 'all' ? true : filter === 'active' ? normalizeIsActive(user.isActive) : !normalizeIsActive(user.isActive)
   );
-
+  // Sayfa arayüzü
   return (
     <CContainer className="py-4">
       <CCard>
@@ -104,12 +111,15 @@ const UsersPage = () => {
           <div className="d-flex justify-content-between align-items-center mb-3">
             <CCardTitle>Users</CCardTitle>
             <div>
+              {/* Filtre butonları */}
               <CButton color={filter === 'all' ? 'secondary' : 'light'} className="me-2" onClick={() => setFilter('all')}>All</CButton>
               <CButton color={filter === 'active' ? 'success' : 'light'} className="me-2" onClick={() => setFilter('active')}>Show Active</CButton>
               <CButton color={filter === 'passive' ? 'danger' : 'light'} onClick={() => setFilter('passive')}>Show Passive</CButton>
+              {/* Yeni kullanıcı ekle butonu */}
               <CButton color="success" onClick={() => setShowModal(true)} className="ms-3">+ Add New User</CButton>
             </div>
           </div>
+          {/* Yükleniyor/hata/kullanıcı tablosu */}
           {loading ? (
             <div className="d-flex justify-content-center align-items-center py-5"><CSpinner color="primary" /></div>
           ) : error ? (
@@ -137,7 +147,6 @@ const UsersPage = () => {
                       <CTableDataCell>{user.addresses && user.addresses.length > 0 ? user.addresses[0].addressLine : '-'}</CTableDataCell>
                       <CTableDataCell>{user.role === 1 || user.role === 'Admin' ? 'Admin' : 'User'}</CTableDataCell>
                       <CTableDataCell>
-                        {console.log('USER DEBUG:', user.id, user.isActive, normalizeIsActive(user.isActive))}
                         {normalizeIsActive(user.isActive) ? (
                           <span className="badge bg-success">Active</span>
                         ) : (
@@ -165,6 +174,7 @@ const UsersPage = () => {
           )}
         </CCardBody>
       </CCard>
+      {/* Kullanıcı ekleme modalı */}
       <CModal visible={showModal} onClose={() => setShowModal(false)}>
         <CModalHeader onClose={() => setShowModal(false)}>
           <CModalTitle>Add New User</CModalTitle>

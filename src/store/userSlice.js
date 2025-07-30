@@ -1,5 +1,7 @@
+// Kullanıcı slice'ı - Redux ile kullanıcı oturumunu yönetir
 import { createSlice } from '@reduxjs/toolkit';
 
+// Başlangıç state'i - localStorage'dan kullanıcı bilgilerini alır
 const initialState = {
   userId: localStorage.getItem('userId') || null, // Kullanıcı ID
   isLoggedIn: localStorage.getItem('isLoggedIn') === 'true', // Giriş durumu

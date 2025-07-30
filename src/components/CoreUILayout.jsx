@@ -1,3 +1,4 @@
+// Uygulamanın ana layout bileşeni - Header, sidebar, footer ve ana içerik
 import React, { useState, useEffect, useRef } from 'react';
 import {
   CHeader,
@@ -22,7 +23,7 @@ import {
   CDropdownItem,
   CPopover
 } from '@coreui/react';
-import { FiMenu, FiUser, FiShoppingCart, FiHeart, FiGift, FiLogIn, FiLogOut, FiUserPlus, FiSearch, FiSun, FiMoon, FiBell } from 'react-icons/fi';
+import { FiMenu, FiUser, FiShoppingCart, FiHeart, FiGift, FiLogIn, FiLogOut, FiUserPlus, FiSearch, FiBell } from 'react-icons/fi';
 import { useNavigate, Outlet, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { login, logout } from '../store/userSlice';
@@ -33,11 +34,12 @@ import { fetchFavorites } from '../store/favoriteSlice';
 import '@coreui/coreui/dist/css/coreui.min.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Dropdown } from 'react-bootstrap';
-import './CoreUILayout.css'; // Özel stiller için
+import '../css/CoreUILayout.css'; // Özel stiller için
 import { apiGet } from '../utils/api';
 import axios from 'axios';
 
 const CoreUILayout = ({ onResetFilters }) => {
+  // State ve yardımcı fonksiyonlar
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [categories, setCategories] = useState([]);
@@ -61,7 +63,7 @@ const CoreUILayout = ({ onResetFilters }) => {
   const notificationButtonRef = useRef(null);
   const [showNotificationPopover, setShowNotificationPopover] = useState(false);
 
-  // Polling for cart, favorites, notifications
+  // Sepet, favori ve bildirimler için polling
   useEffect(() => {
     let interval;
     if (isLoggedIn && userId) {
@@ -72,14 +74,14 @@ const CoreUILayout = ({ onResetFilters }) => {
         dispatch(fetchCartFromBackend(userId));
         dispatch(fetchFavorites());
         fetchUnreadCount();
-      }, 30000); // 30 seconds
+      }, 30000); // 30 saniyede bir güncelle
     }
     return () => {
       if (interval) clearInterval(interval);
     };
   }, [isLoggedIn, userId, dispatch]);
 
-  // Outside click for dropdowns
+  // Bildirim ve profil dropdown dışına tıklanınca kapat
   useEffect(() => {
     function handleClickOutside(event) {
       // Profile dropdown
@@ -109,6 +111,7 @@ const CoreUILayout = ({ onResetFilters }) => {
     };
   }, [showProfileDropdown, showNotifications]);
 
+  // Kategorileri backend'den çek
   useEffect(() => {
     axios.get('https://localhost:7098/api/category')
       .then(res => {
@@ -124,6 +127,7 @@ const CoreUILayout = ({ onResetFilters }) => {
     }
   }, [isLoggedIn, userId]);
 
+  // Okunmamış bildirim sayısını backend'den çek
   const fetchUnreadCount = async () => {
     if (!userId) return;
     try {
@@ -132,6 +136,7 @@ const CoreUILayout = ({ onResetFilters }) => {
     } catch {}
   };
 
+  // Bildirimleri backend'den çek
   const fetchNotifications = async () => {
     try {
       const notifs = await fetch(`https://localhost:7098/api/Notification/user/${userId}`).then(r => r.json());
@@ -155,9 +160,11 @@ const CoreUILayout = ({ onResetFilters }) => {
     await fetchUnreadCount();
   };
 
+  // Bildirim, profil ve kategori işlemleri
   // Sidebar genişliği
   const sidebarWidth = sidebarVisible ? 200 : 56;
 
+  // Çıkış işlemi
   const handleLogout = () => {
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('token');
@@ -169,6 +176,7 @@ const CoreUILayout = ({ onResetFilters }) => {
     navigate('/login');
   };
 
+  // Arama işlemi
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
@@ -182,7 +190,8 @@ const CoreUILayout = ({ onResetFilters }) => {
   const activeCategoryId = params.get('category');
   // Header'daki kategori kısayolları kaldırıldı
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', flexDirection: 'column' }}>
+    // Layout arayüzü
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       {/* Header */}
       <CHeader position="sticky" className="px-3 d-flex align-items-center justify-content-between" style={{ minHeight: 64 }}>
         <div className="d-flex align-items-center">
@@ -355,9 +364,17 @@ const CoreUILayout = ({ onResetFilters }) => {
         </div>
       </div>
 
-      <div style={{ display: 'flex', flex: 1 }}>
+      <div style={{ display: 'flex', flex: 1, marginTop: 0, marginBottom: 0 }}>
         {/* Sidebar */}
-        <CSidebar visible={sidebarVisible} style={{ minWidth: sidebarWidth, width: sidebarWidth, transition: 'width 0.2s' }}>
+        <CSidebar 
+          visible={sidebarVisible} 
+          style={{ 
+            minWidth: sidebarWidth, 
+            width: sidebarWidth, 
+            transition: 'width 0.2s',
+            borderRight: '1px solid #e0e0e0'
+          }}
+        >
           {sidebarVisible && (
             <CSidebarBrand className="fw-bold">SHOP</CSidebarBrand>
           )}
@@ -371,18 +388,7 @@ const CoreUILayout = ({ onResetFilters }) => {
             <CNavItem>
               <CNavLink onClick={() => navigate('/categories')} style={{ cursor: 'pointer' }}>Categories</CNavLink>
             </CNavItem>
-           {/*  <CNavItem>
-              <CNavLink onClick={() => navigate('/about')} style={{ cursor: 'pointer' }}>About Us</CNavLink>
-            </CNavItem>
-            <CNavItem>
-              <CNavLink onClick={() => navigate('/contact')} style={{ cursor: 'pointer' }}>Contact</CNavLink>
-            </CNavItem>
-            <CNavItem>
-              <CNavLink onClick={() => navigate('/faq')} style={{ cursor: 'pointer' }}>FAQ</CNavLink>
-            </CNavItem> */}
-            {/* <CNavItem>
-              <CNavLink onClick={() => navigate('/campaigns')} style={{ cursor: 'pointer' }}>Campaigns</CNavLink>
-            </CNavItem> */}
+          
             {role === 'Admin' && (
               <CNavItem>
                 <CNavLink onClick={() => navigate('/admin')} style={{ cursor: 'pointer' }}>Admin Panel</CNavLink>
@@ -392,23 +398,21 @@ const CoreUILayout = ({ onResetFilters }) => {
         </CSidebar>
 
         {/* Ana içerik alanı */}
-        <main style={{ flex: 1, minHeight: '80vh' }}>
+        <main style={{ flex: 1, overflow: 'auto' }}>
           <Outlet />
         </main>
       </div>
 
       {/* Footer */}
-      <CFooter className="d-flex flex-column align-items-center py-3">
-        <div className="mb-2">
+      <CFooter className="d-flex flex-column align-items-center py-1" style={{ marginTop: 'auto', backgroundColor: '#ffffff', color: '#333333' }}>
+        <div className="mb-1">
           <span className="fw-bold">SHOP</span>
           <span className="logo-highlight ms-1">LIGHT</span>
         </div>
-        <div className="mb-2">
+        <div className="mb-1">
           <a href="/" className="me-3">Home</a>
           <a href="/products" className="me-3">Products</a>
-          {/* <a href="/about" className="me-3">About Us</a>
-          <a href="/contact" className="me-3">Contact</a>
-          <a href="/faq" className="me-3">FAQ</a> */}
+          
         </div>
         <div>
           <span>© {new Date().getFullYear()} SHOP. All rights reserved.</span>

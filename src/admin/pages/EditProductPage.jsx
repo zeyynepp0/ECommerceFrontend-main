@@ -1,3 +1,4 @@
+// Ürün güncelleme sayfası - Ürün bilgilerini ve görselini günceller
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { apiGet, apiPut, apiPost } from '../../utils/api';
@@ -6,7 +7,9 @@ import {
 } from '@coreui/react';
 
 const EditProductPage = () => {
+  // URL'den ürün id'sini al
   const { id } = useParams();
+  // Kategori listesi ve form state'i
   const [categories, setCategories] = useState([]);
   const [form, setForm] = useState({
     name: '',
@@ -16,12 +19,17 @@ const EditProductPage = () => {
     categoryId: '',
     imageUrl: ''
   });
+  // Yüklenecek yeni görsel dosyası
   const [imageFile, setImageFile] = useState(null);
+  // Hata mesajı için state
   const [error, setError] = useState('');
+  // Yükleniyor durumu için state
   const [loading, setLoading] = useState(false);
+  // Sayfa yönlendirme için hook
   const navigate = useNavigate();
   const API_BASE = "https://localhost:7098";
 
+  // Sayfa yüklendiğinde ürün ve kategori verilerini backend'den çek
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -45,48 +53,58 @@ const EditProductPage = () => {
     fetchData();
   }, [id]);
 
+  // Form inputları değiştiğinde çalışır
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  // Yeni görsel seçildiğinde çalışır
   const handleImageChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       setImageFile(e.target.files[0]);
     }
   };
 
+  // Form gönderildiğinde çalışır
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
+    e.preventDefault(); // Sayfanın yeniden yüklenmesini engeller
+    setError(''); // Hata mesajını temizle
+    setLoading(true); // Yükleniyor durumunu başlat
     try {
       let imageUrl = form.imageUrl;
+      // Eğer yeni görsel seçildiyse önce görseli yükle
       if (imageFile) {
         const imgData = new FormData();
-        imgData.append('image', imageFile);
-        imgData.append('productName', form.name);
+        imgData.append('image', imageFile); // Görsel dosyasını ekle
+        imgData.append('productName', form.name); // Ürün adını ekle
+        // Görseli backend'e yükle ve dönen URL'yi al
         const res = await apiPost('https://localhost:7098/api/Product/upload-image', imgData);
         imageUrl = res.imageUrl;
       }
+      // Ürün bilgisini backend'de güncelle
       await apiPut(`https://localhost:7098/api/Product/update/${id}`, {
         ...form,
         imageUrl: imageUrl
       });
+      // Başarılıysa ürün listesine yönlendir
       navigate('/admin/products');
     } catch (err) {
-      setError('Product could not be updated.');
+      setError('Product could not be updated.'); // Hata mesajı göster
     } finally {
-      setLoading(false);
+      setLoading(false); // Yükleniyor durumunu kapat
     }
   };
 
+  // Hata varsa göster
   if (error) return <CAlert color="danger">{error}</CAlert>;
 
+  // Sayfa arayüzü
   return (
     <CContainer className="py-4">
       <CCard className="mx-auto" style={{ maxWidth: 600 }}>
         <CCardBody>
           <CCardTitle>Update Product</CCardTitle>
+          {/* Ürün güncelleme formu */}
           <CForm onSubmit={handleSubmit}>
             <CFormLabel>Product Name</CFormLabel>
             <CFormInput name="name" value={form.name} onChange={handleChange} required className="mb-3" />
@@ -99,12 +117,14 @@ const EditProductPage = () => {
             <CFormLabel>Category</CFormLabel>
             <select name="categoryId" value={form.categoryId} onChange={handleChange} required className="form-select mb-3">
               <option value="">Select</option>
+              {/* Kategori seçenekleri */}
               {categories.map(cat => (
                 <option key={cat.id} value={cat.id}>{cat.name}</option>
               ))}
             </select>
             <CFormLabel>Current Image</CFormLabel>
-            {form.imageUrl && <img src={form.imageUrl.startsWith('http') ? form.imageUrl : API_BASE + form.imageUrl} alt="Ürün" style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 8 }} className="mb-3 d-block" />}
+            {/* Mevcut görseli göster */}
+            {form.imageUrl && <img src={form.imageUrl.startsWith('http') ? form.imageUrl : API_BASE + form.imageUrl} alt="Ürün" className="admin-form-preview-image" />}
             <CFormLabel>New Image (to change)</CFormLabel>
             <CFormInput type="file" accept="image/*" onChange={handleImageChange} className="mb-3" />
             <CButton type="submit" color="primary" disabled={loading}>{loading ? <CSpinner size="sm" /> : 'Update'}</CButton>

@@ -1,3 +1,4 @@
+// Sepet sayfası - Kullanıcı sepetini, kampanya ve toplam hesaplamalarını yönetir
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchCartFromBackend, addToCart, removeFromCart, updateQuantity, clearCart, selectCartTotal } from '../store/cartSlice';
@@ -5,21 +6,23 @@ import { Link, useNavigate } from 'react-router-dom';
 import { apiDelete, apiPost, parseApiError, apiGet } from '../utils/api';
 import { CContainer, CRow, CCol, CCard, CCardBody, CCardTitle, CButton, CSpinner, CAlert, CBadge } from '@coreui/react';
 
-
 const API_BASE = "https://localhost:7098";
 
 const CartPage = () => {
-  const { userId, isLoggedIn } = useSelector(state => state.user);
-  const { cartItems, status } = useSelector(state => state.cart);
-  const cartTotal = useSelector(selectCartTotal);
+  // Kullanıcı ve sepet state'leri
+  const { userId, isLoggedIn } = useSelector(state => state.user); // Kullanıcı bilgisi
+  const { cartItems, status } = useSelector(state => state.cart); // Sepet ürünleri ve durum
+  const cartTotal = useSelector(selectCartTotal); // Sepet toplamı
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const [availableCampaigns, setAvailableCampaigns] = useState([]);
-  const [selectedCampaignId, setSelectedCampaignId] = useState(null);
-  const [campaignDiscount, setCampaignDiscount] = useState(0);
-  const [discountedTotal, setDiscountedTotal] = useState(cartTotal);
+  // Kampanya ve indirim state'leri
+  const [availableCampaigns, setAvailableCampaigns] = useState([]); // Uygun kampanyalar
+  const [selectedCampaignId, setSelectedCampaignId] = useState(null); // Seçili kampanya
+  const [campaignDiscount, setCampaignDiscount] = useState(0); // Kampanya indirimi
+  const [discountedTotal, setDiscountedTotal] = useState(cartTotal); // İndirimli toplam
 
+  // Kullanıcı giriş yaptıysa sepeti backend'den çek
   useEffect(() => {
     if (isLoggedIn && userId) {
       dispatch(fetchCartFromBackend(userId));
@@ -171,13 +174,14 @@ const CartPage = () => {
   };
 
   // Kargo ücreti ve toplam hesaplama (checkout ile uyumlu)
-  const [shippingCompanies, setShippingCompanies] = React.useState([]);
-  const [selectedShipping, setSelectedShipping] = React.useState('');
-  const [shippingCost, setShippingCost] = React.useState(0);
+  const [shippingCompanies, setShippingCompanies] = React.useState([]); // Kargo şirketleri
+  const [selectedShipping, setSelectedShipping] = React.useState(''); // Seçili kargo
+  const [shippingCost, setShippingCost] = React.useState(0); // Kargo ücreti
 
   useEffect(() => {
     if (isLoggedIn && userId) {
-      // apiGet('/api/ShippingCompany/active').then(res => { // This line was commented out in the original file, so it's not added here.
+      // Kargo şirketleri API'den çekilebilir (örnek kod satırı yoruma alındı)
+      // apiGet('/api/ShippingCompany/active').then(res => { 
       //   setShippingCompanies(res);
       //   setSelectedShipping(res[0]?.id || '');
       // });
@@ -191,6 +195,7 @@ const CartPage = () => {
     setShippingCost(cost);
   }, [cartItems, shippingCompanies, selectedShipping]);
 
+  // Sepet yükleniyorsa spinner göster
   if (status === 'loading') {
     return (
       <CContainer className="py-5 d-flex justify-content-center align-items-center" style={{ minHeight: 300 }}>
@@ -199,6 +204,7 @@ const CartPage = () => {
     );
   }
 
+  // Kullanıcı giriş yapmamışsa uyarı göster
   if (!isLoggedIn || !userId) {
     return (
       <CContainer className="py-5">
@@ -209,6 +215,7 @@ const CartPage = () => {
     );
   }
 
+  // Sepet arayüzü
   return (
     <CContainer className="py-4">
       <CCard className="mb-4">
@@ -231,7 +238,7 @@ const CartPage = () => {
                         <img
                           src={item.image ? (item.image.startsWith('http') ? item.image : API_BASE + item.image) : '/images/default-product.jpg'}
                           alt={item.name || 'Ürün'}
-                          style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 8, cursor: 'pointer', background: '#fff' }}
+                          className="cart-item-image"
                           onClick={() => navigate(`/products/${item.productId}`)}
                           onError={e => { e.target.src = '/images/default-product.jpg'; }}
                         />

@@ -1,8 +1,11 @@
+// Gelir raporu sayfası - Yıllık/aylık gelir, iptal ve iade tutarları, toplam sipariş sayısı
 import React, { useEffect, useState } from 'react';
 import { apiGet } from '../../utils/api';
 import { CContainer, CCard, CCardBody, CCardTitle, CCardText, CSpinner, CAlert, CFormSelect, CRow, CCol } from '@coreui/react';
 
+// Son 5 yıl için yıl seçenekleri
 const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i); // Son 5 yıl
+// Ay seçenekleri
 const months = [
   { value: '', label: 'All' },
   { value: 1, label: 'January' }, { value: 2, label: 'February' }, { value: 3, label: 'March' },
@@ -12,12 +15,15 @@ const months = [
 ];
 
 const RevenuePage = () => {
+  // Gelir verisi ve durum state'leri
   const [revenue, setRevenue] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  // Seçili yıl ve ay state'i
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
 
+  // Gelir verisini backend'den çek
   const fetchRevenue = () => {
     setLoading(true);
     setError('');
@@ -32,15 +38,18 @@ const RevenuePage = () => {
       .finally(() => setLoading(false));
   };
 
+  // Yıl veya ay değiştiğinde veriyi güncelle
   useEffect(() => {
     fetchRevenue();
   }, [selectedYear, selectedMonth]);
 
+  // Sayfa arayüzü
   return (
     <CContainer className="py-4">
       <CCard className="mx-auto" style={{ maxWidth: 480 }}>
         <CCardBody>
           <CCardTitle>Revenue Report</CCardTitle>
+          {/* Yıl ve ay seçim alanları */}
           <CRow className="mb-3">
             <CCol>
               <CFormSelect value={selectedYear} onChange={e => setSelectedYear(Number(e.target.value))}>
@@ -53,6 +62,7 @@ const RevenuePage = () => {
               </CFormSelect>
             </CCol>
           </CRow>
+          {/* Yükleniyor/hata/rapor */}
           {loading ? (
             <div className="d-flex justify-content-center align-items-center py-5"><CSpinner color="primary" /></div>
           ) : error ? (

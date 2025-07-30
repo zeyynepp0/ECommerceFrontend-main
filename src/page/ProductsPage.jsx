@@ -1,3 +1,4 @@
+// Ürünler sayfası - Ürün listeleme, filtreleme ve sayfalama işlemleri
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { 
@@ -18,13 +19,14 @@ import {
 } from '@coreui/react';
 
 const API_BASE = "https://localhost:7098";
-const PAGE_SIZE = 2; // sayfada kaç tane ürün gösterileceğini gösteriyor
+const PAGE_SIZE = 8; // sayfada kaç tane ürün gösterileceğini gösteriyor
 
-const ProductsPage = ({ darkMode }) => {
-  const [products, setProducts] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [categories, setCategories] = useState([]);
+const ProductsPage = () => {
+  // State tanımlamaları
+  const [products, setProducts] = useState([]); // Tüm ürünler
+  const [filteredProducts, setFilteredProducts] = useState([]); // Filtrelenmiş ürünler
+  const [loading, setLoading] = useState(true); // Yükleniyor mu?
+  const [categories, setCategories] = useState([]); // Kategoriler
   const [filters, setFilters] = useState({
     searchQuery: '',
     minPrice: '',
@@ -37,15 +39,15 @@ const ProductsPage = ({ darkMode }) => {
     rating: '',
     sortBy: 'default',
   });
-  const [currentPage, setCurrentPage] = useState(1);
-  const [showOffcanvas, setShowOffcanvas] = useState(false);
-  const [colorOptions, setColorOptions] = useState([]);
-  const [brandOptions, setBrandOptions] = useState([]);
-  const [ratingOptions] = useState([5,4,3,2,1]);
-  const location = useLocation();
-  const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState(1); // Aktif sayfa
+  const [showOffcanvas, setShowOffcanvas] = useState(false); // Mobil filtre paneli
+  const [colorOptions, setColorOptions] = useState([]); // Renk seçenekleri
+  const [brandOptions, setBrandOptions] = useState([]); // Marka seçenekleri
+  const [ratingOptions] = useState([5,4,3,2,1]); // Puan seçenekleri
+  const location = useLocation(); // URL parametreleri
+  const navigate = useNavigate(); // Sayfa yönlendirme
 
-  // URL parametrelerini işle
+  // URL parametrelerini işle (arama, kategori, sayfa)
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
     const searchParam = urlParams.get('search');
@@ -84,7 +86,7 @@ const ProductsPage = ({ darkMode }) => {
     fetchData();
   }, []);
 
-  // Filtreleme fonksiyonu (renk, marka, stok, indirim, puan eklendi)
+  // Filtreleme işlemleri (arama, fiyat, kategori, renk, marka, stok, indirim, puan, sıralama)
   useEffect(() => {
     let result = [...products];
     result = result.filter(product => product.isActive); // Sadece aktif ürünler
@@ -134,10 +136,11 @@ const ProductsPage = ({ darkMode }) => {
     setCurrentPage(1);
   }, [filters, products]);
 
-  // Pagination hesaplama
+  // Sayfalama hesaplama
   const totalPages = Math.ceil(filteredProducts.length / PAGE_SIZE);
   const paginatedProducts = filteredProducts.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
+  // Sayfa değiştirildiğinde çalışır
   const handlePageChange = (page) => {
     setCurrentPage(page);
     const params = new URLSearchParams(location.search);
@@ -145,11 +148,12 @@ const ProductsPage = ({ darkMode }) => {
     navigate({ search: params.toString() });
   };
 
+  // Kategoriye tıklanınca çalışır
   const handleCategoryClick = (categoryId) => {
     navigate(`/products?category=${categoryId}`);
   };
 
-  // Filtreleri temizle fonksiyonu
+  // Filtreleri temizle
   const handleResetFilters = () => {
     setFilters({
       searchQuery: '',
@@ -165,13 +169,13 @@ const ProductsPage = ({ darkMode }) => {
     });
   };
 
-  // Yatay filtre barı ve offcanvas kaldırıldı
+  // Sayfa arayüzü
   return (
     <CContainer fluid className="py-4">
       <CRow>
         {/* Ürünler Grid (sol) */}
         <CCol xs={12} md={8} lg={9}>
-          <div className="d-flex justify-content-between align-items-center mb-2">
+          <div className="d-flex flex-column align-items-center mb-2">
             <h2 className="mb-0">All Products</h2>
             <span className="text-muted">{filteredProducts.length} products found</span>
           </div>

@@ -1,3 +1,4 @@
+// Favori ürünler slice'ı - Redux ile favori işlemlerini yönetir
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
@@ -5,8 +6,8 @@ import axios from 'axios';
 export const fetchFavorites = createAsyncThunk(
   'favorite/fetchFavorites',
   async (_, { rejectWithValue }) => {
-    const userId = localStorage.getItem('userId');
-    const token = localStorage.getItem('token');
+    const userId = localStorage.getItem('userId'); // Kullanıcı id
+    const token = localStorage.getItem('token'); // Kullanıcı token'ı
     if (!userId || !token) return [];
     try {
       const res = await axios.get(`https://localhost:7098/api/Favorite/user/${userId}`, {
@@ -88,14 +89,14 @@ const favoriteSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchFavorites.pending, (state) => {
-        state.status = 'loading';
+        state.status = 'loading'; // Yükleniyor
       })
       .addCase(fetchFavorites.fulfilled, (state, action) => {
-        state.status = 'succeeded';
+        state.status = 'succeeded'; // Yüklendi
         state.favorites = action.payload;
       })
       .addCase(fetchFavorites.rejected, (state, action) => {
-        state.status = 'failed';
+        state.status = 'failed'; // Hata
         state.error = action.payload;
       });
   }

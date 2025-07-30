@@ -1,4 +1,4 @@
-/* CoreUILayout header search bar modern tasarım */
+/* Header arama barı modern tasarım */
 .header-search-wrapper {
   min-width: 0;
 }
@@ -71,16 +71,21 @@
 /* Kategori barı: Dropdown + 10 kategori butonu */
 .category-bar-shadow {
   background: #fff;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  box-shadow: none;
   z-index: 10;
   position: relative;
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: 1px solid #e0e0e0;
 }
 .category-bar-flex {
   display: flex;
   align-items: center;
   justify-content: flex-start;
   gap: 16px;
-  padding: 8px 16px;
+  padding: 1px 16px;
+  margin-bottom: 0;
+  border-bottom: none;
 }
 .category-bar-dropdown {
   min-width: 220px;

@@ -1,20 +1,24 @@
+// E-posta doğrulama sayfası - Kullanıcı e-posta adresini doğrular
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { CCard, CCardBody, CCardHeader, CAlert, CSpinner } from '@coreui/react';
 import { apiPost, parseApiError } from '../utils/api';
 
+// URL query parametrelerini almak için yardımcı fonksiyon
 function useQuery() {
   return new URLSearchParams(useLocation().search);
 }
 
 const VerifyEmailPage = () => {
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
-  const query = useQuery();
-  const token = query.get('token') || '';
+  // State ve yardımcı fonksiyonlar
+  const [message, setMessage] = useState(''); // Başarı mesajı
+  const [error, setError] = useState(''); // Hata mesajı
+  const [loading, setLoading] = useState(true); // Yükleniyor mu?
+  const navigate = useNavigate(); // Sayfa yönlendirme
+  const query = useQuery(); // URL query
+  const token = query.get('token') || ''; // Token parametresi
 
+  // Sayfa yüklendiğinde e-posta doğrulama işlemini başlat
   useEffect(() => {
     const verify = async () => {
       setLoading(true);
@@ -37,6 +41,7 @@ const VerifyEmailPage = () => {
     }
   }, [token, navigate]);
 
+  // Sayfa arayüzü
   return (
     <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '100vh', background: '#f8f9fa' }}>
       <CCard style={{ minWidth: 380, maxWidth: 420, width: '100%', boxShadow: '0 10px 30px rgba(0,0,0,0.08)', background: '#fff' }}>
@@ -44,6 +49,7 @@ const VerifyEmailPage = () => {
           <h3 className="fw-bold mb-1" style={{ color: '#6366f1' }}>E-posta Doğrulama</h3>
         </CCardHeader>
         <CCardBody>
+          {/* Yükleniyor, başarı ve hata mesajları */}
           {loading && <div className="text-center"><CSpinner color="primary" /></div>}
           {message && <CAlert color="success" className="py-2 text-center">{message}<br />Anasayfaya yönlendiriliyorsunuz...</CAlert>}
           {error && <CAlert color="danger" className="py-2 text-center">{error}</CAlert>}

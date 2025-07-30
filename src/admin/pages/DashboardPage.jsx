@@ -1,3 +1,4 @@
+// Admin paneli ana sayfası - Genel istatistikler ve kısayollar
 import React, { useEffect, useState } from 'react';
 import { apiGet } from '../../utils/api';
 import {
@@ -6,6 +7,7 @@ import {
 import { FiUsers, FiBox, FiLayers, FiShoppingCart, FiChevronRight, FiGift } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 
+// Dashboard'da gösterilecek istatistik kartlarının tanımı
 const statCards = [
   {
     key: 'userCount',
@@ -52,11 +54,14 @@ const statCards = [
 ];
 
 const DashboardPage = () => {
+  // İstatistik verileri ve durum state'leri
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  // Sayfa yönlendirme için hook
   const navigate = useNavigate();
 
+  // Sayfa yüklendiğinde dashboard verilerini backend'den çek
   useEffect(() => {
     apiGet('https://localhost:7098/api/Admin/dashboard')
       .then(setStats)
@@ -64,9 +69,11 @@ const DashboardPage = () => {
       .finally(() => setLoading(false));
   }, []);
 
+  // Sayfa arayüzü
   return (
     <CContainer className="py-4">
       <h2 className="fw-bold mb-4">Admin Panel - Overview</h2>
+      {/* Yükleniyor/hata/istatistik kartları */}
       {loading ? (
         <div className="d-flex justify-content-center align-items-center py-5"><CSpinner color="primary" /></div>
       ) : error ? (
@@ -94,6 +101,7 @@ const DashboardPage = () => {
           <CCard className="h-100 shadow-sm">
             <CCardBody>
               <CCardTitle className="fs-5 fw-bold mb-2">Shortcuts</CCardTitle>
+              {/* Yönetim paneli kısayolları */}
               <div className="d-flex flex-wrap gap-2">
                 <CButton color="primary" variant="outline" onClick={() => navigate('/admin/users')}>Users</CButton>
                 <CButton color="success" variant="outline" onClick={() => navigate('/admin/products')}>Products</CButton>
@@ -101,7 +109,8 @@ const DashboardPage = () => {
                 <CButton color="danger" variant="outline" onClick={() => navigate('/admin/orders')}>Orders</CButton>
                 <CButton color="info" variant="outline" onClick={() => navigate('/admin/revenue')}>Revenue Report</CButton>
                 <CButton color="secondary" variant="outline" onClick={() => navigate('/admin/user-activity')}>User Activities</CButton>
-                <CButton color="dark" variant="outline" onClick={() => navigate('/admin/reviews')}>Reviews</CButton>
+                {/* Koyu renkli shortcut kaldırıldı, secondary ile devam */}
+                <CButton color="secondary" variant="outline" onClick={() => navigate('/admin/reviews')}>Reviews</CButton>
                 <CButton color="secondary" variant="outline" onClick={() => navigate('/admin/campaigns')}>Campaigns</CButton>
               </div>
             </CCardBody>

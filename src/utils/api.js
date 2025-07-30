@@ -19,7 +19,7 @@ const api = axios.create({
  */
 export const apiGet = async (url, config = {}) => {
   try {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token'); // Kullanıcı token'ı
     const headers = { ...(config.headers || {}) };
     if (token) headers.Authorization = `Bearer ${token}`;
     const response = await api.get(url, { ...config, headers });
@@ -37,7 +37,7 @@ export const apiGet = async (url, config = {}) => {
  */
 export const apiPost = async (url, data, config = {}) => {
   try {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token'); // Kullanıcı token'ı
     const headers = { ...(config.headers || {}) };
     if (token) headers.Authorization = `Bearer ${token}`;
     const isFormData = (typeof FormData !== 'undefined') && data instanceof FormData;
@@ -62,7 +62,7 @@ export const apiPost = async (url, data, config = {}) => {
  */
 export const apiPut = async (url, data, config = {}) => {
   try {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token'); // Kullanıcı token'ı
     const headers = { ...(config.headers || {}) };
     if (token) headers.Authorization = `Bearer ${token}`;
     const response = await api.put(url, data, { ...config, headers });
@@ -80,7 +80,7 @@ export const apiPut = async (url, data, config = {}) => {
  */
 export const apiDelete = async (url, data, config = {}) => {
   try {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token'); // Kullanıcı token'ı
     const headers = { ...(config.headers || {}) };
     if (token) headers.Authorization = `Bearer ${token}`;
     const response = await api.delete(url, { ...config, headers, data });

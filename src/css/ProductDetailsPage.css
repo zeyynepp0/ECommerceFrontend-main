@@ -1,41 +1,33 @@
+/* Ürün detay sayfası stilleri */
 :root {
-  --primary-bg: #ffffff;
-  --text-color: #333333;
-  --border-color: #e0e0e0;
-  --card-bg: #f9f9f9;
-  --primary-color: #333333;
-  --secondary-color: #222222;
-  --discount-color: #ef4444;
-}
-
-.dark {
-  --primary-bg: #1e293b;
-  --text-color: #f8fafc;
-  --border-color: #334155;
-  --card-bg: #1e293b;
-  --primary-color: #333333;
-  --secondary-color: #222222;
+  --primary-bg: #ffffff; /* Ana arka plan rengi */
+  --text-color: #333333; /* Ana metin rengi */
+  --border-color: #e0e0e0; /* Kenarlık rengi */
+  --card-bg: #f9f9f9; /* Kart arka planı */
+  --primary-color: #333333; /* Birincil renk */
+  --secondary-color: #222222; /* İkincil renk */
+  --discount-color: #ef4444; /* İndirim etiketi rengi */
 }
 
 .product-details-page {
-  background: var(--primary-bg);
-  color: var(--text-color);
-  padding: 20px 0;
-  min-height: 100vh;
+  background: var(--primary-bg); /* Sayfa arka planı */
+  color: var(--text-color); /* Sayfa metin rengi */
+  padding: 20px 0; /* Üst-alt boşluk */
+  min-height: 100vh; /* Minimum yükseklik */
 }
 
 .product-details-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
+  max-width: 1200px; /* İçerik maksimum genişliği */
+  margin: 0 auto; /* Ortala */
+  padding: 0 20px; /* Yandan boşluk */
 }
 
 .breadcrumb-nav {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  margin-bottom: 30px;
-  font-size: 0.9rem;
+  display: flex; /* Yanyana diz */
+  align-items: center; /* Dikey ortala */
+  gap: 15px; /* Elemanlar arası boşluk */
+  margin-bottom: 30px; /* Alt boşluk */
+  font-size: 0.9rem; /* Yazı boyutu */
 }
 
 .back-button {
@@ -391,7 +383,9 @@
   .related-products-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  /* Yorumlar Bölümü */
+}
+
+/* Yorumlar Bölümü */
 .product-reviews {
   margin: 50px 0;
   border-top: 1px solid var(--border-color);
@@ -436,10 +430,6 @@
   padding: 20px;
   border-radius: 8px;
   margin-bottom: 30px;
-}
-
-.review-form.dark {
-  background: rgba(255, 255, 255, 0.05);
 }
 
 .form-group {
@@ -491,10 +481,6 @@
   padding: 20px;
   border-radius: 8px;
   margin-bottom: 20px;
-}
-
-.review-item.dark {
-  background: rgba(255, 255, 255, 0.05);
 }
 
 .review-header {
@@ -590,5 +576,4 @@
 
 .back-to-products:hover {
   background: var(--secondary-color);
-}
 }

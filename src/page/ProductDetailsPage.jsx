@@ -27,7 +27,9 @@ import {
 
 const API_BASE = "https://localhost:7098";
 
-const ProductDetailsPage = ({ darkMode }) => {
+// Ürün detay sayfası - Ürün bilgisi, yorumlar ve sepete ekleme işlemleri
+const ProductDetailsPage = () => {
+  // URL'den ürün id'sini al
   const { id } = useParams();
   const navigate = useNavigate();
   // Kullanıcı bilgilerini Redux store'dan alıyoruz
@@ -37,6 +39,7 @@ const ProductDetailsPage = ({ darkMode }) => {
   const dispatch = useDispatch();
   // Favori verilerini Redux store'dan alıyoruz
   const { favorites } = useSelector(state => state.favorite);
+  // Ürün, yüklenme, görsel, miktar, ilgili ürünler, yorumlar ve form state'leri
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
@@ -46,6 +49,7 @@ const ProductDetailsPage = ({ darkMode }) => {
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [isFavoriteLoading, setIsFavoriteLoading] = useState(false);
   const [editingReview, setEditingReview] = useState(null);
+  // Ürün görselleri
   const images = product?.imageUrl ? [product.imageUrl.startsWith('http') ? product.imageUrl : API_BASE + product.imageUrl] : [];
   const mainImage = images[selectedImage] || (product?.imageUrl ? (product.imageUrl.startsWith('http') ? product.imageUrl : API_BASE + product.imageUrl) : '');
 
@@ -58,7 +62,7 @@ const ProductDetailsPage = ({ darkMode }) => {
   const cartItem = cartItems.find(item => item.id === (product?.id || parseInt(id)));
   const cartQuantity = cartItem ? cartItem.quantity : 0;
 
-  // useEffect ile ürün, ilgili ürünler ve yorumları çekme
+  // Yorumlar, ürün ve ilgili ürünler için verileri çek
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -106,13 +110,14 @@ const ProductDetailsPage = ({ darkMode }) => {
     }
   };
 
+  // Sepet miktarını değiştir
   const handleQuantityChange = (value) => {
     // Sepetteki miktar + seçili miktar toplamı stoktan fazla olamaz
     const newValue = Math.max(1, Math.min(stock - cartQuantity, quantity + value));
     setQuantity(newValue);
   };
 
-  // Sepete ekle butonuna tıklandığında çalışır
+  // Sepete ekle butonuna tıklanınca
   const handleAddToCart = async () => {
     if (!isLoggedIn) {
       alert('You must be logged in to add to cart!');
@@ -155,7 +160,7 @@ const ProductDetailsPage = ({ darkMode }) => {
     }
   };
 
-  // Yorum ekleme/güncelleme
+  // Yorum ekle/güncelle
   const handleReviewSubmit = async (reviewData) => {
     if (!isLoggedIn || !userId) {
       alert('You must be logged in to leave a review!');
@@ -176,7 +181,7 @@ const ProductDetailsPage = ({ darkMode }) => {
       return;
     }
     try {
-      console.log('Yorum gönder payload:', payload);
+      // console.log('Yorum gönder payload:', payload); // Gereksiz log kaldırıldı
       if (reviewData.isUpdate && reviewData.reviewId) {
         // Güncelleme
         await apiPut(`https://localhost:7098/api/Review`, {
@@ -198,7 +203,7 @@ const ProductDetailsPage = ({ darkMode }) => {
     }
   };
 
-  // Yorum silme
+  // Yorum sil
   const handleReviewDelete = async (review) => {
     if (!window.confirm('Are you sure you want to delete this review?')) return;
     try {
@@ -209,18 +214,19 @@ const ProductDetailsPage = ({ darkMode }) => {
     }
   };
 
-  // Yorum düzenleme
+  // Yorum düzenle
   const handleReviewEdit = (review) => {
     setEditingReview(review);
     setShowReviewForm(true);
   };
 
-  // Sadece o ürüne ait yorumlar
+  // Sadece bu ürüne ait yorumlar
   const filteredReviews = reviews.filter(r => r.productId === parseInt(id));
 
   if (loading) {
+    // Yükleniyor ekranı
     return (
-      <div className={`product-details-page ${darkMode ? 'dark' : ''}`}>
+      <div className="product-details-page">
         <div className="product-details-container">
           <div className="loading-spinner">Loading...</div>
         </div>
@@ -229,8 +235,9 @@ const ProductDetailsPage = ({ darkMode }) => {
   }
 
   if (!product) {
+    // Ürün bulunamadı ekranı
     return (
-      <div className={`product-details-page ${darkMode ? 'dark' : ''}`}>
+      <div className="product-details-page">
         <div className="product-details-container">
           <div className="product-not-found">
             <h2>Product Not Found</h2>
@@ -244,8 +251,9 @@ const ProductDetailsPage = ({ darkMode }) => {
     );
   }
   if (product && product.isActive === false) {
+    // Ürün aktif değil ekranı
     return (
-      <div className={`product-details-page ${darkMode ? 'dark' : ''}`}>
+      <div className="product-details-page">
         <div className="product-details-container">
           <div className="product-not-found">
             <h2>Product Not Active</h2>
@@ -259,16 +267,18 @@ const ProductDetailsPage = ({ darkMode }) => {
     );
   }
 
+  // Sayfa arayüzü
   return (
-    <CContainer fluid className={`py-4 product-details-page${darkMode ? ' dark' : ''}`} style={darkMode ? { background: '#18181b', color: '#f3f4f6' } : {}}>
+    <CContainer fluid className="py-4 product-details-page">
+      {/* Ürün görseli ve bilgileri */}
       <CRow>
         <CCol md={6} className="mb-4">
-          <CCard className={`h-100 p-3 d-flex align-items-center justify-content-center${darkMode ? ' dark-card' : ''}`} style={darkMode ? { background: '#23232a', color: '#f3f4f6', border: '1px solid #33343b' } : {}}>
+          <CCard className={`h-100 p-3 d-flex align-items-center justify-content-center`}>
             <div className="main-image mb-3" style={{ width: '100%', textAlign: 'center' }}>
               <img
                 src={mainImage || '/images/default-product.jpg'}
                 alt={product.name}
-                style={{ maxWidth: 340, maxHeight: 340, objectFit: 'contain', borderRadius: 12 }}
+                className="product-detail-main-image"
                 onError={e => { e.target.src = '/images/default-product.jpg'; }}
               />
             </div>
@@ -279,8 +289,7 @@ const ProductDetailsPage = ({ darkMode }) => {
                     key={index}
                     src={img || '/images/default-product.jpg'}
                     alt={`${product.name} ${index + 1}`}
-                    className={`rounded ${selectedImage === index ? 'border border-primary' : ''}`}
-                    style={{ width: 48, height: 48, objectFit: 'cover', cursor: 'pointer' }}
+                    className={`product-detail-thumbnail ${selectedImage === index ? 'active' : ''}`}
                     onClick={() => setSelectedImage(index)}
                     onError={e => { e.target.src = '/images/default-product.jpg'; }}
                   />
@@ -290,7 +299,7 @@ const ProductDetailsPage = ({ darkMode }) => {
           </CCard>
         </CCol>
         <CCol md={6}>
-          <CCard className={`h-100 p-4${darkMode ? ' dark-card' : ''}`} style={darkMode ? { background: '#23232a', color: '#f3f4f6', border: '1px solid #33343b' } : {}}>
+          <CCard className={`h-100 p-4`}>
             <CCardTitle className="fs-2 mb-2">{product.name}</CCardTitle>
             <div className="mb-2 text-muted">Category: {product.category?.name || 'No Category'}</div>
             <div className="mb-2 d-flex align-items-center gap-2">
@@ -336,16 +345,16 @@ const ProductDetailsPage = ({ darkMode }) => {
       {/* Yorumlar */}
       <CRow className="mt-4">
         <CCol md={8}>
-          <CCard className={`mb-4${darkMode ? ' dark-card' : ''}`} style={darkMode ? { background: '#23232a', color: '#f3f4f6', border: '1px solid #33343b' } : {}}>
+          <CCard className={`mb-4`}>
             <CCardBody>
               <CCardTitle className="mb-3">User Reviews ({filteredReviews.length})</CCardTitle>
               <div className="mb-3">
-                <CButton color={darkMode ? 'dark' : 'secondary'} size="sm" onClick={() => setShowReviewForm(!showReviewForm)}>
+                <CButton color="secondary" size="sm" onClick={() => setShowReviewForm(!showReviewForm)}>
                   {showReviewForm ? 'Cancel' : 'Write a Review'}
                 </CButton>
               </div>
               {showReviewForm && (
-                <ReviewForm onSubmit={handleReviewSubmit} darkMode={darkMode} review={editingReview} />
+                <ReviewForm onSubmit={handleReviewSubmit} review={editingReview} />
               )}
               {filteredReviews && filteredReviews.length > 0 ? (
                 <div className="reviews-list">
@@ -353,7 +362,6 @@ const ProductDetailsPage = ({ darkMode }) => {
                     <ReviewItem
                       key={review.id}
                       review={review}
-                      darkMode={darkMode}
                       isOwn={isLoggedIn && review.userId === userId}
                       onEdit={handleReviewEdit}
                       onDelete={handleReviewDelete}
@@ -361,7 +369,7 @@ const ProductDetailsPage = ({ darkMode }) => {
                   ))}
                 </div>
               ) : (
-                <CAlert color={darkMode ? 'dark' : 'info'}>No reviews yet</CAlert>
+                <CAlert color="info">No reviews yet</CAlert>
               )}
             </CCardBody>
           </CCard>
@@ -369,18 +377,18 @@ const ProductDetailsPage = ({ darkMode }) => {
         {/* Benzer Ürünler */}
         <CCol md={4}>
           {relatedProducts && relatedProducts.length > 0 && (
-            <CCard className={`mb-4${darkMode ? ' dark-card' : ''}`} style={darkMode ? { background: '#23232a', color: '#f3f4f6', border: '1px solid #33343b' } : {}}>
+            <CCard className={`mb-4`}>
               <CCardBody>
                 <CCardTitle>Related Products</CCardTitle>
                 <CRow className="g-2">
                   {relatedProducts.map(product => (
                     <CCol xs={12} key={product.id}>
-                      <CCard className={`mb-2 p-2${darkMode ? ' dark-card' : ''}`} style={darkMode ? { background: '#23232a', color: '#f3f4f6', border: '1px solid #33343b' } : {}}>
+                      <CCard className={`mb-2 p-2`}>
                         <Link to={`/products/${product.id}`} className="d-flex align-items-center gap-2 text-decoration-none">
                           <img
                             src={product.imageUrl ? (product.imageUrl.startsWith('http') ? product.imageUrl : API_BASE + product.imageUrl) : '/images/default-product.jpg'}
                             alt={product.name}
-                            style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 8, background: darkMode ? '#18181b' : '#fff' }}
+                            className="related-product-image"
                             onError={e => { e.target.src = '/images/default-product.jpg'; }}
                           />
                           <div>

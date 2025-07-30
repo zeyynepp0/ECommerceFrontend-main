@@ -1,0 +1,296 @@
+/* Global Resim Stilleri - Tüm resimlerin belirli boyutlarda ve tam formatta görünmesi için */
+
+/* Genel resim container stilleri */
+.image-container {
+  position: relative;
+  overflow: hidden;
+  background: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Ürün kartlarındaki resimler */
+.product-card-image {
+  width: 100%;
+  height: 200px; /* Sabit yükseklik */
+  object-fit: contain; /* Tam format - resmin tamamını göster */
+  background: #ffffff;
+  transition: transform 0.3s ease;
+  border-radius: 8px 8px 0 0;
+}
+
+.product-card-image:hover {
+  transform: scale(1.05); /* Hover'da hafif zoom */
+}
+
+/* Kategori kartlarındaki resimler */
+.category-card-image {
+  width: 100%;
+  height: 160px; /* Sabit yükseklik */
+  object-fit: contain; /* Tam format */
+  background: #ffffff;
+  transition: transform 0.3s ease;
+  border-radius: 8px 8px 0 0;
+}
+
+.category-card-image:hover {
+  transform: scale(1.05);
+}
+
+/* Ürün detay sayfasındaki ana resim */
+.product-detail-main-image {
+  width: 100%;
+  max-width: 400px;
+  height: 400px; /* Sabit yükseklik */
+  object-fit: contain; /* Tam format */
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Ürün detay sayfasındaki küçük resimler (thumbnail) */
+.product-detail-thumbnail {
+  width: 60px;
+  height: 60px; /* Sabit boyut */
+  object-fit: contain; /* Tam format */
+  background: #ffffff;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.product-detail-thumbnail:hover {
+  transform: scale(1.1);
+  border-color: #007bff;
+}
+
+.product-detail-thumbnail.active {
+  border-color: #007bff;
+  transform: scale(1.1);
+}
+
+/* Admin panelindeki tablo resimleri */
+.admin-table-image {
+  width: 60px;
+  height: 60px; /* Sabit boyut */
+  object-fit: contain; /* Tam format */
+  background: #ffffff;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.admin-table-image:hover {
+  transform: scale(1.2);
+  z-index: 10;
+  position: relative;
+}
+
+/* Sepet sayfasındaki resimler */
+.cart-item-image {
+  width: 80px;
+  height: 80px; /* Sabit boyut */
+  object-fit: contain; /* Tam format */
+  background: #ffffff;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.cart-item-image:hover {
+  transform: scale(1.1);
+}
+
+/* Profil sayfasındaki favori ürün resimleri */
+.favorite-product-image {
+  width: 100%;
+  height: 140px; /* Sabit yükseklik */
+  object-fit: contain; /* Tam format */
+  background: #ffffff;
+  border-radius: 8px 8px 0 0;
+  transition: transform 0.3s ease;
+}
+
+.favorite-product-image:hover {
+  transform: scale(1.05);
+}
+
+/* İlgili ürünler bölümündeki resimler */
+.related-product-image {
+  width: 100%;
+  height: 120px; /* Sabit yükseklik */
+  object-fit: contain; /* Tam format */
+  background: #ffffff;
+  border-radius: 8px 8px 0 0;
+  transition: transform 0.3s ease;
+}
+
+.related-product-image:hover {
+  transform: scale(1.05);
+}
+
+/* Admin form sayfalarındaki mevcut resim önizlemeleri */
+.admin-form-preview-image {
+  width: 100px;
+  height: 100px; /* Sabit boyut */
+  object-fit: contain; /* Tam format */
+  background: #ffffff;
+  border-radius: 8px;
+  border: 2px solid #dee2e6;
+  margin-bottom: 10px;
+}
+
+/* Modal veya popup'ta büyütülmüş resimler */
+.modal-image {
+  width: 100%;
+  max-width: 600px;
+  height: 500px; /* Sabit yükseklik */
+  object-fit: contain; /* Tam format */
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* Responsive tasarım için medya sorguları */
+@media (max-width: 768px) {
+  .product-card-image {
+    height: 160px;
+  }
+  
+  .category-card-image {
+    height: 120px;
+  }
+  
+  .product-detail-main-image {
+    height: 300px;
+  }
+  
+  .product-detail-thumbnail {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .admin-table-image {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .cart-item-image {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .favorite-product-image {
+    height: 120px;
+  }
+  
+  .related-product-image {
+    height: 100px;
+  }
+}
+
+@media (max-width: 576px) {
+  .product-card-image {
+    height: 140px;
+  }
+  
+  .category-card-image {
+    height: 100px;
+  }
+  
+  .product-detail-main-image {
+    height: 250px;
+  }
+  
+  .product-detail-thumbnail {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .admin-table-image {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .cart-item-image {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .favorite-product-image {
+    height: 100px;
+  }
+  
+  .related-product-image {
+    height: 80px;
+  }
+}
+
+/* Resim yükleme animasyonu */
+.image-loading {
+  position: relative;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Resim hata durumu */
+.image-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+  color: #6c757d;
+  font-size: 0.875rem;
+  border: 1px dashed #dee2e6;
+}
+
+/* Zoom efekti için container */
+.zoom-container {
+  overflow: hidden;
+  position: relative;
+}
+
+.zoom-container img {
+  transition: transform 0.3s ease;
+}
+
+.zoom-container:hover img {
+  transform: scale(1.1);
+}
+
+/* Resim grid düzeni */
+.image-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+}
+
+.image-grid-item {
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.image-grid-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+.image-grid-item:hover img {
+  transform: scale(1.05);
+} 

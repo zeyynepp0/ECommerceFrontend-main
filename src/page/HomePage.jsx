@@ -1,3 +1,4 @@
+// Ana sayfa - Kategoriler, ürünler ve arama işlemleri
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FiSearch } from 'react-icons/fi';
@@ -12,14 +13,15 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 const API_BASE = "https://localhost:7098";
 
-const HomePage = ({ darkMode, setDarkMode }) => {
-  const { isLoggedIn, userId } = useSelector(state => state.user);
-  const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const navigate = useNavigate();
+const HomePage = () => {
+  // Ürün, kategori, arama ve yüklenme state'leri
+  const [products, setProducts] = useState([]); // Ürünler
+  const [categories, setCategories] = useState([]); // Kategoriler
+  const [searchQuery, setSearchQuery] = useState(''); // Arama sorgusu
+  const [loading, setLoading] = useState(true); // Yükleniyor mu?
+  const navigate = useNavigate(); // Sayfa yönlendirme
 
+  // Ürün ve kategori verilerini çek
   useEffect(() => {
     setLoading(true);
     const fetchData = async () => {
@@ -39,6 +41,7 @@ const HomePage = ({ darkMode, setDarkMode }) => {
     fetchData();
   }, []);
 
+  // Arama işlemi
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
@@ -46,10 +49,11 @@ const HomePage = ({ darkMode, setDarkMode }) => {
     }
   };
 
-  // Sadece ilk 8 kategori ve ilk 12 ürünü göster, sadece aktif ürünler
+  // Sadece ilk 8 kategori ve ilk 12 aktif ürünü göster
   const limitedCategories = categories.slice(0, 8);
   const limitedProducts = products.filter(p => p.isActive).slice(0, 12);
 
+  // Sayfa arayüzü
   return (
     <CContainer fluid className="py-4">
       {/* Hero Banner */}
@@ -97,7 +101,7 @@ const HomePage = ({ darkMode, setDarkMode }) => {
                     ? (category.image.startsWith('http') ? category.image : API_BASE + category.image)
                     : '/images/default-category.jpg')}
                 alt={category.name}
-                style={{ width: '100%', height: 140, objectFit: 'cover', background: '#fff' }}
+                className="category-card-image"
                 onError={e => { e.target.src = '/images/default-category.jpg'; }}
               />
               <CCardBody>
@@ -124,7 +128,6 @@ const HomePage = ({ darkMode, setDarkMode }) => {
               <ProductCard
                 product={{ ...product, imageUrl: product.imageUrl ? (product.imageUrl.startsWith('http') ? product.imageUrl : API_BASE + product.imageUrl) : '/images/default-product.jpg' }}
                 onFavoriteChange={() => {}}
-                darkMode={false}
               />
             </CCol>
           ))}

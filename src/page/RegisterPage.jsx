@@ -1,3 +1,4 @@
+// Kayıt olma sayfası - Kullanıcı kaydı ve form validasyonu
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { FiEye, FiEyeOff, FiUser, FiMail, FiLock, FiPhoneCall, FiCalendar, FiUserPlus } from 'react-icons/fi';
@@ -12,6 +13,7 @@ import {
   CCard, CCardBody, CCardHeader, CButton, CAlert, CSpinner
 } from '@coreui/react';
 
+// Kayıt formu validasyon şeması
 const RegisterSchema = Yup.object().shape({
   firstName: Yup.string()
     .matches(/^[a-zA-ZçÇğĞıİöÖşŞüÜ\s'-]+$/, 'Only letters and spaces allowed')
@@ -51,17 +53,20 @@ const RegisterSchema = Yup.object().shape({
 });
 
 const RegisterPage = () => {
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const today = new Date().toISOString().split('T')[0];
+  // State ve yardımcı fonksiyonlar
+  const [showPassword, setShowPassword] = useState(false); // Şifre görünürlüğü
+  const [error, setError] = useState(''); // Hata mesajı
+  const [isLoading, setIsLoading] = useState(false); // Yükleniyor mu?
+  const navigate = useNavigate(); // Sayfa yönlendirme
+  const dispatch = useDispatch(); // Redux dispatch
+  const today = new Date().toISOString().split('T')[0]; // Bugünün tarihi (max doğum tarihi için)
 
+  // Google ile giriş fonksiyonu (şu an pasif)
   const handleGoogleLogin = () => {
     // Google auth işlemi buraya entegre edilebilir
   };
 
+  // Sayfa arayüzü
   return (
     <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '100vh', background: '#f8f9fa' }}>
       <CCard style={{ minWidth: 380, maxWidth: 480, width: '100%', boxShadow: '0 10px 30px rgba(0,0,0,0.08)', background: '#fff', color: undefined, border: undefined }}>
@@ -70,11 +75,14 @@ const RegisterPage = () => {
           <div className="text-muted mb-2">Create a new account</div>
         </CCardHeader>
         <CCardBody>
+          {/* Hata mesajı */}
           {error && <CAlert color="danger" className="py-2 text-center">{error}</CAlert>}
+          {/* Google ile kayıt butonu */}
           <CButton color="light" className="w-100 mb-3 d-flex align-items-center justify-content-center gap-2 border" onClick={handleGoogleLogin} type="button">
             <FcGoogle size={20} /> <span>Register with Google</span>
           </CButton>
           <div className="text-center text-muted mb-3" style={{ fontSize: 14 }}>or</div>
+          {/* Formik ile form yönetimi */}
           <Formik
             initialValues={{
               firstName: '',
@@ -131,6 +139,7 @@ const RegisterPage = () => {
           >
             {({ isSubmitting }) => (
               <Form className="mb-2">
+                {/* Ad, soyad, e-posta, şifre, doğum tarihi, telefon alanları */}
                 <div className="mb-3 position-relative">
                   <FiUser className="position-absolute" style={{ left: 12, top: 14, opacity: 0.6 }} />
                   <Field type="text" name="firstName" placeholder="First Name" required className="form-control ps-5" />
@@ -164,12 +173,14 @@ const RegisterPage = () => {
                   <Field type="tel" name="phone" placeholder="Phone" required className="form-control ps-5" />
                   <ErrorMessage name="phone" component="div" className="text-danger small ms-1 mt-1" />
                 </div>
+                {/* Kayıt ol butonu */}
                 <CButton type="submit" color="primary" className="w-100 fw-bold" disabled={isLoading || isSubmitting}>
                   {isLoading ? <CSpinner size="sm" /> : 'Register'}
                 </CButton>
               </Form>
             )}
           </Formik>
+          {/* Girişe yönlendirme linki */}
           <div className="text-center mt-3">
             Already have an account?
             <Link to="/login" className="ms-1 fw-semibold" style={{ color: '#6366f1' }}>Login</Link>

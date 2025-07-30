@@ -1,3 +1,4 @@
+// Uygulamanın ana bileşeni - Tüm sayfa yönlendirmeleri burada yapılır
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 // import Header from './components/Header';
@@ -21,6 +22,7 @@ import ForgotPasswordPage from './page/ForgotPasswordPage';
 import ResetPasswordPage from './page/ResetPasswordPage';
 import VerifyEmailPage from './page/VerifyEmailPage';
 
+// API örnek axios instance (kullanılmıyor, gerekirse düzenlenebilir)
 const API = axios.create({
   baseURL: 'https://your-api-endpoint.com/api',
   timeout: 10000,
@@ -30,10 +32,10 @@ const API = axios.create({
 });
 
 function App() {
-  
-
+  // Uygulama arayüzü ve yönlendirme
   return (
-    <div className="default-theme">
+    <div>
+      {/* Sepet sağlayıcısı ile tüm uygulama sarmalanır */}
       <CartProvider>
         <Router>
           <Routes>

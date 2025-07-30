@@ -1,3 +1,4 @@
+// Admin paneli için route yapısı - Tüm admin sayfaları ortak layout ile sarmalanır
 import React from 'react';
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import DashboardPage from '../pages/DashboardPage';
@@ -21,12 +22,16 @@ import CampaignDetailPage from '../pages/CampaignDetailPage';
 
 // Açıklama: Admin paneli için nested route yapısı. Tüm admin sayfaları ortak layout ile sarmalanır.
 const AdminRoutes = () => {
+  // Kullanıcının rolünü localStorage'dan al
   const role = localStorage.getItem('role');
+  // Eğer admin değilse ana sayfaya yönlendir
   if (role !== 'Admin') {
     return <Navigate to="/" replace />;
   }
+  // Admin paneli route yapısı
   return (
     <Routes>
+      {/* Ortak admin layout'u ile sarmalanan route'lar */}
       <Route element={<AdminLayout />}>
         <Route index element={<DashboardPage />} />
         <Route path="users" element={<UsersPage />} />
@@ -46,6 +51,7 @@ const AdminRoutes = () => {
         <Route path="campaigns" element={<CampaignsPage />} />
         <Route path="campaigns/:id" element={<CampaignDetailPage />} />
       </Route>
+      {/* Tanımsız admin route'ları ana admin sayfasına yönlendir */}
       <Route path="*" element={<Navigate to="/admin" replace />} />
     </Routes>
   );

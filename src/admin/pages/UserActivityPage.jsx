@@ -1,3 +1,4 @@
+// Kullanıcı aktiviteleri sayfası - Kullanıcıların son sipariş, son yorum ve toplam aktiviteleri
 import React, { useEffect, useState } from 'react';
 import { apiGet } from '../../utils/api';
 import {
@@ -6,21 +7,28 @@ import {
 import { useNavigate } from 'react-router-dom';
 
 const UserActivityPage = () => {
+  // Aktivite verisi ve durum state'leri
   const [activity, setActivity] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  // Sayfa yönlendirme için hook
   const navigate = useNavigate();
+
+  // Sayfa yüklendiğinde kullanıcı aktivitelerini backend'den çek
   useEffect(() => {
     apiGet('https://localhost:7098/api/Admin/user-activity')
       .then(setActivity)
       .catch(() => setError('Activities could not be loaded.'))
       .finally(() => setLoading(false));
   }, []);
+
+  // Sayfa arayüzü
   return (
     <CContainer className="py-4">
       <CCard>
         <CCardBody>
           <CCardTitle>User Activities</CCardTitle>
+          {/* Yükleniyor/hata/aktivite tablosu */}
           {loading ? (
             <div className="d-flex justify-content-center align-items-center py-5"><CSpinner color="primary" /></div>
           ) : error ? (
@@ -40,6 +48,7 @@ const UserActivityPage = () => {
               <CTableBody>
                 {activity.map((item, i) => (
                   <CTableRow key={i}>
+                    {/* Kullanıcıya tıklanınca detay sayfasına git */}
                     <CTableDataCell style={{ color: '#0d6efd', textDecoration: 'underline', cursor: 'pointer' }} onClick={() => navigate(`/admin/users/${item.userId}`)}>{item.fullName}</CTableDataCell>
                     <CTableDataCell>{item.email}</CTableDataCell>
                     <CTableDataCell>{item.lastOrderDate ? new Date(item.lastOrderDate).toLocaleString() : 'None'}</CTableDataCell>

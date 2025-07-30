@@ -1,3 +1,4 @@
+// Giriş sayfası - Kullanıcı girişi ve form validasyonu
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { FiEye, FiEyeOff, FiMail, FiLock, FiLogIn } from 'react-icons/fi';
@@ -12,6 +13,7 @@ import {
   CCard, CCardBody, CCardHeader, CButton, CAlert, CSpinner
 } from '@coreui/react';
 
+// Giriş formu validasyon şeması
 const LoginSchema = Yup.object().shape({
   email: Yup.string()
     .email('Please enter a valid email address')
@@ -26,17 +28,20 @@ const LoginSchema = Yup.object().shape({
 });
 
 const LoginPage = () => {
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
-  const [info, setInfo] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
+  // State ve yardımcı fonksiyonlar
+  const [showPassword, setShowPassword] = useState(false); // Şifre görünürlüğü
+  const [error, setError] = useState(''); // Hata mesajı
+  const [info, setInfo] = useState(''); // Bilgi mesajı
+  const [isLoading, setIsLoading] = useState(false); // Yükleniyor mu?
+  const navigate = useNavigate(); // Sayfa yönlendirme
+  const dispatch = useDispatch(); // Redux dispatch
 
+  // Google ile giriş fonksiyonu (şu an pasif)
   const handleGoogleLogin = () => {
     // Google auth işlemi buraya entegre edilebilir
   };
 
+  // Sayfa arayüzü
   return (
     <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '100vh', background: '#f8f9fa' }}>
       <CCard style={{ minWidth: 380, maxWidth: 420, width: '100%', boxShadow: '0 10px 30px rgba(0,0,0,0.08)', background: '#fff', color: undefined, border: undefined }}>
@@ -45,12 +50,15 @@ const LoginPage = () => {
           <div className="text-muted mb-2">Sign in to your account</div>
         </CCardHeader>
         <CCardBody>
+          {/* Hata ve bilgi mesajları */}
           {error && <CAlert color="danger" className="py-2 text-center">{error}</CAlert>}
           {info && <CAlert color="info" className="py-2 text-center">{info}</CAlert>}
+          {/* Google ile giriş butonu */}
           <CButton color="light" className="w-100 mb-3 d-flex align-items-center justify-content-center gap-2 border" onClick={handleGoogleLogin} type="button">
             <FcGoogle size={20} /> <span>Sign in with Google</span>
           </CButton>
           <div className="text-center text-muted mb-3" style={{ fontSize: 14 }}>or</div>
+          {/* Formik ile form yönetimi */}
           <Formik
             initialValues={{ email: '', password: '' }}
             validationSchema={LoginSchema}
@@ -134,11 +142,13 @@ const LoginPage = () => {
           >
             {({ isSubmitting }) => (
               <Form className="mb-2">
+                {/* E-posta inputu */}
                 <div className="mb-3 position-relative">
                   <FiMail className="position-absolute" style={{ left: 12, top: 14, opacity: 0.6 }} />
                   <Field type="email" name="email" placeholder="Email" autoComplete="username" required className="form-control ps-5" />
                   <ErrorMessage name="email" component="div" className="text-danger small ms-1 mt-1" />
                 </div>
+                {/* Şifre inputu ve göster/gizle butonu */}
                 <div className="mb-3 position-relative">
                   <FiLock className="position-absolute" style={{ left: 12, top: 14, opacity: 0.6 }} />
                   <Field type={showPassword ? 'text' : 'password'} name="password" placeholder="Password" autoComplete="current-password" required className="form-control ps-5" />
@@ -147,18 +157,20 @@ const LoginPage = () => {
                   </CButton>
                   <ErrorMessage name="password" component="div" className="text-danger small ms-1 mt-1" />
                 </div>
+                {/* Giriş yap butonu */}
                 <CButton type="submit" color="primary" className="w-100 fw-bold" disabled={isLoading || isSubmitting}>
                   {isLoading ? <CSpinner size="sm" /> : 'Login'}
                 </CButton>
               </Form>
             )}
           </Formik>
+          {/* Kayıt ve şifremi unuttum linkleri */}
           <div className="text-center mt-3">
             Don't have an account?
             <Link to="/register" className="ms-1 fw-semibold" style={{ color: '#6366f1' }}>Register</Link>
           </div>
           <div className="text-center mt-2">
-            <Link to="/forgot-password" className="fw-semibold" style={{ color: '#6366f1', fontSize: 14 }}>Şifremi Unuttum?</Link>
+            <Link to="/forgot-password" className="fw-semibold" style={{ color: '#6366f1', fontSize: 14 }}>Forgot My Password?</Link>
           </div>
         </CCardBody>
       </CCard>

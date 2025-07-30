@@ -1,3 +1,4 @@
+// Profil sayfası - Kullanıcı bilgileri, adresler, favoriler ve siparişler
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useSelector, useDispatch } from 'react-redux';
@@ -13,6 +14,7 @@ import { FiUser, FiMapPin, FiHeart, FiShoppingBag, FiPlus, FiTrash2, FiEdit2, Fi
 import '@coreui/coreui/dist/css/coreui.min.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+// Sipariş admin durumu için badge
 const adminStatusBadge = (status) => {
   switch (status) {
     case 'Completed':
@@ -30,30 +32,31 @@ const adminStatusBadge = (status) => {
 };
 
 const ProfilePage = () => {
-  const { userId, isLoggedIn } = useSelector(state => state.user);
-  const { userId: routeUserId } = useParams();
-  const navigate = useNavigate();
-  const userIdFromContext = userId || routeUserId;
-  const [user, setUser] = useState(null);
-  const [addresses, setAddresses] = useState([]);
-  const [favorites, setFavorites] = useState([]);
-  const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [searchParams] = useSearchParams();
-  const tabFromUrl = searchParams.get('tab');
-  const [activeTab, setActiveTab] = useState(tabFromUrl || 'profile');
-  const { favorites: contextFavorites } = useSelector(state => state.favorite);
+  // State ve yardımcı fonksiyonlar
+  const { userId, isLoggedIn } = useSelector(state => state.user); // Kullanıcı bilgisi
+  const { userId: routeUserId } = useParams(); // URL'den userId
+  const navigate = useNavigate(); // Sayfa yönlendirme
+  const userIdFromContext = userId || routeUserId; // Kullanıcı id'si
+  const [user, setUser] = useState(null); // Kullanıcı detayları
+  const [addresses, setAddresses] = useState([]); // Adresler
+  const [favorites, setFavorites] = useState([]); // Favoriler
+  const [orders, setOrders] = useState([]); // Siparişler
+  const [loading, setLoading] = useState(true); // Yükleniyor mu?
+  const [searchParams] = useSearchParams(); // URL parametreleri
+  const tabFromUrl = searchParams.get('tab'); // Aktif tab
+  const [activeTab, setActiveTab] = useState(tabFromUrl || 'profile'); // Aktif tab state
+  const { favorites: contextFavorites } = useSelector(state => state.favorite); // Redux favoriler
   const dispatch = useDispatch();
-  const [favoriteProducts, setFavoriteProducts] = useState([]);
-  const [showPassword, setShowPassword] = useState(false);
+  const [favoriteProducts, setFavoriteProducts] = useState([]); // Favori ürünler detay
+  const [showPassword, setShowPassword] = useState(false); // Şifre göster/gizle
   const API_BASE = "https://localhost:7098";
 
   const FAVORITES_PAGE_SIZE = 8;
   const ADDRESSES_PAGE_SIZE = 8;
 
-  const [favoritesPage, setFavoritesPage] = useState(1);
-  const [addressesPage, setAddressesPage] = useState(1);
-  const [orderStatusFilter, setOrderStatusFilter] = useState('All');
+  const [favoritesPage, setFavoritesPage] = useState(1); // Favorilerde sayfa
+  const [addressesPage, setAddressesPage] = useState(1); // Adreslerde sayfa
+  const [orderStatusFilter, setOrderStatusFilter] = useState('All'); // Sipariş filtre
   const ORDER_STATUS_OPTIONS = [
     { value: 'All', label: 'All' },
     { value: 'Pending Approval', label: 'Pending Approval' },
@@ -66,6 +69,7 @@ const ProfilePage = () => {
     { value: 'Returned', label: 'Returned' },
   ];
 
+  // Kullanıcı, adres ve sipariş verilerini çek
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token || !userIdFromContext) {
@@ -96,10 +100,12 @@ const ProfilePage = () => {
     fetchData();
   }, [userIdFromContext, navigate, dispatch]);
 
+  // Tab değişiminde aktif tabı güncelle
   useEffect(() => {
     setActiveTab(tabFromUrl || 'profile');
   }, [tabFromUrl]);
 
+  // Favori ürünlerin detaylarını çek
   useEffect(() => {
     const fetchFavoriteProducts = async () => {
       if (!contextFavorites || contextFavorites.length === 0) {
@@ -127,10 +133,12 @@ const ProfilePage = () => {
     fetchFavoriteProducts();
   }, [contextFavorites]);
 
+  // Kullanıcı formu değiştiğinde state güncelle
   const handleUserChange = (e) => {
     setUser({ ...user, [e.target.name]: e.target.value });
   };
 
+  // Kullanıcı bilgilerini kaydet
   const saveUser = async () => {
     try {
       await axios.put(`https://localhost:7098/api/User`, user, {
@@ -142,12 +150,14 @@ const ProfilePage = () => {
     }
   };
 
+  // Adres formu değiştiğinde state güncelle
   const handleAddressChange = (index, field, value) => {
     const updated = [...addresses];
     updated[index][field] = value;
     setAddresses(updated);
   };
 
+  // Adres kaydet
   const saveAddress = async (address) => {
     const sanitizedAddress = {
       ...address,
@@ -167,6 +177,7 @@ const ProfilePage = () => {
     }
   };
 
+  // Adres sil
   const deleteAddress = async (id) => {
     try {
       await apiDelete(`https://localhost:7098/api/Address/${id}`);
@@ -177,6 +188,7 @@ const ProfilePage = () => {
     }
   };
 
+  // Yeni boş adres ekle
   const addEmptyAddress = () => {
     setAddresses([
       ...addresses,
@@ -196,16 +208,18 @@ const ProfilePage = () => {
     ]);
   };
 
+  // Favori ürünü kaldır
   const handleRemoveFavorite = (productId) => {
     dispatch(removeFavorite(productId));
   };
 
+  // Profil formu validasyon şeması
   const ProfileSchema = Yup.object().shape({
     firstName: Yup.string().min(2, 'First name must be at least 2 characters').required('First name is required'),
     lastName: Yup.string().min(2, 'Last name must be at least 2 characters').required('Last name is required'),
     email: Yup.string().email('Please enter a valid email address').required('Email is required'),
     phone: Yup.string()
-      .matches(/^(\t0|0)?\d{10}$/, 'Invalid phone number. Enter 10 digits without leading 0 or +90.')
+      .matches(/^(	0|0)?\d{10}$/, 'Invalid phone number. Enter 10 digits without leading 0 or +90.')
       .required('Phone number is required'),
   });
 
@@ -231,13 +245,14 @@ const ProfilePage = () => {
       'Kargoya Verildi': { color: 'primary', text: 'Shipped' },
       'Teslim Edildi': { color: 'success', text: 'Delivered' },
       'İptal Edildi': { color: 'danger', text: 'Cancelled' },
-      'İade Talebi': { color: 'dark', text: 'Return Requested' },
+      'İade Talebi': { color: 'secondary', text: 'Return Requested' }, // 'dark' yerine 'secondary' kullanıldı
       'İade Edildi': { color: 'success', text: 'Returned' },
     };
     const s = map[statusText] || { color: 'secondary', text: statusText };
     return <CBadge color={s.color} className="ms-2">{s.text}</CBadge>;
   };
-  // Sipariş aksiyonları
+
+  // Sipariş aksiyonları (iptal, iade, takip)
   const handleCancelOrder = async (orderId) => {
     if (!window.confirm('Are you sure you want to cancel this order?')) return;
     try {
@@ -249,7 +264,7 @@ const ProfilePage = () => {
     }
   };
   const handleReturnOrder = async (orderId) => {
-    console.log('Return Order clicked', orderId);
+    // console.log('Return Order clicked', orderId); // Gereksiz log kaldırıldı
     if (!window.confirm('Are you sure you want to return this order?')) return;
     try {
       await apiPost(`https://localhost:7098/api/Order/${orderId}/return`);
@@ -263,6 +278,7 @@ const ProfilePage = () => {
     window.open(`/kargo-takip/${orderId}`, '_blank');
   };
 
+  // Sayfa arayüzü
   return (
     <CContainer fluid className="py-4" style={{ background: '#fff', color: '#333' }}>
       <CRow>
@@ -487,7 +503,7 @@ const ProfilePage = () => {
                               <img
                                 src={product.imageUrl}
                                 alt={product.name}
-                                style={{ width: '100%', height: 140, objectFit: 'cover', borderTopLeftRadius: 8, borderTopRightRadius: 8, background: '#fff' }}
+                                className="favorite-product-image"
                                 onError={e => { e.target.src = '/images/default-product.jpg'; }}
                               />
                               <CCardBody>

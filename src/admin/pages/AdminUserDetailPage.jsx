@@ -1,3 +1,4 @@
+// Admin kullanıcı detay sayfası - Kullanıcı bilgileri, adresler, sepet, siparişler ve favoriler
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { apiGet, apiPut, apiPost, apiDelete } from '../../utils/api';
@@ -19,8 +20,11 @@ function normalizeIsActive(val) {
 }
 
 const AdminUserDetailPage = () => {
+  // URL'den kullanıcı id'sini al
   const { id } = useParams();
+  // Sayfa yönlendirme için hook
   const navigate = useNavigate();
+  // Kullanıcı, adres, sepet, sipariş, favori ve diğer state'ler
   const [user, setUser] = useState(null);
   const [addresses, setAddresses] = useState([]);
   const [cart, setCart] = useState([]);
@@ -34,16 +38,17 @@ const AdminUserDetailPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [profileError, setProfileError] = useState('');
   const [allUsers, setAllUsers] = useState([]);
-
   // Favori ve sepet ürün detaylarını getir
   const [favoriteProducts, setFavoriteProducts] = useState([]);
   const [cartProducts, setCartProducts] = useState([]);
 
+  // Kullanıcı, adres, sipariş, favori ve sepet verilerini backend'den çek
   useEffect(() => {
     const fetchAll = async () => {
       setLoading(true);
       setError('');
       try {
+        // Kullanıcı, adres ve sipariş verilerini paralel çek
         const [userRes, addressRes, orderRes] = await Promise.all([
           apiGet(`${API_BASE}/api/User/${id}`),
           apiGet(`${API_BASE}/api/Address/user/${id}`),
@@ -52,16 +57,16 @@ const AdminUserDetailPage = () => {
         setUser(userRes && userRes.id ? { ...userRes, password: userRes.passwordHash || '', isActive: normalizeIsActive(userRes.isActive) } : { id, fullName: 'Bilinmiyor', email: '-', role: '-', phone: '-', isActive: true, password: '' });
         setAddresses(addressRes || []);
         setOrders(orderRes || []);
+        // Favori ürünleri çek
         let favs = [];
         try {
           favs = await apiGet(`${API_BASE}/api/Favorite/user/${id}`);
           setFavorites(favs || []);
         } catch { setFavorites([]); }
-        // Sepet ürünlerini CartPage.jsx'deki gibi çek
+        // Sepet ürünlerini çek ve detaylarını getir
         let cartArr = [];
         try {
           cartArr = await apiGet(`${API_BASE}/api/CartItem/user/${id}`);
-          // Her ürün için detay çek
           if (cartArr && cartArr.length > 0) {
             const cartDetails = await Promise.all(cartArr.map(async item => {
               try {
@@ -90,11 +95,9 @@ const AdminUserDetailPage = () => {
         } else {
           setFavoriteProducts([]);
         }
-        // Kullanıcıların tamamını çek (email/telefon benzersizliği için)
+        // Tüm kullanıcıları çek (email/telefon benzersizliği için)
         apiGet('https://localhost:7098/api/Admin/users')
           .then(data => {
-            console.log('API kullanıcı verisi:', data);
-            data.forEach((u, i) => console.log(`Kullanıcı ${i}:`, u)); // <-- Her kullanıcıyı detaylı yazdırır
             setAllUsers((data || []).map(u => ({
               ...u,
               isActive:
@@ -121,7 +124,7 @@ const AdminUserDetailPage = () => {
     fetchAll();
   }, [id]);
 
-  // Profil güncelleme
+  // Profil güncelleme validasyonu ve işlemi
   const ProfileSchema = Yup.object().shape({
     firstName: Yup.string()
       .matches(/^[a-zA-ZçÇğĞıİöÖşŞüÜ\s'-]+$/, 'Sadece harf ve boşluk giriniz')
@@ -135,14 +138,18 @@ const AdminUserDetailPage = () => {
       .email('Geçerli bir e-posta giriniz')
       .required('E-posta gereklidir'),
     phone: Yup.string()
-      .matches(/^[0-9]{10}$/, 'Telefon numarası 10 haneli olmalı (başında 0 veya +90 olmadan)')
+      .matches(/^(\+90|0)?[0-9]{10}$/, 'Telefon numarası geçerli formatta olmalı (örn: 05551234567 veya +905551234567)')
       .required('Telefon gereklidir'),
     password: Yup.string()
-      .min(8, 'Şifre en az 8 karakter olmalı')
-      .matches(/[A-Z]/, 'En az bir büyük harf olmalı')
-      .matches(/[a-z]/, 'En az bir küçük harf olmalı')
-      .matches(/[0-9]/, 'En az bir rakam olmalı')
-      .matches(/[^A-Za-z0-9]/, 'En az bir özel karakter olmalı'),
+      .test('password-validation', 'Şifre en az 8 karakter olmalı ve en az bir büyük harf, bir küçük harf, bir rakam ve bir özel karakter içermelidir', function(value) {
+        if (!value || value === '') return true; // Boş şifre alanı geçerli
+        if (value.length < 8) return false;
+        if (!/[A-Z]/.test(value)) return false;
+        if (!/[a-z]/.test(value)) return false;
+        if (!/[0-9]/.test(value)) return false;
+        if (!/[^A-Za-z0-9]/.test(value)) return false;
+        return true;
+      }),
     birthDate: Yup.date()
       .max(new Date(), 'Doğum tarihi ileri bir tarih olamaz')
       .test('age', '18 yaşından büyük olmalısınız', function(value) {
@@ -157,7 +164,10 @@ const AdminUserDetailPage = () => {
         return age >= 18;
       })
   });
+  // Profil güncelleme işlemi
   const handleProfileUpdate = async (values, { setSubmitting }) => {
+    console.log('Form submitted with values:', values);
+    console.log('Current user:', user);
     setProfileError('');
     // Email ve telefon başka kullanıcıda var mı kontrol et
     const emailExists = allUsers.some(u => u.email === values.email && String(u.id) !== String(user.id));
@@ -173,7 +183,7 @@ const AdminUserDetailPage = () => {
       return;
     }
     try {
-      // Şifre alanı boşsa eski şifreyi kullan
+      // Şifre alanı boşsa eski şifreyi kullan, doluysa yeni şifreyi kullan
       const updatePayload = {
         id: Number(user.id),
         firstName: values.firstName,
@@ -182,22 +192,40 @@ const AdminUserDetailPage = () => {
         phone: values.phone,
         role: (user.role === 1 || user.role === 'Admin') ? 'Admin' : 'User',
         birthDate: user.birthDate || new Date().toISOString(),
-        ...(values.password
-          ? { password: values.password, passwordHash: '' }
-          : { passwordHash: user.password || '' }),
         isActive: normalizeIsActive(user.isActive)
       };
+
+      // Şifre alanı doluysa yeni şifreyi ekle, boşsa mevcut şifreyi koru
+      if (values.password && values.password.trim() !== '') {
+        updatePayload.password = values.password;
+        updatePayload.passwordHash = '';
+      } else {
+        updatePayload.passwordHash = user.passwordHash || user.password || '';
+      }
+
+      console.log('Sending update payload:', updatePayload);
       await apiPut(`${API_BASE}/api/User`, updatePayload);
-      setUser({ ...user, ...values, password: updatePayload.password, isActive: normalizeIsActive(updatePayload.isActive) });
+      
+      // Kullanıcı state'ini güncelle
+      const updatedUser = { 
+        ...user, 
+        firstName: values.firstName,
+        lastName: values.lastName,
+        email: values.email,
+        phone: values.phone,
+        password: values.password && values.password.trim() !== '' ? values.password : user.password
+      };
+      setUser(updatedUser);
       alert('User information updated!');
-    } catch {
-      setProfileError('Update failed.');
+    } catch (error) {
+      console.error('Update error:', error);
+      setProfileError('Update failed. Please try again.');
     } finally {
       setSubmitting(false);
     }
   };
 
-  // Adres ekle/düzenle/sil
+  // Adres ekle/düzenle/sil işlemleri
   const handleAddressSave = async (address, isNew) => {
     try {
       if (isNew) {
@@ -223,10 +251,12 @@ const AdminUserDetailPage = () => {
     }
   };
 
+  // Yükleniyor veya hata durumları
   if (loading) return <div className="d-flex justify-content-center align-items-center py-5"><CSpinner color="primary" /></div>;
   if (error) return <CAlert color="danger">{error}</CAlert>;
   if (!user) return <CAlert color="warning">User not found.</CAlert>;
 
+  // Sayfa arayüzü
   return (
     <CContainer className="py-4">
       <CCard className="mb-4">
@@ -257,6 +287,7 @@ const AdminUserDetailPage = () => {
                 </CNavItem>
               </CNav>
               <CTabContent className="mt-4">
+                {/* Profil sekmesi */}
                 <CTabPane visible={activeTab === 0}>
                   <CCard className="mb-3">
                     <CCardBody>
@@ -286,8 +317,8 @@ const AdminUserDetailPage = () => {
                       <Formik
                         enableReinitialize
                         initialValues={{
-                          firstName: user.firstName || '',
-                          lastName: user.lastName || '',
+                          firstName: user.firstName || user.fullName?.split(' ')[0] || '',
+                          lastName: user.lastName || user.fullName?.split(' ').slice(1).join(' ') || '',
                           email: user.email || '',
                           phone: user.phone || '',
                           password: ''
@@ -301,24 +332,24 @@ const AdminUserDetailPage = () => {
                             <CRow className="mb-3">
                               <CCol md={6}>
                                 <CFormLabel>First Name</CFormLabel>
-                                <Field as={CFormInput} name="firstName" value={values.firstName} onChange={handleChange} />
+                                <Field as={CFormInput} name="firstName" />
                                 <ErrorMessage name="firstName" component="div" className="text-danger small" />
                               </CCol>
                               <CCol md={6}>
                                 <CFormLabel>Last Name</CFormLabel>
-                                <Field as={CFormInput} name="lastName" value={values.lastName} onChange={handleChange} />
+                                <Field as={CFormInput} name="lastName" />
                                 <ErrorMessage name="lastName" component="div" className="text-danger small" />
                               </CCol>
                             </CRow>
                             <CRow className="mb-3">
                               <CCol md={6}>
                                 <CFormLabel>Email</CFormLabel>
-                                <Field as={CFormInput} name="email" type="email" value={values.email} onChange={handleChange} />
+                                <Field as={CFormInput} name="email" type="email" />
                                 <ErrorMessage name="email" component="div" className="text-danger small" />
                               </CCol>
                               <CCol md={6}>
                                 <CFormLabel>Phone</CFormLabel>
-                                <Field as={CFormInput} name="phone" type="tel" value={values.phone} onChange={handleChange} />
+                                <Field as={CFormInput} name="phone" type="tel" placeholder="05551234567" />
                                 <ErrorMessage name="phone" component="div" className="text-danger small" />
                               </CCol>
                             </CRow>
@@ -326,14 +357,20 @@ const AdminUserDetailPage = () => {
                               <CCol md={6}>
                                 <CFormLabel>Password (fill to change)</CFormLabel>
                                 <div style={{ position: 'relative' }}>
-                                  <Field as={CFormInput} name="password" type={showPassword ? 'text' : 'password'} value={values.password} onChange={handleChange} autoComplete="new-password" />
+                                  <Field as={CFormInput} name="password" type={showPassword ? 'text' : 'password'} autoComplete="new-password" />
                                   <span style={{ position: 'absolute', right: 10, top: 8, cursor: 'pointer' }} onClick={() => setShowPassword(v => !v)}>
                                     {showPassword ? <FiEyeOff /> : <FiEye />}
                                   </span>
                                 </div>
+                                <ErrorMessage name="password" component="div" className="text-danger small" />
                               </CCol>
                             </CRow>
-                            <CButton type="submit" color="primary" disabled={isSubmitting}>
+                            <CButton 
+                              type="submit" 
+                              color="primary" 
+                              disabled={isSubmitting}
+                              onClick={() => console.log('Button clicked!')}
+                            >
                               {isSubmitting ? 'Saving...' : 'Update My Information'}
                             </CButton>
                           </Form>
@@ -342,6 +379,7 @@ const AdminUserDetailPage = () => {
                     </CCardBody>
                   </CCard>
                 </CTabPane>
+                {/* Adresler sekmesi */}
                 <CTabPane visible={activeTab === 1}>
                   <div className="d-flex justify-content-between align-items-center mb-3">
                     <CCardTitle>Addresses</CCardTitle>
@@ -440,6 +478,7 @@ const AdminUserDetailPage = () => {
                     </CCard>
                   )}
                 </CTabPane>
+                {/* Sepet sekmesi */}
                 <CTabPane visible={activeTab === 2}>
                   {cartProducts.length === 0 ? <div className="text-muted">Cart is empty.</div> : (
                     <CRow className="g-3">
@@ -461,6 +500,7 @@ const AdminUserDetailPage = () => {
                     </CRow>
                   )}
                 </CTabPane>
+                {/* Siparişler sekmesi */}
                 <CTabPane visible={activeTab === 3}>
                   {orders.length === 0 ? <div className="text-muted">No orders found.</div> : (
                     <CTable hover responsive bordered align="middle">
@@ -485,6 +525,7 @@ const AdminUserDetailPage = () => {
                     </CTable>
                   )}
                 </CTabPane>
+                {/* Favoriler sekmesi */}
                 <CTabPane visible={activeTab === 4}>
                   {favoriteProducts.length === 0 ? <div className="text-muted">No favorite products.</div> : (
                     <CRow className="g-3">

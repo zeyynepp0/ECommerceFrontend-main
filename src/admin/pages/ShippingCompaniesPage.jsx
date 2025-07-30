@@ -1,3 +1,4 @@
+// Kargo şirketleri yönetim sayfası - Listeleme, ekleme, silme, aktif/pasif işlemleri
 import React, { useEffect, useState } from 'react';
 import { apiGet, apiPost, apiPut, apiDelete } from '../../utils/api';
 import {
@@ -7,6 +8,7 @@ import {
 const initialForm = { name: '', price: '', freeShippingLimit: '', isActive: true };
 
 const ShippingCompaniesPage = () => {
+  // Kargo şirketleri ve durum state'leri
   const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -14,8 +16,10 @@ const ShippingCompaniesPage = () => {
   const [form, setForm] = useState(initialForm);
   const [editId, setEditId] = useState(null);
   const [saving, setSaving] = useState(false);
+  // Filtreleme state'i (tümü/aktif/pasif)
   const [filter, setFilter] = useState('all'); // 'all', 'active', 'passive'
 
+  // Kargo şirketlerini backend'den çek
   const fetchCompanies = async () => {
     setLoading(true);
     setError('');
@@ -29,12 +33,17 @@ const ShippingCompaniesPage = () => {
     }
   };
 
+  // Sayfa yüklendiğinde şirketleri çek
   useEffect(() => { fetchCompanies(); }, []);
 
+  // Yeni şirket ekleme modalını aç
   const openAdd = () => { setForm(initialForm); setEditId(null); setModal(true); };
+  // Şirket düzenleme modalını aç
   const openEdit = (company) => { setForm({ ...company }); setEditId(company.id); setModal(true); };
+  // Modalı kapat
   const closeModal = () => { setModal(false); setForm(initialForm); setEditId(null); };
 
+  // Şirket ekle/güncelle işlemi
   const handleSave = async () => {
     setSaving(true);
     try {
@@ -52,6 +61,7 @@ const ShippingCompaniesPage = () => {
     }
   };
 
+  // Şirket silme işlemi
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this shipping company?')) return;
     setSaving(true);
@@ -65,6 +75,7 @@ const ShippingCompaniesPage = () => {
     }
   };
 
+  // Şirket aktif/pasif işlemi
   const handleToggleActive = async (company) => {
     setSaving(true);
     try {
@@ -77,24 +88,27 @@ const ShippingCompaniesPage = () => {
     }
   };
 
+  // Kargo şirketlerini filtrele (aktif/pasif/tümü)
   const filteredCompanies = companies.filter(company =>
     filter === 'all' ? true : filter === 'active' ? company.isActive : !company.isActive
   );
-
+  // Sayfa arayüzü
   return (
     <CContainer className="py-4">
       <CCard>
         <CCardBody>
           <div className="d-flex justify-content-between align-items-center mb-3">
-          <CCardTitle>Shipping Companies</CCardTitle>
-          <div >
-            <CButton color={filter === 'all' ? 'secondary' : 'light'} className="me-2" onClick={() => setFilter('all')}>All</CButton>
-            <CButton color={filter === 'active' ? 'success' : 'light'} className="me-2" onClick={() => setFilter('active')}>Show Active</CButton>
-            <CButton color={filter === 'passive' ? 'danger' : 'light'} onClick={() => setFilter('passive')}>Show Passive</CButton>
-          <CButton color="success" className="ms-3" onClick={openAdd}>+ Add New Shipping Company</CButton>
+            <CCardTitle>Shipping Companies</CCardTitle>
+            <div >
+              {/* Filtre butonları */}
+              <CButton color={filter === 'all' ? 'secondary' : 'light'} className="me-2" onClick={() => setFilter('all')}>All</CButton>
+              <CButton color={filter === 'active' ? 'success' : 'light'} className="me-2" onClick={() => setFilter('active')}>Show Active</CButton>
+              <CButton color={filter === 'passive' ? 'danger' : 'light'} onClick={() => setFilter('passive')}>Show Passive</CButton>
+              {/* Yeni şirket ekle butonu */}
+              <CButton color="success" className="ms-3" onClick={openAdd}>+ Add New Shipping Company</CButton>
+            </div>
           </div>
-          </div>
-          
+          {/* Yükleniyor/hata/şirket tablosu */}
           {loading ? (
             <div className="d-flex justify-content-center align-items-center py-5"><CSpinner color="primary" /></div>
           ) : error ? (
@@ -118,9 +132,11 @@ const ShippingCompaniesPage = () => {
                     <CTableDataCell>{company.name}</CTableDataCell>
                     <CTableDataCell>{company.price}</CTableDataCell>
                     <CTableDataCell>{company.freeShippingLimit}</CTableDataCell>
+                    {/* Aktif/pasif durumu */}
                     <CTableDataCell>
                       <span className={`badge ${company.isActive ? 'bg-success' : 'bg-danger'}`}>{company.isActive ? 'Active' : 'Passive'}</span>
                     </CTableDataCell>
+                    {/* İşlem butonları */}
                     <CTableDataCell>
                       <CButton
                         color={company.isActive ? 'warning' : 'success'}
@@ -134,6 +150,9 @@ const ShippingCompaniesPage = () => {
                       <CButton size="sm" color="info" variant="outline" onClick={() => openEdit(company)}>
                         Edit
                       </CButton>
+                      <CButton size="sm" color="danger" variant="outline" onClick={() => handleDelete(company.id)}>
+                        Delete
+                      </CButton>
                     </CTableDataCell>
                   </CTableRow>
                 ))}
@@ -142,6 +161,7 @@ const ShippingCompaniesPage = () => {
           )}
         </CCardBody>
       </CCard>
+      {/* Şirket ekle/düzenle modalı */}
       <CModal visible={modal} onClose={closeModal} backdrop="static">
         <CModalHeader onClose={closeModal}>{editId ? 'Edit Shipping Company' : 'Add New Shipping Company'}</CModalHeader>
         <CModalBody>
