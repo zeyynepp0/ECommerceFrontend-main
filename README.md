@@ -18,6 +18,8 @@ If you are developing a production application, we recommend using TypeScript wi
 <img width="1899" height="913" alt="Ekran görüntüsü 2025-07-30 101052" src="https://github.com/user-attachments/assets/613de44b-b5d1-434c-9c92-bb9c0886fd4f" />
 <img width="1912" height="913" alt="Ekran görüntüsü 2025-07-30 101034" src="https://github.com/user-attachments/assets/4d6b2838-f783-46d3-b273-c7ae73d2fcd6" />
 <img width="1918" height="910" alt="Ekran görüntüsü 2025-07-30 101223" src="https://github.com/user-attachments/assets/a5143cd0-c48b-47dc-b126-11aaee77319d" />
+<img width="1919" height="908" alt="Ekran görüntüsü 2025-08-01 103647" src="https://github.com/user-attachments/assets/5a29ca90-93c5-45c0-ac48-4b464e91ce9c" />
+
 <img width="1906" height="907" alt="Ekran görüntüsü 2025-07-30 101349" src="https://github.com/user-attachments/assets/c65f3323-9cec-466e-9811-fb578b0b7721" />
 <img width="1919" height="912" alt="Ekran görüntüsü 2025-07-30 101333" src="https://github.com/user-attachments/assets/7744a619-66c3-4487-b3e0-765d9d9bda37" />
 <img width="1919" height="913" alt="Ekran görüntüsü 2025-07-30 101315" src="https://github.com/user-attachments/assets/95cfcfc7-df9f-4dcd-81c2-43f8653e99d3" />
