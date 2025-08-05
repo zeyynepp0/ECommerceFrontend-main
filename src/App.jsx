@@ -23,13 +23,13 @@ import ResetPasswordPage from './page/ResetPasswordPage';
 import VerifyEmailPage from './page/VerifyEmailPage';
 
 // API örnek axios instance (kullanılmıyor, gerekirse düzenlenebilir)
-const API = axios.create({
+/* const API = axios.create({
   baseURL: 'https://your-api-endpoint.com/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json'
   }
-});
+}); */
 
 function App() {
   // Uygulama arayüzü ve yönlendirme

@@ -9,7 +9,7 @@ import { Link } from 'react-router-dom';
 
 // Form validasyon şeması
 const ForgotPasswordSchema = Yup.object().shape({
-  email: Yup.string().email('Geçerli bir e-posta giriniz').required('E-posta zorunludur'),
+  email: Yup.string().email('Please enter a valid email address').required('Email is required'),
 });
 
 const ForgotPasswordPage = () => {
@@ -24,8 +24,8 @@ const ForgotPasswordPage = () => {
     <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '100vh', background: '#f8f9fa' }}>
       <CCard style={{ minWidth: 380, maxWidth: 420, width: '100%', boxShadow: '0 10px 30px rgba(0,0,0,0.08)', background: '#fff' }}>
         <CCardHeader className="text-center bg-transparent border-0 pb-0">
-          <h3 className="fw-bold mb-1" style={{ color: '#6366f1' }}><FiKey /> Şifremi Unuttum</h3>
-          <div className="text-muted mb-2">E-posta adresinizi girin, sıfırlama bağlantısı gönderelim</div>
+          <h3 className="fw-bold mb-1" style={{ color: '#6366f1' }}><FiKey /> Forgot My Password</h3>
+          <div className="text-muted mb-2">Enter your email address and we'll send you a reset link</div>
         </CCardHeader>
         <CCardBody>
           {/* Başarı ve hata mesajları */}
@@ -42,7 +42,7 @@ const ForgotPasswordPage = () => {
               setToken('');
               try {
                 const res = await apiPost('https://localhost:7098/api/User/forgot-password', { email: values.email });
-                setSuccess(res.message || 'Sıfırlama bağlantısı e-posta adresinize gönderildi.');
+                setSuccess(res.message || 'A reset link has been sent to your email address.');
                 if (res.token) setToken(res.token); // Demo amaçlı token göster
               } catch (err) {
                 setError(parseApiError(err));

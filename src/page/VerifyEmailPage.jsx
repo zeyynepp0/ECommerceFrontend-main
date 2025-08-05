@@ -26,7 +26,7 @@ const VerifyEmailPage = () => {
       setMessage('');
       try {
         const res = await apiPost('https://localhost:7098/api/User/verify-email', { token });
-        setMessage(res.message || 'E-posta adresiniz başarıyla doğrulandı.');
+        setMessage(res.message || 'Your email address has been successfully verified.');
         setTimeout(() => navigate('/'), 2500);
       } catch (err) {
         setError(parseApiError(err));
@@ -46,12 +46,12 @@ const VerifyEmailPage = () => {
     <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '100vh', background: '#f8f9fa' }}>
       <CCard style={{ minWidth: 380, maxWidth: 420, width: '100%', boxShadow: '0 10px 30px rgba(0,0,0,0.08)', background: '#fff' }}>
         <CCardHeader className="text-center bg-transparent border-0 pb-0">
-          <h3 className="fw-bold mb-1" style={{ color: '#6366f1' }}>E-posta Doğrulama</h3>
+          <h3 className="fw-bold mb-1" style={{ color: '#6366f1' }}>Email Verification</h3>
         </CCardHeader>
         <CCardBody>
           {/* Yükleniyor, başarı ve hata mesajları */}
           {loading && <div className="text-center"><CSpinner color="primary" /></div>}
-          {message && <CAlert color="success" className="py-2 text-center">{message}<br />Anasayfaya yönlendiriliyorsunuz...</CAlert>}
+          {message && <CAlert color="success" className="py-2 text-center">{message}<br />You are being redirected to the Home Page...</CAlert>}
           {error && <CAlert color="danger" className="py-2 text-center">{error}</CAlert>}
         </CCardBody>
       </CCard>

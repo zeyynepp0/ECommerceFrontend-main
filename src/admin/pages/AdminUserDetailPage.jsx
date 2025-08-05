@@ -1,4 +1,4 @@
-// Admin kullanıcı detay sayfası - Kullanıcı bilgileri, adresler, sepet, siparişler ve favoriler
+// Admin user detail page - User information, addresses, cart, orders and favorites
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { apiGet, apiPut, apiPost, apiDelete } from '../../utils/api';
@@ -11,20 +11,20 @@ import { FiEye, FiEyeOff } from 'react-icons/fi';
 
 const API_BASE = "https://localhost:7098";
 
-// Kullanıcıdan gelen isActive değerini normalize eden yardımcı fonksiyon
+// Helper function to normalize isActive value from user
 function normalizeIsActive(val) {
   if (typeof val === 'boolean') return val;
   if (typeof val === 'string') return val === 'true' || val === 'True' || val === '1';
   if (typeof val === 'number') return val === 1;
-  return true; // default aktif
+  return true; // default active
 }
 
 const AdminUserDetailPage = () => {
-  // URL'den kullanıcı id'sini al
+  // Get user id from URL
   const { id } = useParams();
-  // Sayfa yönlendirme için hook
+  // Hook for page navigation
   const navigate = useNavigate();
-  // Kullanıcı, adres, sepet, sipariş, favori ve diğer state'ler
+  // User, address, cart, order, favorite and other states
   const [user, setUser] = useState(null);
   const [addresses, setAddresses] = useState([]);
   const [cart, setCart] = useState([]);
@@ -38,32 +38,32 @@ const AdminUserDetailPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [profileError, setProfileError] = useState('');
   const [allUsers, setAllUsers] = useState([]);
-  // Favori ve sepet ürün detaylarını getir
+  // Get favorite and cart product details
   const [favoriteProducts, setFavoriteProducts] = useState([]);
   const [cartProducts, setCartProducts] = useState([]);
 
-  // Kullanıcı, adres, sipariş, favori ve sepet verilerini backend'den çek
+  // Fetch user, address, order, favorite and cart data from backend
   useEffect(() => {
     const fetchAll = async () => {
       setLoading(true);
       setError('');
       try {
-        // Kullanıcı, adres ve sipariş verilerini paralel çek
+        // Fetch user, address and order data in parallel
         const [userRes, addressRes, orderRes] = await Promise.all([
           apiGet(`${API_BASE}/api/User/${id}`),
           apiGet(`${API_BASE}/api/Address/user/${id}`),
           apiGet(`${API_BASE}/api/Order/user/${id}`)
         ]);
-        setUser(userRes && userRes.id ? { ...userRes, password: userRes.passwordHash || '', isActive: normalizeIsActive(userRes.isActive) } : { id, fullName: 'Bilinmiyor', email: '-', role: '-', phone: '-', isActive: true, password: '' });
+        setUser(userRes && userRes.id ? { ...userRes, password: userRes.passwordHash || '', isActive: normalizeIsActive(userRes.isActive) } : { id, fullName: 'Unknown', email: '-', role: '-', phone: '-', isActive: true, password: '' });
         setAddresses(addressRes || []);
         setOrders(orderRes || []);
-        // Favori ürünleri çek
+        // Fetch favorite products
         let favs = [];
         try {
           favs = await apiGet(`${API_BASE}/api/Favorite/user/${id}`);
           setFavorites(favs || []);
         } catch { setFavorites([]); }
-        // Sepet ürünlerini çek ve detaylarını getir
+        // Fetch cart products and get their details
         let cartArr = [];
         try {
           cartArr = await apiGet(`${API_BASE}/api/CartItem/user/${id}`);
@@ -73,7 +73,7 @@ const AdminUserDetailPage = () => {
                 const prod = await apiGet(`${API_BASE}/api/Product/${item.productId}`);
                 return { ...prod, ...item };
               } catch {
-                return { id: item.productId, name: 'Ürün bulunamadı', imageUrl: '', price: 0, ...item };
+                return { id: item.productId, name: 'Product not found', imageUrl: '', price: 0, ...item };
               }
             }));
             setCartProducts(cartDetails);
@@ -81,21 +81,21 @@ const AdminUserDetailPage = () => {
             setCartProducts([]);
           }
         } catch { setCartProducts([]); }
-        // Favori ürün detayları
+        // Favorite product details
         if (favs && favs.length > 0) {
           const favDetails = await Promise.all(favs.map(async fav => {
             try {
               const prod = await apiGet(`${API_BASE}/api/Product/${fav.productId}`);
               return { ...prod, ...fav };
             } catch {
-              return { id: fav.productId, name: 'Ürün bulunamadı', imageUrl: '', price: 0 };
+              return { id: fav.productId, name: 'Product not found', imageUrl: '', price: 0 };
             }
           }));
           setFavoriteProducts(favDetails);
         } else {
           setFavoriteProducts([]);
         }
-        // Tüm kullanıcıları çek (email/telefon benzersizliği için)
+        // Fetch all users (for email/phone uniqueness)
         apiGet('https://localhost:7098/api/Admin/users')
           .then(data => {
             setAllUsers((data || []).map(u => ({
@@ -111,7 +111,7 @@ const AdminUserDetailPage = () => {
           .catch(() => {});
       } catch (err) {
         setError('User data could not be retrieved.');
-        setUser({ id, fullName: 'Bilinmiyor', email: '-', role: '-', phone: '-', isActive: true });
+        setUser({ id, fullName: 'Unknown', email: '-', role: '-', phone: '-', isActive: true });
         setAddresses([]);
         setOrders([]);
         setFavorites([]);
@@ -124,25 +124,25 @@ const AdminUserDetailPage = () => {
     fetchAll();
   }, [id]);
 
-  // Profil güncelleme validasyonu ve işlemi
+  // Profile update validation and process
   const ProfileSchema = Yup.object().shape({
     firstName: Yup.string()
-      .matches(/^[a-zA-ZçÇğĞıİöÖşŞüÜ\s'-]+$/, 'Sadece harf ve boşluk giriniz')
-      .min(2, 'En az 2 karakter olmalı')
-      .required('Adı gereklidir'),
+      .matches(/^[a-zA-ZçÇğĞıİöÖşŞüÜ\s'-]+$/, 'Only letters and spaces allowed')
+      .min(2, 'Must be at least 2 characters')
+      .required('First name is required'),
     lastName: Yup.string()
-      .matches(/^[a-zA-ZçÇğĞıİöÖşŞüÜ\s'-]+$/, 'Sadece harf ve boşluk giriniz')
-      .min(2, 'En az 2 karakter olmalı')
-      .required('Soyadı gereklidir'),
+      .matches(/^[a-zA-ZçÇğĞıİöÖşŞüÜ\s'-]+$/, 'Only letters and spaces allowed')
+      .min(2, 'Must be at least 2 characters')
+      .required('Last name is required'),
     email: Yup.string()
-      .email('Geçerli bir e-posta giriniz')
-      .required('E-posta gereklidir'),
+      .email('Please enter a valid email')
+      .required('Email is required'),
     phone: Yup.string()
-      .matches(/^(\+90|0)?[0-9]{10}$/, 'Telefon numarası geçerli formatta olmalı (örn: 05551234567 veya +905551234567)')
-      .required('Telefon gereklidir'),
+      .matches(/^(\+90|0)?[0-9]{10}$/, 'Phone number must be in valid format (e.g.: 05551234567 or +905551234567)')
+      .required('Phone is required'),
     password: Yup.string()
-      .test('password-validation', 'Şifre en az 8 karakter olmalı ve en az bir büyük harf, bir küçük harf, bir rakam ve bir özel karakter içermelidir', function(value) {
-        if (!value || value === '') return true; // Boş şifre alanı geçerli
+      .test('password-validation', 'Password must be at least 8 characters and contain at least one uppercase letter, one lowercase letter, one number and one special character', function(value) {
+        if (!value || value === '') return true; // Empty password field is valid
         if (value.length < 8) return false;
         if (!/[A-Z]/.test(value)) return false;
         if (!/[a-z]/.test(value)) return false;
@@ -151,8 +151,8 @@ const AdminUserDetailPage = () => {
         return true;
       }),
     birthDate: Yup.date()
-      .max(new Date(), 'Doğum tarihi ileri bir tarih olamaz')
-      .test('age', '18 yaşından büyük olmalısınız', function(value) {
+      .max(new Date(), 'Birth date cannot be in the future')
+      .test('age', 'Must be over 18 years old', function(value) {
         if (!value) return false;
         const today = new Date();
         const birthDate = new Date(value);
@@ -164,12 +164,12 @@ const AdminUserDetailPage = () => {
         return age >= 18;
       })
   });
-  // Profil güncelleme işlemi
+  // Profile update process
   const handleProfileUpdate = async (values, { setSubmitting }) => {
     console.log('Form submitted with values:', values);
     console.log('Current user:', user);
     setProfileError('');
-    // Email ve telefon başka kullanıcıda var mı kontrol et
+    // Check if email and phone exist in another user
     const emailExists = allUsers.some(u => u.email === values.email && String(u.id) !== String(user.id));
     const phoneExists = allUsers.some(u => u.phone === values.phone && String(u.id) !== String(user.id));
     if (emailExists) {
@@ -183,7 +183,7 @@ const AdminUserDetailPage = () => {
       return;
     }
     try {
-      // Şifre alanı boşsa eski şifreyi kullan, doluysa yeni şifreyi kullan
+      // Use old password if password field is empty, use new password if filled
       const updatePayload = {
         id: Number(user.id),
         firstName: values.firstName,
@@ -195,7 +195,7 @@ const AdminUserDetailPage = () => {
         isActive: normalizeIsActive(user.isActive)
       };
 
-      // Şifre alanı doluysa yeni şifreyi ekle, boşsa mevcut şifreyi koru
+      // Add new password if password field is filled, preserve existing password if empty
       if (values.password && values.password.trim() !== '') {
         updatePayload.password = values.password;
         updatePayload.passwordHash = '';
@@ -206,7 +206,7 @@ const AdminUserDetailPage = () => {
       console.log('Sending update payload:', updatePayload);
       await apiPut(`${API_BASE}/api/User`, updatePayload);
       
-      // Kullanıcı state'ini güncelle
+      // Update user state
       const updatedUser = { 
         ...user, 
         firstName: values.firstName,
@@ -225,7 +225,7 @@ const AdminUserDetailPage = () => {
     }
   };
 
-  // Adres ekle/düzenle/sil işlemleri
+  // Address add/edit/delete operations
   const handleAddressSave = async (address, isNew) => {
     try {
       if (isNew) {
@@ -251,12 +251,12 @@ const AdminUserDetailPage = () => {
     }
   };
 
-  // Yükleniyor veya hata durumları
+  // Loading or error states
   if (loading) return <div className="d-flex justify-content-center align-items-center py-5"><CSpinner color="primary" /></div>;
   if (error) return <CAlert color="danger">{error}</CAlert>;
   if (!user) return <CAlert color="warning">User not found.</CAlert>;
 
-  // Sayfa arayüzü
+  // Page interface
   return (
     <CContainer className="py-4">
       <CCard className="mb-4">
@@ -287,7 +287,7 @@ const AdminUserDetailPage = () => {
                 </CNavItem>
               </CNav>
               <CTabContent className="mt-4">
-                {/* Profil sekmesi */}
+                {/* Profile tab */}
                 <CTabPane visible={activeTab === 0}>
                   <CCard className="mb-3">
                     <CCardBody>
@@ -379,7 +379,7 @@ const AdminUserDetailPage = () => {
                     </CCardBody>
                   </CCard>
                 </CTabPane>
-                {/* Adresler sekmesi */}
+                {/* Addresses tab */}
                 <CTabPane visible={activeTab === 1}>
                   <div className="d-flex justify-content-between align-items-center mb-3">
                     <CCardTitle>Addresses</CCardTitle>
@@ -407,7 +407,7 @@ const AdminUserDetailPage = () => {
                       </CCol>
                     ))}
                   </CRow>
-                  {/* Adres ekle/düzenle formu */}
+                  {/* Address add/edit form */}
                   {(editingAddress || addingAddress) && (
                     <CCard className="mt-4">
                       <CCardBody>
@@ -478,7 +478,7 @@ const AdminUserDetailPage = () => {
                     </CCard>
                   )}
                 </CTabPane>
-                {/* Sepet sekmesi */}
+                {/* Cart tab */}
                 <CTabPane visible={activeTab === 2}>
                   {cartProducts.length === 0 ? <div className="text-muted">Cart is empty.</div> : (
                     <CRow className="g-3">
@@ -500,7 +500,7 @@ const AdminUserDetailPage = () => {
                     </CRow>
                   )}
                 </CTabPane>
-                {/* Siparişler sekmesi */}
+                {/* Orders tab */}
                 <CTabPane visible={activeTab === 3}>
                   {orders.length === 0 ? <div className="text-muted">No orders found.</div> : (
                     <CTable hover responsive bordered align="middle">
@@ -525,7 +525,7 @@ const AdminUserDetailPage = () => {
                     </CTable>
                   )}
                 </CTabPane>
-                {/* Favoriler sekmesi */}
+                {/* Favorites tab */}
                 <CTabPane visible={activeTab === 4}>
                   {favoriteProducts.length === 0 ? <div className="text-muted">No favorite products.</div> : (
                     <CRow className="g-3">
